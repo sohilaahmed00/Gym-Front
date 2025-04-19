@@ -1,0 +1,22 @@
+.exercisesPage {
+  min-height: 100vh;
+  /* padding-top: 80px; Space for navbar */
+  background-color: white;
+}
+
+:global(.btn-orange) {
+  background-color: #FF5722 !important;
+  color: white !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+}
+
+:global(.btn-orange:hover) {
+  background-color: #f4511e !important;
+  transform: translateY(-2px) !important;
+}
+
+:global(.hover-orange:hover) {
+  background-color: #FF5722 !important;
+  color: white !important;
+} 
