@@ -1,0 +1,14 @@
+.sidebar {
+  background-color: rgb(206, 43, 43);
+  color: #333;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar .active-link {
+  color: #fd5c28;
+  font-weight: bold;
+}
+
+.sidebar .subscriber-item:hover {
+  background-color: #f3f3f3;
+}
