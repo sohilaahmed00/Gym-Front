@@ -15,6 +15,10 @@ import ProductDetails from '../ProductDetails/ProductDetails';
 import Checkout from '../Checkout/Checkout';
 import MasterLayout from '../MasterLayout/MasterLayout';
 import NotFound from '../NotFound/NotFound';
+import CoachDashboard from '../../coach/CoashDashboard';
+import CoachStats from '../../coach/pages/CoachStats';
+import ExpiredSubscribers from '../../coach/pages/ExpiredSubscribers';
+import SubscriberDetails from '../../coach/pages/SubscriberDetails';
 
 
 const routes = createBrowserRouter([
@@ -31,6 +35,16 @@ const routes = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'exercises', element: <Exercises /> },
+    ],
+  },
+  {
+    path: '/coach',
+    element: <CoachDashboard />,
+    children: [
+      { index: true, element: <CoachStats /> },
+      { path: 'expired', element: <ExpiredSubscribers /> },
+
+      { path: 'subscriber/:id', element: <SubscriberDetails /> },
     ],
   },
 ]);
