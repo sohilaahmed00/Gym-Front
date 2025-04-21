@@ -1,0 +1,222 @@
+.coachesPage {
+  width: 100%;
+  padding: 0;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  color: #333;
+}
+
+.pageTitle {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #fff;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.pageTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: #FF5722;
+  border-radius: 2px;
+}
+
+.pageTitle h1 {
+  font-size: 3rem;
+  color: #333;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.pageTitle p {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.searchSection {
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  padding: 0 2rem;
+}
+
+.searchBar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #FF5722;
+  box-shadow: 0 0 0 3px rgba(255,87,34,0.1);
+}
+
+.filterOptions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filterGroup select {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filterGroup select:focus {
+  outline: none;
+  border-color: #FF5722;
+  box-shadow: 0 0 0 3px rgba(255,87,34,0.1);
+}
+
+.coachesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+.coachCard {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  border: 2px solid #e0e0e0;
+}
+
+.coachCard:hover {
+  transform: translateY(-5px);
+  border-color: #FF5722;
+  box-shadow: 0 5px 15px rgba(255,87,34,0.1);
+}
+
+.coachImage {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.coachInfo {
+  padding: 1.5rem;
+}
+
+.coachName {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+}
+
+.coachSpecialization {
+  color: #FF5722;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: rgba(255,87,34,0.1);
+  border-radius: 20px;
+}
+
+.coachBio {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.star {
+  color: #FF5722;
+  font-size: 1.1rem;
+}
+
+.viewProfileBtn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: #FF5722;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  text-align: center;
+  border: 2px solid #FF5722;
+}
+
+.viewProfileBtn:hover {
+  background: transparent;
+  color: #FF5722;
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    padding: 3rem 1rem;
+  }
+
+  .pageTitle h1 {
+    font-size: 2.2rem;
+  }
+
+  .pageTitle p {
+    font-size: 1rem;
+  }
+
+  .searchSection {
+    padding: 0 1rem;
+  }
+
+  .coachesGrid {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 3rem;
+  }
+
+  .coachImage {
+    height: 200px;
+  }
+} 

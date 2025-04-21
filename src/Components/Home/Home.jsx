@@ -53,11 +53,10 @@ export default function Home() {
           <h1>
             TRANSFORM<br />
             YOUR LIFE<br />
-            WITH FITLIFE<br />
-            STUDIO
+            WITH GYMMATE
           </h1>
           <p>
-            Join FitLife Studio Today and Experience Expert Training,
+            Join GymMate Today and Experience Expert Training,
             Personalized Programs, and a Supportive Community to
             Achieve Your Fitness Goals.
           </p>

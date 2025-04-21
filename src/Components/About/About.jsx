@@ -19,9 +19,9 @@ export default function About() {
       >
         <div className={styles['hero-overlay']}></div>
         <div className={styles['hero-content']}>
-          <h1>Discover the Unique Qualities That Set FitLife Studio Apart</h1>
+          <h1>Discover the Unique Qualities That Set GymMate Apart</h1>
           <p className={styles['hero-text']}>
-            Learn How Our Commitment to Excellence, Innovative Programs, and Passionate Community Make FitLife
+            Learn How Our Commitment to Excellence, Innovative Programs, and Passionate Community Make GymMate
             Studio the Ultimate Destination for Your Fitness Journey.
           </p>
         </div>
@@ -31,9 +31,9 @@ export default function About() {
       <section className={styles['about-content']}>
         <div className={styles['about-grid']}>
           <div className={styles['about-text-container']}>
-            <h2>About FitLife Studio</h2>
+            <h2>About GymMate</h2>
             <p className={styles['about-text']}>
-              At FitLife Studio, we believe that fitness is more than just a routine, it's a way of life. 
+              At GymMate, we believe that fitness is more than just a routine, it's a way of life. 
               Founded with the mission to inspire and empower individuals on their fitness journeys, 
               we offer a comprehensive range of services tailored to meet the unique needs of each member. 
               Our state-of-the-art facility, expert trainers, and vibrant community create an environment 
@@ -53,7 +53,7 @@ export default function About() {
           <div className={styles['about-image-container']}>
             <img
               src={placeholderImage}
-              alt="Fitness equipment at FitLife Studio"
+              alt="Fitness equipment at GymMate"
               className={styles['about-image']}
             />
           </div>
