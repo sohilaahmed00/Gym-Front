@@ -1,0 +1,118 @@
+
+.heroSection {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: white;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #1a1a1a;
+    overflow: hidden;
+  }
+  
+  
+  .heroContent {
+    position: relative;
+    z-index: 2;
+    padding: 0 4rem;
+    text-align: left;
+    max-width: 600px;
+  }
+  
+  .heroContent h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+    font-style: italic;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .heroContent p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ffffff;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .heroButtons {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .getStartedButton {
+    background-color: #FF5722;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s;
+  }
+  
+  .getStartedButton:hover {
+    background-color: #f4511e;
+  }
+  
+  .heroImageContainer {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .heroImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  /* Remove the dark overlay */
+  .heroImageContainer::after {
+    display: none;
+  }
+  
+  @media (max-width: 1024px) {
+    .heroContent {
+      padding: 0 2rem;
+    }
+  
+    .heroContent h1 {
+      font-size: 3.5rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .heroContent {
+      padding: 2rem;
+      margin: 0;
+      text-align: left;
+      max-width: 100%;
+    }
+  
+    .heroContent h1 {
+      font-size: 3rem;
+    }
+  
+    .heroContent p {
+      margin-bottom: 2.5rem;
+    }
+  
+    .heroButtons {
+      justify-content: flex-start;
+    }
+  }
