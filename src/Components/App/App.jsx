@@ -19,6 +19,12 @@ import CoachDashboard from '../../coach/CoashDashboard';
 import CoachStats from '../../coach/pages/CoachStats';
 import ExpiredSubscribers from '../../coach/pages/ExpiredSubscribers';
 import SubscriberDetails from '../../coach/pages/SubscriberDetails';
+import ExpiredSubscriberDetails from '../../coach/pages/ExpiredSubscriberDetails';
+import UserDashboard from '../../UserProfile/UserDashboard';
+import UserHome from '../../UserProfile/pages/UserHome';
+import TrainingSchedule from '../../UserProfile/pages/TrainingSchedule';
+import DietPlan from '../../UserProfile/pages/DietPlan';
+
 import Coaches from '../Coaches/Coaches';
 import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
@@ -49,8 +55,22 @@ const routes = createBrowserRouter([
       { index: true, element: <CoachStats /> },
       { path: 'expired', element: <ExpiredSubscribers /> },
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
+      {
+        path: '/coach/expired/:id',
+        element: <ExpiredSubscriberDetails />
+      }
     ],
   },
+  {
+    path: '/user',
+    element: <UserDashboard />,
+    children: [
+      { index: true, element: <UserHome /> },
+      { path: 'schedule', element: <TrainingSchedule  /> },
+      { path: 'diet', element: <DietPlan /> },
+      // { path: 'chat', element: <ChatWithCoach /> },
+    ]
+  }
 ]);
 
 function App() {
