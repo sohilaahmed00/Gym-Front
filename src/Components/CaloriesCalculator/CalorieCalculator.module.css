@@ -198,7 +198,7 @@ select:focus {
 
 .infoSection {
   background: rgba(255, 255, 255, 0.9);
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 15px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 2.5rem;
@@ -208,28 +208,15 @@ select:focus {
 
 .infoSection h2 {
   color: #2c3e50;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.5rem;
   font-size: 1.6rem;
   text-align: left;
-  position: relative;
-  padding-bottom: 0.8rem;
-}
-
-.infoSection h2:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 60px;
-  height: 3px;
-  background: #FF5722;
-  border-radius: 2px;
 }
 
 .infoSection p {
   color: #34495e;
   line-height: 1.7;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.5rem;
   font-size: 1.05rem;
   text-align: left;
 }
@@ -238,16 +225,14 @@ select:focus {
   list-style: none;
   padding: 0;
   text-align: left;
-  margin: 0;
 }
 
 .infoSection ul li {
   color: #34495e;
-  margin-bottom: 1.2rem;
-  padding-left: 2rem;
+  margin-bottom: 1rem;
+  padding-left: 1.4rem;
   position: relative;
   font-size: 1.05rem;
-  line-height: 1.6;
 }
 
 .infoSection ul li:before {
@@ -255,9 +240,7 @@ select:focus {
   color: #FF5722;
   position: absolute;
   left: 0;
-  font-size: 1.8rem;
-  line-height: 1;
-  top: -0.2rem;
+  font-size: 1.4rem;
 }
 
 .contactSection {
