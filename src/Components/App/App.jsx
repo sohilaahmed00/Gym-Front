@@ -45,7 +45,7 @@ const routes = createBrowserRouter([
       { path: 'exercises', element: <Exercises /> },
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
-      { path: 'calories-calculator', element: <CalorieCalculator /> },
+      { path: 'calories-calculator', element: <CaloriesCalculator /> },
     ],
   },
   {
