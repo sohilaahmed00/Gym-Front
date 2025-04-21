@@ -14,7 +14,14 @@ const SubscriberDetails = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
-
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportForm, setReportForm] = useState({
+    commitment: '',
+    completed80: '',
+    chatEngagement: '',
+    notes: '',
+  });
+  
   // Open chat if state passed from notification
   useEffect(() => {
     if (location.state?.openChat) {
@@ -192,8 +199,16 @@ const SubscriberDetails = () => {
               <div><strong>🎯 Goal:</strong> {user.goal || 'Fat loss and muscle gain'}</div>
               <div><strong>⭐ Experience:</strong> {user.level || 'Beginner'}</div>
             </div>
+           
+
           </div>
         </div>
+        <button
+            className="btn btn-sm btn-outline-success"
+            onClick={() => setShowReportModal(true)}
+            >
+            ➕ Add Monthly Report
+            </button>
         <button
           className="btn btn-outline-warning rounded-pill px-4"
           onClick={() => setShowChat(!showChat)}
@@ -296,6 +311,102 @@ const SubscriberDetails = () => {
           </div>
         ))}
       </div>
+      {showReportModal && (
+  <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center">
+    <div className="bg-white p-4 rounded shadow" style={{ width: '450px' }}>
+      <h5 className="mb-3 text-orange">📝 Monthly Report</h5>
+
+      {/* السؤال 1 */}
+      <div className="mb-3">
+        <label className="form-label">Was the trainee committed?</label><br />
+        <div>
+          <label className="me-3">
+            <input type="radio" name="commitment" value="Yes"
+              checked={reportForm.commitment === 'Yes'}
+              onChange={(e) => setReportForm({ ...reportForm, commitment: e.target.value })}
+            /> Yes
+          </label>
+          <label>
+            <input type="radio" name="commitment" value="No"
+              checked={reportForm.commitment === 'No'}
+              onChange={(e) => setReportForm({ ...reportForm, commitment: e.target.value })}
+            /> No
+          </label>
+        </div>
+      </div>
+
+      {/* السؤال 2 */}
+      <div className="mb-3">
+        <label className="form-label">Did they complete at least 80% of their sessions?</label><br />
+        <div>
+          <label className="me-3">
+            <input type="radio" name="completed80" value="Yes"
+              checked={reportForm.completed80 === 'Yes'}
+              onChange={(e) => setReportForm({ ...reportForm, completed80: e.target.value })}
+            /> Yes
+          </label>
+          <label>
+            <input type="radio" name="completed80" value="No"
+              checked={reportForm.completed80 === 'No'}
+              onChange={(e) => setReportForm({ ...reportForm, completed80: e.target.value })}
+            /> No
+          </label>
+        </div>
+      </div>
+
+      {/* السؤال 3 */}
+      <div className="mb-3">
+        <label className="form-label">Was chat engagement consistent?</label><br />
+        <div>
+          <label className="me-3">
+            <input type="radio" name="chatEngagement" value="Yes"
+              checked={reportForm.chatEngagement === 'Yes'}
+              onChange={(e) => setReportForm({ ...reportForm, chatEngagement: e.target.value })}
+            /> Yes
+          </label>
+          <label>
+            <input type="radio" name="chatEngagement" value="No"
+              checked={reportForm.chatEngagement === 'No'}
+              onChange={(e) => setReportForm({ ...reportForm, chatEngagement: e.target.value })}
+            /> No
+          </label>
+        </div>
+      </div>
+
+      {/* الملاحظات */}
+      <div className="mb-3">
+        <label className="form-label">Additional Notes</label>
+        <textarea
+          className="form-control"
+          rows="3"
+          value={reportForm.notes}
+          onChange={(e) => setReportForm({ ...reportForm, notes: e.target.value })}
+        />
+      </div>
+
+      {/* أزرار */}
+      <div className="d-flex justify-content-end gap-2">
+        <button
+          className="btn btn-secondary"
+          onClick={() => setShowReportModal(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            localStorage.setItem(`monthly_report_${user.id}`, JSON.stringify(reportForm));
+            setShowReportModal(false);
+            alert('Report saved successfully ✅');
+          }}
+        >
+          💾 Save Report
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
