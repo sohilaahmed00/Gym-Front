@@ -1,138 +1,84 @@
-import React from 'react';
+import React, { useState } from 'react';
 import subscribers from '../data/subscribers.json';
+import { jsPDF } from 'jspdf';
+import { useNavigate } from 'react-router-dom';
 
 const ExpiredSubscribers = () => {
-  const expiredUsers = subscribers.filter((s) => s.status === 'expired');
+  const expired = subscribers.filter((s) => s.status === 'expired');
+  const [selected, setSelected] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const navigate = useNavigate();
 
-  const isReportEditable = (endDate) => {
-    const now = new Date();
-    const end = new Date(endDate);
-    const diffInDays = Math.floor((now - end) / (1000 * 60 * 60 * 24));
-    return diffInDays <= 7;
+  const generatePDF = (sub) => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Coach Report: ${sub.name}`, 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Plan: ${sub.plan}`, 20, 35);
+    doc.text(`Start Date: ${sub.startDate}`, 20, 45);
+    doc.text(`End Date: ${sub.endDate}`, 20, 55);
+    doc.text(`Progress: ${sub.progress || 'Not specified'}`, 20, 65);
+    doc.text(`Coach Rating: ${sub.coachRating || 'N/A'}`, 20, 75);
+    doc.text(`User Rating: ${sub.userRating || 'N/A'}`, 20, 85);
+    doc.text("Summary:", 20, 95);
+    doc.setFont("times", "italic");
+    doc.text(sub.reportSummary || "No summary provided yet.", 20, 105, { maxWidth: 170 });
+    doc.save(`${sub.name}_report.pdf`);
   };
 
   return (
-    <div className="container">
-      <h3 className="mb-4" style={{ color: '#fd5c28' }}>Expired Subscribers</h3>
+    <div className="container mt-4">
+      <h3 className="mb-4 text-orange fw-bold">📁 Expired Subscribers</h3>
 
-      {expiredUsers.map((user) => (
-        <div key={user.id} className="bg-white rounded shadow-sm mb-4 p-3">
-          {/* Basic Info */}
-          <div className="d-flex align-items-center mb-3">
-            <img src={user.image} alt={user.name} className="rounded-circle me-3" style={{ width: '60px', height: '60px' }} />
+      {expired.map((sub) => (
+        <div key={sub.id} className="bg-white rounded shadow-sm p-3 mb-4">
+          <div className="d-flex justify-content-between align-items-center">
             <div>
-              <h5 className="mb-0">{user.name}</h5>
-              <small className="text-muted">{user.plan}</small>
-              <p className="mb-1"><strong>Subscription:</strong> {user.startDate} → {user.endDate}</p>
-            </div>
-          </div>
-
-          {/* Progress + Ratings */}
-          <div className="row">
-            <div className="col-md-4 mb-3">
-              <h6>Progress</h6>
-              <div className="progress" style={{ height: '20px' }}>
-                <div className="progress-bar bg-success" style={{ width: `${user.progress || 80}%` }}>
-                  {user.progress || 80}%
-                </div>
-              </div>
+              <h5 className="fw-bold">{sub.name}</h5>
+              <p className="mb-1 text-muted">{sub.plan} • {sub.startDate} → {sub.endDate}</p>
+              <p className="mb-1">📊 Progress: <strong>{sub.progress}%</strong></p>
+              <p className="mb-1">⭐ User Rating: {sub.userRating || 'Not rated'} | 🏅 Coach Rating: {sub.coachRating || 'Not rated'}</p>
             </div>
 
-            <div className="col-md-4 mb-3">
-              <h6>Coach's Rating for User</h6>
-              <div style={{ color: '#fd5c28', fontSize: '1.2rem' }}>
-                {'★'.repeat(user.coachRating || 4)}{'☆'.repeat(5 - (user.coachRating || 4))}
-              </div>
-              <small className="text-muted">"Shows commitment but needs to improve timing."</small>
+            <div className="d-flex flex-column gap-2">
+              <button onClick={() => generatePDF(sub)} className="btn btn-outline-success btn-sm">
+                📥 Download Report
+              </button>
+              <button
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => navigate(`/coach/expired/${sub.id}`)}
+                >
+                👁️ View Details
+                </button>
+              <button onClick={() => setShowContactModal(true)} className="btn btn-outline-warning btn-sm">
+                📨 Contact Admin
+              </button>
             </div>
-
-            <div className="col-md-4 mb-3">
-              <h6>User's Rating for Coach</h6>
-              <div style={{ color: '#7b6ef6', fontSize: '1.2rem' }}>
-                {'★'.repeat(user.userRating || 5)}{'☆'.repeat(5 - (user.userRating || 5))}
-              </div>
-              <small className="text-muted">"Very supportive and motivating coach."</small>
-            </div>
-          </div>
-
-          {/* Final Report */}
-          <div className="mb-3">
-            <h6>Final Report (PDF)</h6>
-            {isReportEditable(user.endDate) ? (
-              <>
-                <textarea className="form-control mb-2" rows="4" defaultValue="User showed solid performance throughout the plan. Needs to stretch more."></textarea>
-                <button className="btn btn-sm btn-primary">Save PDF</button>
-              </>
-            ) : (
-              <div className="d-flex justify-content-between align-items-center">
-                <p className="mb-0 text-muted">Editing time has expired. PDF locked.</p>
-                <button className="btn btn-sm btn-outline-secondary">Download PDF</button>
-              </div>
-            )}
-          </div>
-
-          {/* Calendar View */}
-         {/* Calendar View */}
-<div className="mt-4">
-  <h6>Training Summary</h6>
-
-  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-    {
-      // نقسم الأسابيع إلى صفوف كل صف فيه 3 أسابيع
-      [...Array(12)].reduce((rows, _, index) => {
-        if (index % 3 === 0) rows.push([]);
-        rows[rows.length - 1].push(index);
-        return rows;
-      }, []).map((weekRow, rowIndex) => (
-        <div key={rowIndex} className="d-flex gap-3 mb-4">
-          {weekRow.map((weekIndex) => {
-            const weekStart = new Date(user.startDate);
-            weekStart.setDate(weekStart.getDate() + weekIndex * 7);
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
-            const completedDays = user.completedDays?.[weekIndex] || [];
-
-            return (
-              <div key={weekIndex} className="border rounded p-2 flex-fill" style={{ minWidth: '200px' }}>
-                <div className="fw-bold mb-2" style={{ fontSize: '0.9rem' }}>
-                  Week {weekIndex + 1}
-                  <br />
-                  <small className="text-muted">
-                    ({weekStart.toLocaleDateString()} - {weekEnd.toLocaleDateString()})
-                  </small>
-                </div>
-                <div className="d-flex gap-2">
-                  {[1, 2, 3].map((day) => (
-                    <div
-                      key={day}
-                      className="p-2 rounded text-center flex-fill"
-                      style={{
-                        backgroundColor: completedDays.includes(day) ? '#adb5bd' : '#e9ecef',
-                        color: completedDays.includes(day) ? 'white' : '#6c757d',
-                        opacity: 0.8,
-                        pointerEvents: 'none',
-                      }}
-                    >
-                      Day {day}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ))
-    }
-  </div>
-</div>
-
-
-          {/* Blocked Actions */}
-          <div className="alert alert-warning mt-3 mb-0">
-            This user's subscription has expired. You can't send messages or assign plans anymore.
           </div>
         </div>
       ))}
+
+      {/* Contact Admin Modal */}
+      {showContactModal && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center">
+          <div className="bg-white p-4 rounded shadow" style={{ width: '400px' }}>
+            <h5 className="mb-3">Contact Admin</h5>
+            <textarea rows="4" className="form-control mb-3" placeholder="Write your message..." />
+            <div className="d-flex justify-content-end gap-2">
+              <button onClick={() => setShowContactModal(false)} className="btn btn-secondary">Close</button>
+              <button className="btn btn-primary">Send</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Optional Selected Subscriber Details */}
+      {selected && (
+        <div className="bg-light p-3 rounded">
+          <h6>📋 Extra Info for {selected.name}</h6>
+          <p>{selected.reportSummary || 'No detailed summary available.'}</p>
+        </div>
+      )}
     </div>
   );
 };
