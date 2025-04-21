@@ -105,10 +105,29 @@ const CoachStats = () => {
           </div>
         </div>
         <div className="col-md-3">
-          <div className="bg-white p-3 rounded shadow-sm text-center" style={{ cursor: 'pointer' }} onClick={() => navigate('/coach/expired')}>
-            <h6>Expired Subscribers</h6>
-            <h3 className="text-danger">{expired.length}</h3>
-          </div>
+        <div
+  className="bg-white p-3 rounded shadow-sm text-center transition"
+  style={{
+    cursor: 'pointer',
+    border: '1px solid #fd5c28',
+    transition: 'all 0.3s ease',
+  }}
+  onClick={() => navigate('/coach/expired')}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.boxShadow = '0 4px 10px rgba(253, 92, 40, 0.2)';
+    e.currentTarget.style.transform = 'translateY(-3px)';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+    e.currentTarget.style.transform = 'translateY(0)';
+  }}
+>
+  <h6 className="fw-bold">
+    Expired Subscribers <span style={{ fontSize: '0.8rem' }}>👁️</span>
+  </h6>
+  <h3 className="text-danger">{expired.length}</h3>
+</div>
+
         </div>
         <div className="col-md-3">
           <div className="bg-white p-3 rounded shadow-sm text-center">

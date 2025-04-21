@@ -8,6 +8,9 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
+import 'primereact/resources/themes/saga-orange/theme.css';
+import 'primereact/resources/primereact.min.css'; 
+import 'primeicons/primeicons.css';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
