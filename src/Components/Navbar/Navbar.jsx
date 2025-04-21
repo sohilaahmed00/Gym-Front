@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../CartContext/CartContext'; // Import useCart to access the cart state
 import style from './Navbar.module.css';
 
@@ -12,9 +13,8 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm py-3">
       <div className="container-fluid px-4">
-        <Link className="navbar-brand d-flex align-items-center fw-bold" to="/">
-          <span style={{ color: '#ff5c1f', fontSize: '20px', marginRight: '5px' }}>🏋️‍♂️</span>
-          FitLife Studio
+        <Link to="/" className={style.brand}>
+          GymMate
         </Link>
 
         <button
@@ -49,6 +49,16 @@ export default function Navbar() {
             <li className="nav-item">
               <Link className="nav-link" to="/exercises">
                 Exercises
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/coaches">
+                Coaches
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/calories-calculator">
+                Calories Calculator
               </Link>
             </li>
             <li className="nav-item">
