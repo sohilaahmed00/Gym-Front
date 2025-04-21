@@ -1,51 +1,11 @@
 import React from 'react';
 import styles from './Home.module.css';
-import { Link } from 'react-router-dom';
-import heroImage from '../images/Home.png';
-import gym1 from '../images/Rectangle 30.png';
-import gym2 from '../images/Rectangle 31.png';
-import gym3 from '../images/Rectangle 32.png';
-import personalTraining from '../images/personal-training.png';
-import groupFitness from '../images/group-fitness.png';
-import nutrition from '../images/nutrition.png';
-import wellness from '../images/wellness.png';
-import cardio from '../images/cardio.png';
-import strength from '../images/strength.png';
+import HeroSection from './HeroSection/HeroSection';
+import WhyChooseUs from './WhyChooseUs/WhyChooseUs';
+import Services from './ServicesSection/ServicesSection';
+import PricingPlans from './PricingPlans/PricingPlans';
 
-export default function Home() {
-  const services = [
-    {
-      title: "Personal Training",
-      description: "Get customized workouts and one-on-one coaching from our expert trainers to achieve your specific fitness goals.",
-      image: personalTraining,
-    },
-    {
-      title: "Group Fitness Classes",
-      description: "Join our dynamic and motivating group classes, ranging from yoga to high-intensity interval training, designed for all fitness levels.",
-      image: groupFitness,
-    },
-    {
-      title: "Nutritional Guidance",
-      description: "Nutrition plans and advice from our certified nutritionists to complement your fitness routine and enhance your results.",
-      image: nutrition,
-    },
-    {
-      title: "Wellness Programs",
-      description: "Wellness programs that include stress management, mental well-being, and recovery techniques to support your overall health.",
-      image: wellness,
-    },
-    {
-      title: "Cardio Workouts",
-      description: "Boost your endurance and cardiovascular health with our variety of cardio classes and equipment, tailored to all fitness levels.",
-      image: cardio,
-    },
-    {
-      title: "Strength Training",
-      description: "Build muscle and increase strength with our structured strength training programs and state-of-the-art weightlifting equipment.",
-      image: strength,
-    }
-  ];
-
+const Home = () => {
   return (
     <div className={styles.home}>
       <section className={styles.heroSection}>
@@ -53,11 +13,10 @@ export default function Home() {
           <h1>
             TRANSFORM<br />
             YOUR LIFE<br />
-            WITH FITLIFE<br />
-            STUDIO
+            WITH GYMMATE
           </h1>
           <p>
-            Join FitLife Studio Today and Experience Expert Training,
+            Join GymMate Today and Experience Expert Training,
             Personalized Programs, and a Supportive Community to
             Achieve Your Fitness Goals.
           </p>
@@ -152,4 +111,6 @@ export default function Home() {
       </section>
     </div>
   );
-}
+};
+
+export default Home;
