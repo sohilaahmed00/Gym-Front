@@ -7,7 +7,7 @@ export default function Contacts() {
     <div className={styles.contactPage}>
       <div className={styles.contactContainer}>
         <div className={styles.formSection}>
-          <h1>Get in Touch with FitLife Studio</h1>
+          <h1>Get in Touch with GymMate</h1>
           <p>We're Here to Help You on Your Fitness Journey. Reach Out to Us with Any Questions or to Schedule a Visit!</p>
           
           <form className={styles.contactForm}>
