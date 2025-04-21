@@ -25,6 +25,9 @@ import UserHome from '../../UserProfile/pages/UserHome';
 import TrainingSchedule from '../../UserProfile/pages/TrainingSchedule';
 import DietPlan from '../../UserProfile/pages/DietPlan';
 
+import Coaches from '../Coaches/Coaches';
+import CoachProfile from '../CoachProfile/CoachProfile';
+import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 
 const routes = createBrowserRouter([
   {
@@ -40,6 +43,9 @@ const routes = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'exercises', element: <Exercises /> },
+      { path: 'coaches', element: <Coaches /> },
+      { path: 'coach/:id', element: <CoachProfile /> },
+      { path: 'calories-calculator', element: <CaloriesCalculator /> },
     ],
   },
   {
@@ -48,7 +54,6 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <CoachStats /> },
       { path: 'expired', element: <ExpiredSubscribers /> },
-
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
       {
         path: '/coach/expired/:id',
@@ -67,7 +72,6 @@ const routes = createBrowserRouter([
     ]
   }
 ]);
-
 
 function App() {
   return (
