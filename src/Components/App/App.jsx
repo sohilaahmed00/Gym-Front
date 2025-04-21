@@ -19,7 +19,9 @@ import CoachDashboard from '../../coach/CoashDashboard';
 import CoachStats from '../../coach/pages/CoachStats';
 import ExpiredSubscribers from '../../coach/pages/ExpiredSubscribers';
 import SubscriberDetails from '../../coach/pages/SubscriberDetails';
-
+import Coaches from '../Coaches/Coaches';
+import CoachProfile from '../CoachProfile/CoachProfile';
+import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 
 const routes = createBrowserRouter([
   {
@@ -35,6 +37,9 @@ const routes = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'exercises', element: <Exercises /> },
+      { path: 'coaches', element: <Coaches /> },
+      { path: 'coach/:id', element: <CoachProfile /> },
+      { path: 'calories-calculator', element: <CalorieCalculator /> },
     ],
   },
   {
@@ -43,12 +48,10 @@ const routes = createBrowserRouter([
     children: [
       { index: true, element: <CoachStats /> },
       { path: 'expired', element: <ExpiredSubscribers /> },
-
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
     ],
   },
 ]);
-
 
 function App() {
   return (
