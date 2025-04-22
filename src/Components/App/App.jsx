@@ -28,6 +28,8 @@ import DietPlan from '../../UserProfile/pages/DietPlan';
 import Coaches from '../Coaches/Coaches';
 import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
+import Register from '../Register/Register';
+import Login from '../Login/Login';
 
 const routes = createBrowserRouter([
   {
@@ -46,6 +48,8 @@ const routes = createBrowserRouter([
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
+      {path: 'sign-up', element: <Register />},
+      {path: 'login', element: <Login />},
     ],
   },
   {
