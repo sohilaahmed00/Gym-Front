@@ -85,6 +85,13 @@ export default function Navbar() {
           >
             Sign Up
           </Link>
+          <Link
+            className="btn text-white fw-bold px-4 rounded-pill"
+            to="/login"
+            style={{ backgroundColor: '#FF5722' }}
+          >
+            Log In
+          </Link>
         </div>
       </div>
     </nav>
