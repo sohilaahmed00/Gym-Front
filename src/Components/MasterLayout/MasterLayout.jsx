@@ -12,6 +12,12 @@ export default function MasterLayout() {
     <div className='text-center container'>
       <Outlet>  </Outlet>
     </div>
+    <style>
+      {
+        `.container{
+        margin-top:70px;}`
+      }
+    </style>
     <Footer/>
       </>
   )

@@ -8,6 +8,11 @@ import { useCart } from '../CartContext/CartContext'; // Import useCart to acces
 // import style from './Navbar.module.css';
 
 export default function Navbar() {
+  const { cart } = useCart(); // Get the cart from CartContext
+
+  // Calculate the total number of items in the cart
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+
     const [userRole, setUserRole] = useState('guest'); // 'guest' | 'user' | 'coach'
 
     const guestLinks = [
@@ -147,7 +152,7 @@ export default function Navbar() {
                             }}>
                                 <i className="fas fa-shopping-cart"></i>
                                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.7rem' }}>
-                                    0
+                                   {cartItemCount} {/* Display the dynamic cart item count */}
                                 </span>
                             </Link>
                         </div>
