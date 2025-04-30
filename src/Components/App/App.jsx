@@ -24,7 +24,6 @@ import UserDashboard from '../../UserProfile/UserDashboard';
 import UserHome from '../../UserProfile/pages/UserHome';
 import TrainingSchedule from '../../UserProfile/pages/TrainingSchedule';
 import DietPlan from '../../UserProfile/pages/DietPlan';
-
 import Coaches from '../Coaches/Coaches';
 import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
@@ -48,8 +47,8 @@ const routes = createBrowserRouter([
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
-      {path: 'sign-up', element: <Register />},
-      {path: 'login', element: <Login />},
+      { path: 'register', element: <Register />},
+      { path: 'login', element: <Login />},
     ],
   },
   {
