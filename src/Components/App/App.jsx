@@ -29,6 +29,7 @@ import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 import Register from '../Register/Register';
 import Login from '../Login/Login';
+import CoachSettings from '../../coach/pages/CoachSetting';
 import Payment from '../Payment/Payment';
 import Admin from '../../admin/Admin';
 import ManageCoaches from '../../admin/ManageCoaches';
@@ -85,7 +86,12 @@ const routes = createBrowserRouter([
       {
         path: '/coach/expired/:id',
         element: <ExpiredSubscriberDetails />
-      }
+      },
+      {
+       path: 'setting',
+       element: <CoachSettings /> 
+      },
+
     ],
   },
   {
@@ -95,10 +101,13 @@ const routes = createBrowserRouter([
       { index: true, element: <UserHome /> },
       { path: 'schedule', element: <TrainingSchedule  /> },
       { path: 'diet', element: <DietPlan /> },
+
       // { path: 'chat', element: <ChatWithCoach /> },
     ]
   }
 ]);
+
+
 
 function App() {
   return (

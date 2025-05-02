@@ -6,11 +6,19 @@ import Navbar from '../Navbar/Navbar'
 export default function MasterLayout() {
   return (
     <>
-      <Navbar/>
-      <div style={{ marginTop: '70px' }}>
-        <Outlet />
-      </div>
-      <Footer/>
-    </>
+    <Navbar/>
+    {/* <ClassComponent userName={this.state.userName}/> */}
+    {/* <FunctionComponent userName={this.state.userName} userAge={this.state.userAge}/> */}
+    <div className='text-center  container'>
+      <Outlet>  </Outlet>
+    </div>
+    <style>
+      {
+        `.container{
+        margin-top:70px;}`
+      }
+    </style>
+    <Footer/>
+      </>
   )
 }
