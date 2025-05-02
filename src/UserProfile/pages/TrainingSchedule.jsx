@@ -1,164 +1,184 @@
-import React, { useEffect, useState } from 'react';
-import { Dialog } from 'primereact/dialog';
-import { InputTextarea } from 'primereact/inputtextarea';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Toast } from 'primereact/toast';
 
-const TOTAL_WEEKS = 12;
-const DAYS_PER_WEEK = 3;
-const TOTAL_DAYS = TOTAL_WEEKS * DAYS_PER_WEEK;
+const TOTAL_DAYS = 30;
 
 const TrainingSchedule = () => {
+  const user = {
+    id: "user123",
+    startDate: "2025-01-01",
+    endDate: "2025-01-30",
+    trainingPlan: {
+      "2025-01-01": { mode: "Cardio", workout: "Running", diet: "High protein breakfast" },
+      "2025-01-02": { mode: "Weights", workout: "Squats", diet: "Oats and fruits" },
+      // Add all 30 days training plan here
+    },
+  };
+
   const [completedDays, setCompletedDays] = useState({});
-  const [feedbackWeek, setFeedbackWeek] = useState(null);
-  const [feedbackText, setFeedbackText] = useState('');
+  const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const toast = useRef(null);
 
-  // Load from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('user_training_schedule');
-    if (stored) setCompletedDays(JSON.parse(stored));
-  }, []);
+  const handleMarkDone = (date) => {
+    setCompletedDays((prev) => ({ ...prev, [date]: true }));
 
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem('user_training_schedule', JSON.stringify(completedDays));
-  }, [completedDays]);
-
-  const toggleDay = (weekIndex, day) => {
-    setCompletedDays((prev) => {
-      const week = prev[weekIndex] || [];
-      const newWeek = week.includes(day) ? week.filter((d) => d !== day) : [...week, day];
-      return { ...prev, [weekIndex]: newWeek };
-    });
+    // Show toast notification when Mark as Done is clicked
+    toast.current.show({ severity: 'success', summary: 'Success', detail: `Day ${date} marked as done!`, life: 3000 });
   };
 
-  const isWeekVisible = (index) => {
-    if (index === 0) return true;
-    const prev = completedDays[index - 1] || [];
-    return prev.length === DAYS_PER_WEEK;
-  };
-
-  const getProgress = () => {
-    let total = 0;
-    Object.values(completedDays).forEach((week) => {
-      total += week.length;
-    });
-    return Math.floor((total / TOTAL_DAYS) * 100);
-  };
-
-  const handleFeedback = (weekIndex) => {
-    setFeedbackWeek(weekIndex);
+  const handleOpenModal = (date) => {
+    setSelectedDay(date);
     setShowModal(true);
   };
 
-  const saveFeedback = () => {
-    console.log(`Feedback for week ${feedbackWeek + 1}:`, feedbackText);
-    setFeedbackText('');
+  const handleSaveFeedback = () => {
+    console.log('Feedback for', selectedDay, feedbackText);
     setShowModal(false);
+    setFeedbackText('');
   };
 
-  const weeks = Array.from({ length: TOTAL_WEEKS });
+  const generateDays = () => {
+    const startDate = new Date(user.startDate);
+    const endDate = new Date(user.endDate);
+    const days = [];
 
-  const groupWeeksInRows = () => {
-    return weeks.reduce((rows, _, index) => {
-      if (index % 3 === 0) rows.push([]);
-      rows[rows.length - 1].push(index);
-      return rows;
-    }, []);
+    for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+      const day = new Date(d);
+      days.push({
+        date: day.toISOString().split('T')[0],  // Format date as YYYY-MM-DD
+        label: `${day.toLocaleDateString()} (${day.toLocaleDateString('en-US', { weekday: 'long' })})`,
+      });
+    }
+
+    return days;
   };
+
+  const days = generateDays();
 
   return (
-    <div className="container">
-      <h3 className="mb-3" style={{ color: '#fd5c28' }}>📅 Your Training Schedule</h3>
+    <div className="container py-4">
+      <Toast ref={toast} /> {/* Toast component */}
+      <h3 className="mb-3" style={{ color: '#fd5c28', fontFamily: 'Poppins, sans-serif' }}>📅 Your Training Schedule</h3>
 
-      {/* Progress Bar */}
-      <div className="progress mb-4" style={{ height: '20px' }}>
-        <div
-          className="progress-bar"
-          role="progressbar"
-          style={{ width: `${getProgress()}%`, backgroundColor: '#fd5c28' }}
-        >
-          {getProgress()}%
-        </div>
-      </div>
-
-      <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-        {groupWeeksInRows().map((row, rowIndex) => (
-          <div key={rowIndex} className="d-flex gap-3 mb-4">
-            {row.map((weekIndex) => {
-              const days = completedDays[weekIndex] || [];
-              const isEnabled = isWeekVisible(weekIndex);
-              const isCompleted = days.length === DAYS_PER_WEEK;
-
-              return (
-                <div
-                  key={weekIndex}
-                  className="border rounded shadow-sm p-3 flex-fill"
-                  style={{ minWidth: '220px', background: isEnabled ? '#fff' : '#f1f1f1', opacity: isEnabled ? 1 : 0.5 }}
-                >
-                  <h6 className="mb-2 fw-bold">Week {weekIndex + 1}</h6>
-
-                  <div className="d-flex flex-column gap-2">
-                    {[1, 2, 3].map((day) => (
-                      <button
-                        key={day}
-                        disabled={!isEnabled}
-                        className={`btn btn-sm text-start ${days.includes(day) ? 'btn-success' : 'btn-outline-secondary'}`}
-                        onClick={() => toggleDay(weekIndex, day)}
-                      >
-                        ✅ Day {day}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="mt-2 text-muted small">
-                    Completed: {days.length}/{DAYS_PER_WEEK}
-                  </div>
-
-                  {/* Motivation */}
-                  {isCompleted && (
-                    <div className="alert alert-success mt-3 py-2 small text-center">
-                      🎉 Great job this week!
-                    </div>
-                  )}
-
-                  {/* Feedback Button */}
-                  {isCompleted && (
-                    <Button
-                      label="Give Feedback"
-                      className="btn btn-warning btn-sm w-100 mt-2"
-                      onClick={() => handleFeedback(weekIndex)}
-                    />
-                  )}
-                </div>
-              );
-            })}
+      {/* Display the calendar */}
+      <div className="d-flex flex-wrap gap-3">
+        {days.map((day, index) => (
+          <div key={index} className="card p-2 text-center shadow-sm" style={{ width: '180px' }}>
+            <strong>{day.label}</strong>
+            <Button
+              label="Mark as Done"
+              className="btn btn-sm mt-2"
+              style={{
+                backgroundColor: '#fd5c28',
+                color: '#fff',
+                border: 'none',
+                marginBottom: '8px',
+                padding: '8px',
+              }}
+              onClick={() => handleMarkDone(day.date)}
+              disabled={completedDays[day.date]}
+            />
+            <Button
+              label="View Plan"
+              className="btn btn-sm mt-2"
+              style={{
+                backgroundColor: '#28a745',
+                color: '#fff',
+                border: 'none',
+                padding: '8px',
+              }}
+              onClick={() => handleOpenModal(day.date)}
+            />
           </div>
         ))}
       </div>
 
-      {/* Feedback Modal */}
-      <Dialog
-        header={`  Feedback – Week ${feedbackWeek + 1}`}
-        visible={showModal}
-        style={{ width: '400px' }}
-        onHide={() => setShowModal(false)}
+      {/* Modal to view and provide feedback for the selected day */}
+      {showModal && (
+        <div
+          className="custom-modal"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#fff',
+            padding: '20px',
+            borderRadius: '10px',
+            boxShadow: '0 0 15px rgba(0, 0, 0, 0.1)',
+            zIndex: '1000',
+            width: '500px',
+          }}
         >
-  <div style={{ padding: '1rem' }}>
-    <p className="mb-3">How was your training experience this week?</p>
-    <InputTextarea
-      value={feedbackText}
-      onChange={(e) => setFeedbackText(e.target.value)}
-      rows={4}
-      className="w-100 mb-3 ps-2"
-      placeholder="Your comments..."
-    />
-    <div className="text-end">
-      <Button label="Submit" icon="pi pi-check" onClick={saveFeedback} className="btn btn-primary" />
-    </div>
-  </div>
-</Dialog>
+          <div style={{ marginBottom: '15px', fontSize: '1.25rem', color: '#fd5c28' }}>
+            <strong>Training and Diet Plan for {selectedDay}</strong>
+          </div>
+          <div>
+            <h5>Training Plan</h5>
+            <p>{user.trainingPlan[selectedDay]?.workout || 'No training plan available for this day.'}</p>
+            <h5>Diet Plan</h5>
+            <p>{user.trainingPlan[selectedDay]?.diet || 'No diet plan available for this day.'}</p>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="feedbackText" style={{ color: '#fd5c28' }}>Your Feedback</label>
+            <InputTextarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={4}
+              className="w-100 mb-3 ps-2"
+              placeholder="Provide your feedback on today's session"
+              style={{
+                backgroundColor: '#f8f9fa',
+                border: '1px solid #fd5c28',
+                borderRadius: '8px',
+                padding: '10px',
+                color: '#000',
+              }}
+            />
+          </div>
+          <div className="d-flex justify-content-between">
+            <Button
+              label="Cancel"
+              className="p-button-text"
+              style={{ color: '#fd5c28' }}
+              onClick={() => setShowModal(false)}
+            />
+            <Button
+              label="Submit Feedback"
+              icon="pi pi-check"
+              onClick={handleSaveFeedback}
+              className="btn btn-primary"
+              style={{
+                backgroundColor: '#fd5c28',
+                color: '#fff',
+                border: 'none',
+                padding: '10px',
+              }}
+            />
+          </div>
+        </div>
+      )}
 
+      {/* Modal Overlay */}
+      {showModal && (
+        <div
+          className="modal-overlay"
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: '999',
+          }}
+          onClick={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

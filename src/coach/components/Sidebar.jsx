@@ -170,6 +170,15 @@ const Sidebar = ({ onSubscriberSelect }) => {
             </div>
           ))
         )}
+         <NavLink
+        to="/coach/setting"
+        className="d-block mb-4 text-decoration-none fw-medium"
+        style={({ isActive }) => ({
+          color: isActive ? '#0d6efd' : '#333',
+        })}
+      >
+        <i className="bi bi-bar-setting me-2"></i>⚙️ Setting
+      </NavLink>
       </div>
     </div>
   );
