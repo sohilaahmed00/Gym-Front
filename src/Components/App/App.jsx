@@ -30,6 +30,15 @@ import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 import Register from '../Register/Register';
 import Login from '../Login/Login';
 import CoachSettings from '../../coach/pages/CoachSetting';
+import Payment from '../Payment/Payment';
+import Admin from '../../admin/Admin';
+import ManageCoaches from '../../admin/ManageCoaches';
+import ManageUsers from '../../admin/ManageUsers';
+import AdminLayout from '../../admin/AdminLayout';
+
+function Placeholder({ title }) {
+  return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
+}
 
 const routes = createBrowserRouter([
   {
@@ -50,6 +59,21 @@ const routes = createBrowserRouter([
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
       { path: 'register', element: <Register />},
       { path: 'login', element: <Login />},
+      { path: 'payment', element: <Payment />},
+      {
+        path: 'admin',
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Admin /> },
+          { path: 'coaches', element: <ManageCoaches /> },
+          { path: 'clients', element: <ManageUsers /> },
+          { path: 'products', element: <Placeholder title="Products" /> },
+          { path: 'subscriptions', element: <Placeholder title="Subscriptions" /> },
+          { path: 'orders', element: <Placeholder title="Orders" /> },
+          { path: 'reports', element: <Placeholder title="Reports" /> },
+          { path: 'settings', element: <Placeholder title="Settings" /> },
+        ]
+      },
     ],
   },
   {
