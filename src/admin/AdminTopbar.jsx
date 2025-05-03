@@ -27,7 +27,17 @@ export default function AdminTopbar() {
               width: '100%',
             }}
           />
-          <button className="btn btn-primary ms-2" style={{ borderRadius: '50%', width: 48, height: 48 }}>
+          <button 
+            className="btn" 
+            style={{ 
+              borderRadius: '50%', 
+              width: 48, 
+              height: 48,
+              backgroundColor: '#FF5722',
+              border: 'none',
+              color: 'white'
+            }}
+          >
             <i className="fas fa-search"></i>
           </button>
         </div>
