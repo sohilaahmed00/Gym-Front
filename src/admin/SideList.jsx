@@ -36,13 +36,18 @@ export default function SideList() {
             to={item.path}
             key={idx}
             className={({ isActive }) =>
-              "nav-link d-flex align-items-center gap-2 text-dark my-1 rounded px-3 py-2 hover-bg-light" +
-              (isActive ? " active bg-primary text-white" : "")
+              `nav-link d-flex align-items-center gap-2 my-1 rounded px-3 py-2 ${isActive ? 'active' : ''}`
             }
+            style={({ isActive }) => ({
+              width: '100%',
+              overflow: 'hidden',
+              backgroundColor: isActive ? '#FF5722' : 'transparent',
+              color: isActive ? 'white' : '#333',
+              transition: 'all 0.3s ease'
+            })}
             end={item.path === '/admin'}
-            style={{ width: '100%', overflow: 'hidden' }}
           >
-            <i className={item.icon}></i>
+            <i className={item.icon} style={{ color: 'inherit' }}></i>
             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
           </NavLink>
         ))}

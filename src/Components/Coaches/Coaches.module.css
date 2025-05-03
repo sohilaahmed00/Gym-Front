@@ -44,7 +44,7 @@
 .searchSection {
   max-width: 1200px;
   margin: 0 auto 3rem;
-  padding: 0 2rem;
+  padding: 0;
 }
 
 .searchBar {
@@ -109,7 +109,7 @@
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem 4rem;
+  padding: 0 0 4rem;
 }
 
 .coachCard {
