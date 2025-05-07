@@ -20,3 +20,18 @@
   background-color: #FF5722 !important;
   color: white !important;
 } 
+
+.badge{
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 10px;
+  text-align: center;
+  background-color: #FF5722; 
+  transition: background-color 0.2s ease;
+}
+.Box_border{
+  border-color: #FF5722;
+}

@@ -1,59 +1,25 @@
-import axios from 'axios';
-
-const API_KEY = '4cfdaaaf4fmshdd5f0776afd487ep104c12jsn37e82322264b';
-
-const exerciseOptions = {
-  method: 'GET',
-  headers: {
-    'X-RapidAPI-Key': API_KEY,
-    'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-  }
-};
-
-export const fetchExercises = async (bodyPart) => {
+export const fetchCategories = async () => {
   try {
-    console.log('Starting to fetch exercises for:', bodyPart);
-    console.log('Using API options:', exerciseOptions);
-    
-    const url = `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`;
-    console.log('Fetching from URL:', url);
-    
-    const response = await axios.get(url, exerciseOptions);
-    console.log('Received response:', response.status);
-    console.log('Response data:', response.data);
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      headers: error.response?.headers
-    });
+    const res = await fetch('http://gymmatehealth.runasp.net/api/Categories/GetAllCategories');
+    if (!res.ok) throw new Error('Failed to fetch categories');
+    const data = await res.json();
+    console.log('✅ Categories API response:', data);
+    return data;
+  } catch (err) {
+    console.error('❌ Error fetching categories:', err);
     return [];
   }
 };
 
-export const fetchBodyParts = async () => {
+export const fetchExercises = async () => {
   try {
-    console.log('Starting to fetch body parts');
-    console.log('Using API options:', exerciseOptions);
-    
-    const url = 'https://exercisedb.p.rapidapi.com/exercises/bodyPartList';
-    console.log('Fetching from URL:', url);
-    
-    const response = await axios.get(url, exerciseOptions);
-    console.log('Received response:', response.status);
-    console.log('Body parts data:', response.data);
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      headers: error.response?.headers
-    });
+    const res = await fetch('http://gymmatehealth.runasp.net/api/Exercises/GetAllExercises');
+    if (!res.ok) throw new Error('Failed to fetch exercises');
+    const data = await res.json();
+    console.log('✅ Exercises API response:', data);
+    return data;
+  } catch (err) {
+    console.error('❌ Error fetching exercises:', err);
     return [];
   }
-}; 
+};
