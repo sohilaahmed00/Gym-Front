@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import SideList from './SideList'
 import ManageCoaches from './ManageCoaches'
 import ManageUsers from './ManageUsers'
+import ManageProducts from './ManageProducts'
 
 const stats = [
   { title: 'Coaches', value: '12', color: 'primary', icon: 'fas fa-user-tie' },
@@ -41,6 +42,7 @@ function Admin() {
             {/* استدعاء كومبوننت إدارة الكوتشز */}
             <ManageCoaches />
             <ManageUsers/>
+            <ManageProducts/>
 
             {/* Chart and Side Box */}
             <div className="row g-3 mb-4">
