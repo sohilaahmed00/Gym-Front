@@ -35,6 +35,7 @@ import Admin from '../../admin/Admin';
 import ManageCoaches from '../../admin/ManageCoaches';
 import ManageUsers from '../../admin/ManageUsers';
 import AdminLayout from '../../admin/AdminLayout';
+import ManageProducts from '../../admin/ManageProducts';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -60,6 +61,7 @@ const routes = createBrowserRouter([
       { path: 'register', element: <Register />},
       { path: 'login', element: <Login />},
       { path: 'payment', element: <Payment />},
+
       {
         path: 'admin',
         element: <AdminLayout />,
@@ -67,7 +69,7 @@ const routes = createBrowserRouter([
           { index: true, element: <Admin /> },
           { path: 'coaches', element: <ManageCoaches /> },
           { path: 'clients', element: <ManageUsers /> },
-          { path: 'products', element: <Placeholder title="Products" /> },
+          { path: 'products', element:<ManageProducts /> },
           { path: 'subscriptions', element: <Placeholder title="Subscriptions" /> },
           { path: 'orders', element: <Placeholder title="Orders" /> },
           { path: 'reports', element: <Placeholder title="Reports" /> },
