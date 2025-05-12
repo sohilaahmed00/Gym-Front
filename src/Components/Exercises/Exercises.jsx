@@ -93,7 +93,6 @@ export default function Exercises() {
             </div>
           )}
 
-          {/* Category Buttons and Show All Exercises Button */}
           {!loading && !error && (
             <>
               <div className="d-flex flex-wrap justify-content-center gap-2 mb-5">
@@ -101,7 +100,7 @@ export default function Exercises() {
                   className={`btn ${
                     !selectedCategoryId ? 'btn-orange' : 'btn-light hover-orange'
                   } text-capitalize`}
-                  onClick={() => setSelectedCategoryId(null)} // Display all exercises
+                  onClick={() => setSelectedCategoryId(null)} 
                 >
                   All Exercises
                 </button>
@@ -154,7 +153,7 @@ export default function Exercises() {
                           {exercise.duration} seconds
                         </p>
 
-                        {/* Badge for burned calories */}
+                        
                         <span className={styles.badge}>
                           {exercise.calories_Burned} Calories Burned
                         </span>

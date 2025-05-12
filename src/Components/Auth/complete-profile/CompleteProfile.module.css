@@ -1,0 +1,125 @@
+.profileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+  }
+  
+  .title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .profileForm {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 45%;
+  }
+  
+  label {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .formControl {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .formControl:focus {
+    border-color: #ff6a00;
+    outline: none;
+  }
+  
+  .radioGroup {
+    display: flex;
+    gap: 20px; 
+    margin-top: 5px;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .radioLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 2px solid #ddd;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .radioInput {
+    display: none; 
+  }
+  
+  .radioText {
+    font-size: 11px;
+    color: #333;
+    font-weight: bold;
+  }
+ 
+  .radioLabel:hover {
+    background-color: #ff6a00; 
+    transform: scale(1.05); 
+  }
+  .radioLabel:hover .radioText{
+    color: white !important;
+  }
+  
+  .radioLabel.selected {
+    background-color: #ff6a00; 
+    color: white;
+    border-color: #ff6a00; 
+  }
+  
+  .radioLabel.selected .radioText {
+    color: white;
+  }
+  
+  
+  .submitBtn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6a00;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submitBtn:hover {
+    background-color: #e65c00;
+  }
+  
+  .errorText {
+    background-color: rgba(255, 0, 0, 0.1);  
+    color: #d9534f; 
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+    border: 1px solid #d9534f;  
+  }
