@@ -3,7 +3,6 @@ import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import './App.css';
-import Navbar from '../Navbar/Navbar';
 import Home from '../Home/Home';
 import About from '../About/About';
 import Contacts from '../Contacts/Contacts';
@@ -27,8 +26,6 @@ import DietPlan from '../../UserProfile/pages/DietPlan';
 import Coaches from '../Coaches/Coaches';
 import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
-import Register from '../Register/Register';
-import Login from '../Login/Login';
 import CoachSettings from '../../coach/pages/CoachSetting';
 import Payment from '../Payment/Payment';
 import Admin from '../../admin/Admin';
@@ -36,6 +33,15 @@ import ManageCoaches from '../../admin/ManageCoaches';
 import ManageUsers from '../../admin/ManageUsers';
 import AdminLayout from '../../admin/AdminLayout';
 import ManageProducts from '../../admin/ManageProducts';
+import Login from '../Auth/login/Login';
+import ConfirmMail from '../Auth/confirm-mail/ConfirmMail';
+import CompleteProfile from '../Auth/complete-profile/CompleteProfile';
+import Register from '../Auth/Register/Register';
+import ForgotPassword from '../Auth/forget-password/ForgetPassword';
+import EnterOtp from '../Auth/NewPassword-OTP/OTP-Page';
+import ResetPassword from '../Auth/reset-password/ResetPassword';
+
+import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -59,6 +65,11 @@ const routes = createBrowserRouter([
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
       { path: 'register', element: <Register />},
+      { path: 'confirm-mail', element: <ConfirmMail />},
+      { path: 'complete-profile', element: <CompleteProfile />},
+      {path:  '/forgot-password' ,element:<ForgotPassword /> },
+      { path: "/enter-otp" , element: <EnterOtp />},
+      { path: "/reset-password" , element: <ResetPassword />},
       { path: 'login', element: <Login />},
       { path: 'payment', element: <Payment />},
 
