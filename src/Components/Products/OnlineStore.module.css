@@ -1,0 +1,140 @@
+.card {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-img-top {
+    height: 200px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  
+  .cardBody {
+    padding: 15px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .text-muted {
+    color: #777;
+    font-size: 14px;
+  }
+  
+  .text-danger {
+    color: #ff5722 !important;
+  }
+  
+  .priceSection {
+    margin-bottom: 10px;
+  }
+  
+  .discountedPrice {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
+  }
+  
+  .price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #FF5722;
+  }
+  
+  .stockInfo {
+    margin-bottom: 15px;
+  }
+  
+  .stockBadge {
+    padding: 5px 15px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 20px;
+    color: white;
+    display: inline-block;
+  }
+  
+  .instock {
+    background-color: #28a745; /* Green for in stock */
+  }
+  
+  .lowstock {
+    background-color: #ffc107; /* Yellow for low stock */
+  }
+  
+  .outofstock {
+    background-color: #dc3545; 
+  }
+  
+  .stockQuantity {
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  .addToCartBtn {
+    background-color: #FF5722;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  
+  .addToCartBtn:hover {
+    background-color: #e64a19;
+  }
+  
+  .addToCartBtn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .viewCartBtn {
+    background-color: #FF5722;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  }
+  
+  .viewCartBtn:hover {
+    background-color: #e64a19;
+  }
+  
+  .quickViewBtn {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff;
+    color: #FF5722;
+    border: 1px solid #FF5722;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .quickViewBtn:hover {
+    background-color: #FF5722;
+    color: white;
+  }
+  
+  .disabledBtn {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
