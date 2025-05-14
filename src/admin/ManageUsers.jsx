@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function ManageUsers() {
-  // حالة المستخدمين
+  // Users state
   const [users, setUsers] = useState([]);
 
-  // جلب بيانات المستخدمين من API (مثال وهمي)
+  // Fetch users data from API (mock example)
   useEffect(() => {
     setUsers([
-      { id: 1, name: 'عمر خالد', email: 'omar@email.com', joined: '2023-02-15', status: 'نشط' },
-      { id: 2, name: 'منى عادل', email: 'mona@email.com', joined: '2022-12-01', status: 'نشط' },
-      { id: 3, name: 'يوسف سامي', email: 'youssef@email.com', joined: '2022-10-20', status: 'غير نشط' },
+      { id: 1, name: 'Omar Khalid', email: 'omar@email.com', joined: '2023-02-15', status: 'Active' },
+      { id: 2, name: 'Mona Adel', email: 'mona@email.com', joined: '2022-12-01', status: 'Active' },
+      { id: 3, name: 'Youssef Sami', email: 'youssef@email.com', joined: '2022-10-20', status: 'Inactive' },
     ]);
   }, []);
 
@@ -18,27 +18,27 @@ export default function ManageUsers() {
     <div className="card border-0 shadow-sm mb-4">
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="fw-bold mb-0">إدارة المستخدمين</h4>
+          <h4 className="fw-bold mb-0">Users Management</h4>
           <button className="btn btn-primary">
-            <i className="fas fa-plus ms-2"></i>
-            إضافة مستخدم جديد
+            <i className="fas fa-plus me-2"></i>
+            Add New User
           </button>
         </div>
         <div className="table-responsive">
           <table className="table align-middle">
             <thead>
               <tr>
-                <th className="text-end">الاسم</th>
-                <th className="text-end">البريد الإلكتروني</th>
-                <th className="text-end">تاريخ الانضمام</th>
-                <th className="text-end">الحالة</th>
-                <th className="text-end">الإجراءات</th>
+                <th className="text-start">Name</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
                 <tr key={user.id} className="user-row">
-                  <td className="text-end">
+                  <td className="text-start">
                     <span style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -61,22 +61,22 @@ export default function ManageUsers() {
                       <span style={{ fontWeight: 600, fontSize: 16 }}>{user.name}</span>
                     </span>
                   </td>
-                  <td className="text-end">{user.email}</td>
-                  <td className="text-end">{user.joined}</td>
-                  <td className="text-end">
-                    <span className={`badge ${user.status === 'نشط' ? 'bg-success' : 'bg-danger'} text-white`}>
+                  <td>{user.email}</td>
+                  <td>{user.joined}</td>
+                  <td>
+                    <span className={`badge ${user.status === 'Active' ? 'bg-success' : 'bg-danger'} text-white`}>
                       {user.status}
                     </span>
                   </td>
-                  <td className="text-end">
+                  <td>
                     <div className="btn-group">
                       <button className="btn btn-sm btn-outline-primary">
-                        <i className="fas fa-edit ms-1"></i>
-                        تعديل
+                        <i className="fas fa-edit me-1"></i>
+                        Edit
                       </button>
                       <button className="btn btn-sm btn-outline-danger">
-                        <i className="fas fa-trash ms-1"></i>
-                        حذف
+                        <i className="fas fa-trash me-1"></i>
+                        Delete
                       </button>
                     </div>
                   </td>
