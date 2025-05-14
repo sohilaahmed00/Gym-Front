@@ -1,36 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default function ManageProducts() {
-  // Products state
-  const [products, setProducts] = useState([]);
+export default function ManageSubscriptions() {
+  // Subscriptions state
+  const [subscriptions, setSubscriptions] = useState([]);
 
-  // Fetch products data from API (mock example)
+  // Fetch subscriptions data from API (mock example)
   useEffect(() => {
-    setProducts([
+    setSubscriptions([
       { 
         id: 1, 
-        name: 'Personal Training Session', 
-        category: 'Training', 
-        type: 'Service',
-        price: 50.00,
-        status: 'Active'
+        clientName: 'John Smith', 
+        plan: 'Premium', 
+        startDate: '2024-01-01', 
+        endDate: '2024-12-31',
+        status: 'Active',
+        amount: 1200.00
       },
       { 
         id: 2, 
-        name: 'Group Fitness Class', 
-        category: 'Training', 
-        type: 'Service',
-        price: 25.00,
-        status: 'Active'
+        clientName: 'Emma Wilson', 
+        plan: 'Basic', 
+        startDate: '2024-02-15', 
+        endDate: '2024-08-15',
+        status: 'Active',
+        amount: 600.00
       },
       { 
         id: 3, 
-        name: 'Protein Shake', 
-        category: 'Supplements', 
-        type: 'Product',
-        price: 35.00,
-        status: 'Active'
+        clientName: 'Michael Brown', 
+        plan: 'Premium', 
+        startDate: '2023-12-01', 
+        endDate: '2024-05-31',
+        status: 'Pending',
+        amount: 1200.00
       }
     ]);
   }, []);
@@ -40,10 +43,10 @@ export default function ManageProducts() {
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">Products Management</h4>
+            <h4 className="fw-bold mb-0">Subscriptions Management</h4>
             <button className="btn btn-primary">
               <i className="fas fa-plus me-2"></i>
-              Add New Product
+              Add New Subscription
             </button>
           </div>
 
@@ -51,27 +54,24 @@ export default function ManageProducts() {
           <div className="row g-3 mb-4">
             <div className="col-md-3">
               <select className="form-select">
-                <option value="">All Categories</option>
-                <option value="training">Training</option>
-                <option value="supplements">Supplements</option>
-              </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select">
-                <option value="">All Types</option>
-                <option value="service">Service</option>
-                <option value="product">Product</option>
+                <option value="">All Plans</option>
+                <option value="premium">Premium</option>
+                <option value="basic">Basic</option>
               </select>
             </div>
             <div className="col-md-3">
               <select className="form-select">
                 <option value="">All Status</option>
                 <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="pending">Pending</option>
+                <option value="expired">Expired</option>
               </select>
             </div>
             <div className="col-md-3">
-              <input type="text" className="form-control" placeholder="Search products..." />
+              <input type="date" className="form-control" placeholder="Start Date" />
+            </div>
+            <div className="col-md-3">
+              <input type="date" className="form-control" placeholder="End Date" />
             </div>
           </div>
 
@@ -80,17 +80,18 @@ export default function ManageProducts() {
             <table className="table align-middle mb-0">
               <thead className="bg-light">
                 <tr>
-                  <th className="border-0 text-start">Product</th>
-                  <th className="border-0">Category</th>
-                  <th className="border-0">Type</th>
-                  <th className="border-0">Price</th>
+                  <th className="border-0 text-start">Client</th>
+                  <th className="border-0">Plan</th>
+                  <th className="border-0">Start Date</th>
+                  <th className="border-0">End Date</th>
                   <th className="border-0">Status</th>
+                  <th className="border-0">Amount</th>
                   <th className="border-0">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
-                  <tr key={product.id} className="product-row">
+                {subscriptions.map((subscription) => (
+                  <tr key={subscription.id} className="subscription-row">
                     <td className="text-start">
                       <span style={{
                         display: 'inline-flex',
@@ -109,28 +110,25 @@ export default function ManageProducts() {
                           fontSize: 20,
                           marginRight: 6,
                         }}>
-                          <i className="fas fa-box"></i>
+                          <i className="fas fa-user"></i>
                         </span>
-                        <span style={{ fontWeight: 600, fontSize: 16 }}>{product.name}</span>
+                        <span style={{ fontWeight: 600, fontSize: 16 }}>{subscription.clientName}</span>
                       </span>
                     </td>
                     <td>
-                      <span className="badge bg-info">
-                        {product.category}
+                      <span className="badge bg-primary">
+                        {subscription.plan}
+                      </span>
+                    </td>
+                    <td>{subscription.startDate}</td>
+                    <td>{subscription.endDate}</td>
+                    <td>
+                      <span className={`badge ${subscription.status === 'Active' ? 'bg-success' : 'bg-warning'} text-white`}>
+                        {subscription.status}
                       </span>
                     </td>
                     <td>
-                      <span className="badge bg-secondary">
-                        {product.type}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="fw-bold">${product.price?.toFixed(2)}</span>
-                    </td>
-                    <td>
-                      <span className={`badge ${product.status === 'Active' ? 'bg-success' : 'bg-danger'} text-white`}>
-                        {product.status}
-                      </span>
+                      <span className="fw-bold">${subscription.amount?.toFixed(2)}</span>
                     </td>
                     <td>
                       <div className="btn-group">
@@ -152,7 +150,7 @@ export default function ManageProducts() {
         </div>
       </div>
       <style>{`
-        .product-row:hover { 
+        .subscription-row:hover { 
           background: #f8f9fa; 
           transition: all 0.2s ease;
         }
@@ -182,4 +180,4 @@ export default function ManageProducts() {
       `}</style>
     </div>
   );
-}
+} 

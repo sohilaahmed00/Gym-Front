@@ -7,6 +7,12 @@ const sidebarItems = [
   { icon: 'fas fa-user-friends', label: 'Clients', path: '/admin/clients' },
   { icon: 'fas fa-box', label: 'Products', path: '/admin/products' },
   { icon: 'fas fa-credit-card', label: 'Subscriptions', path: '/admin/subscriptions' },
+  { 
+    icon: 'fas fa-clock', 
+    label: 'Pending Subscriptions', 
+    path: '/admin/pending-subscriptions',
+    badge: 5 // Mock number of pending subscriptions
+  },
   { icon: 'fas fa-file-alt', label: 'Orders', path: '/admin/orders' },
   { icon: 'fas fa-chart-bar', label: 'Reports', path: '/admin/reports' },
   { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
@@ -49,6 +55,15 @@ export default function SideList() {
           >
             <i className={item.icon} style={{ color: 'inherit' }}></i>
             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
+            {item.badge && (
+              <span className="badge bg-danger rounded-pill ms-auto" style={{ 
+                fontSize: '0.75rem',
+                padding: '0.25rem 0.5rem',
+                backgroundColor: '#FF5722 !important'
+              }}>
+                {item.badge}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
