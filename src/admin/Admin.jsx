@@ -1,9 +1,13 @@
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import { Routes, Route } from 'react-router-dom'
 import SideList from './SideList'
 import ManageCoaches from './ManageCoaches'
 import ManageUsers from './ManageUsers'
 import ManageProducts from './ManageProducts'
+import ManageClients from './ManageClients'
+import ManageSubscriptions from './ManageSubscriptions'
+import ManagePendingSubscriptions from './ManagePendingSubscriptions'
 
 const stats = [
   { title: 'Coaches', value: '12', color: 'primary', icon: 'fas fa-user-tie' },
@@ -43,6 +47,7 @@ function Admin() {
             <ManageCoaches />
             <ManageUsers/>
             <ManageProducts/>
+            <ManageClients />
 
             {/* Chart and Side Box */}
             <div className="row g-3 mb-4">
