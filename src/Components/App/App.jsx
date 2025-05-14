@@ -28,11 +28,20 @@ import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 import CoachSettings from '../../coach/pages/CoachSetting';
 import Payment from '../Payment/Payment';
+
+// Admin
 import Admin from '../../admin/Admin';
 import ManageCoaches from '../../admin/ManageCoaches';
 import ManageUsers from '../../admin/ManageUsers';
 import AdminLayout from '../../admin/AdminLayout';
 import ManageProducts from '../../admin/ManageProducts';
+import PendingSubscriptions from '../../admin/PendingSubscriptions';
+import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSettings, ContentSettings } from '../../admin/AdminSettings';
+import PendingCoaches from '../../admin/PendingCoaches';
+import ManageSubscriptions from '../../admin/ManageSubscriptions';
+
+
+
 import Login from '../Auth/login/Login';
 import ConfirmMail from '../Auth/confirm-mail/ConfirmMail';
 import CompleteProfile from '../Auth/complete-profile/CompleteProfile';
@@ -81,10 +90,23 @@ const routes = createBrowserRouter([
           { path: 'coaches', element: <ManageCoaches /> },
           { path: 'clients', element: <ManageUsers /> },
           { path: 'products', element:<ManageProducts /> },
-          { path: 'subscriptions', element: <Placeholder title="Subscriptions" /> },
+          { path: 'subscriptions', element: <ManageSubscriptions /> },
           { path: 'orders', element: <Placeholder title="Orders" /> },
           { path: 'reports', element: <Placeholder title="Reports" /> },
-          { path: 'settings', element: <Placeholder title="Settings" /> },
+          {
+            path: 'settings',
+            element: <AdminSettings />,
+            children: [
+              { index: true, element: <AccountSettings /> },
+              { path: 'account', element: <AccountSettings /> },
+              { path: 'site', element: <SiteSettings /> },
+              { path: 'payment', element: <PaymentSettings /> },
+              { path: 'system', element: <SystemSettings /> },
+              { path: 'content', element: <ContentSettings /> },
+            ]
+          },
+          { path: 'pending-subscriptions', element: <PendingSubscriptions /> },
+          { path: 'pending-coaches', element: <PendingCoaches /> },
         ]
       },
     ],
