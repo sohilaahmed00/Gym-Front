@@ -3,19 +3,23 @@ import { NavLink } from 'react-router-dom';
 
 const sidebarItems = [
   { icon: 'fas fa-chart-pie', label: 'Dashboard', path: '/admin' },
-  { icon: 'fas fa-users', label: 'Coaches', path: '/admin/coaches' },
-  { icon: 'fas fa-user-friends', label: 'Clients', path: '/admin/clients' },
-  { icon: 'fas fa-box', label: 'Products', path: '/admin/products' },
-  { icon: 'fas fa-credit-card', label: 'Subscriptions', path: '/admin/subscriptions' },
+  { icon: 'fas fa-user-tie', label: 'Coaches', path: '/admin/coaches' },
+  { icon: 'fas fa-users', label: 'Clients', path: '/admin/clients' },
+  { icon: 'fas fa-box-open', label: 'Products', path: '/admin/products' },
+  { icon: 'fas fa-id-card', label: 'Subscriptions', path: '/admin/subscriptions' },
   { 
     icon: 'fas fa-clock', 
     label: 'Pending Subscriptions', 
     path: '/admin/pending-subscriptions',
-    badge: 5 // Mock number of pending subscriptions
+    badge: 5 // عدد الاشتراكات المعلقة
   },
-  { icon: 'fas fa-file-alt', label: 'Orders', path: '/admin/orders' },
-  { icon: 'fas fa-user-clock', label: 'Pending Coaches', path: '/admin/pending-coaches' ,badge: 4},
-  { icon: 'fas fa-chart-bar', label: 'Reports', path: '/admin/reports' },
+  { 
+    icon: 'fas fa-user-clock', 
+    label: 'Pending Coaches', 
+    path: '/admin/pending-coaches',
+    badge: 4 // عدد المدربين المعلقين
+  },
+  { icon: 'fas fa-dumbbell', label: 'Exercise Categories', path: '/admin/exercise-categories' },
   { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
 ];
 
@@ -71,7 +75,7 @@ export default function SideList() {
                         }
                         style={({ isActive }) => ({
                           color: isActive ? '#fff' : '#333',
-                          background: isActive ? '#FF5722' : 'transparent',
+                          background: isActive ? '#ff7a00' : 'transparent',
                           borderRadius: 6,
                           fontSize: 15,
                           margin: '2px 0',
@@ -96,7 +100,7 @@ export default function SideList() {
               style={({ isActive }) => ({
                 width: '100%',
                 overflow: 'hidden',
-                backgroundColor: isActive ? '#FF5722' : 'transparent',
+                backgroundColor: isActive ? '#ff7a00' : 'transparent',
                 color: isActive ? '#fff' : '#333',
                 transition: 'all 0.3s ease'
               })}
@@ -108,7 +112,7 @@ export default function SideList() {
                 <span className="badge bg-danger rounded-pill ms-auto" style={{ 
                   fontSize: '0.75rem',
                   padding: '0.25rem 0.5rem',
-                  backgroundColor: '#FF5722 !important'
+                  backgroundColor: '#ff7a00 !important'
                 }}>
                   {item.badge}
                 </span>

@@ -9,6 +9,7 @@ import ManageClients from './ManageClients'
 import ManageSubscriptions from './ManageSubscriptions'
 import PendingSubscriptions from './PendingSubscriptions'
 import PendingCoaches from './PendingCoaches'
+import ExerciseCategories from './ExerciseCategories'
 
 const stats = [
   { title: 'Coaches', value: '12', color: 'primary', icon: 'fas fa-user-tie', link: '/admin/coaches' },
@@ -39,7 +40,9 @@ function Admin() {
     { id: 5, desc: 'Coach data updated', date: '2024-05-27' },
   ];
   return (
+    
     <div style={{ background: '#f6f8fa', minHeight: '100vh'  }}>
+      <ExerciseCategories />
       <div className="container py-4">
         {/* Title, welcome, and notifications in the same row */}
         <div className="row align-items-center mb-4">
