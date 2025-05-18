@@ -1,0 +1,233 @@
+:root {
+  /* الألوان الأساسية */
+  --primary-color: #ff7800; /* اللون البرتقالي */
+  --primary-hover: #e56c00;
+  --text-color: rgb(51, 51, 51);
+  --text-light: #6c757d;
+  --border-color: #dee2e6;
+  --bg-light: #f8f9fa;
+  --bg-white: #ffffff;
+  --success: #28a745;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --info: #17a2b8;
+  
+  /* المسافات */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* الخطوط */
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  
+  /* الزوايا المدورة */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  
+  /* الظلال */
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ====== التنسيقات الأساسية ====== */
+
+/* تحديد لون النص الافتراضي */
+.admin-page {
+  color: var(--text-color);
+  font-family: 'Roboto', 'Cairo', sans-serif;
+}
+
+/* عناوين الصفحات */
+.admin-page h1, 
+.admin-page h2, 
+.admin-page h3, 
+.admin-page h4, 
+.admin-page h5, 
+.admin-page h6 {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.admin-page .text-orange,
+.admin-page .text-primary {
+  color: var(--primary-color) !important;
+}
+
+/* ==== أنماط البطاقات ==== */
+.admin-page .card {
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  border: none;
+  margin-bottom: var(--spacing-lg);
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-page .card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.admin-page .card-title {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* ==== أنماط الأزرار ==== */
+.admin-page .btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.admin-page .btn-primary:hover,
+.admin-page .btn-primary:focus {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+}
+
+.admin-page .btn-outline-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.admin-page .btn-outline-primary:hover,
+.admin-page .btn-outline-primary:focus {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* تنسيق بقية الأزرار */
+.admin-page .btn-success,
+.admin-page .btn-danger,
+.admin-page .btn-warning,
+.admin-page .btn-info {
+  color: white !important;
+}
+
+.admin-page .btn-outline-secondary:hover {
+  color: var(--text-color) !important;
+}
+
+/* ==== النماذج والإدخالات ==== */
+.admin-page .form-control,
+.admin-page .form-select {
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-md);
+}
+
+.admin-page .form-control:focus,
+.admin-page .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(255, 120, 0, 0.25);
+}
+
+.admin-page .form-label {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* ==== الجداول ==== */
+.admin-page .table {
+  margin-bottom: 0;
+}
+
+.admin-page .table th {
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-page .table-hover tbody tr:hover {
+  background-color: rgba(255, 120, 0, 0.04);
+}
+
+.admin-page .table td {
+  vertical-align: middle;
+}
+
+/* ==== الشارات ==== */
+.admin-page .badge {
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: var(--border-radius-sm);
+}
+
+/* تعديل لون الشارات */
+.admin-page .badge.bg-success {
+  background-color: var(--success) !important;
+}
+
+.admin-page .badge.bg-danger {
+  background-color: var(--danger) !important;
+}
+
+.admin-page .badge.bg-warning {
+  background-color: var(--warning) !important;
+}
+
+.admin-page .badge.bg-info {
+  background-color: var(--info) !important;
+}
+
+.admin-page .badge.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+/* ==== تنبيهات النظام ==== */
+.admin-page .alert {
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==== الصور والأيقونات ==== */
+.admin-page .product-image-container {
+  width: 70px;
+  height: 70px;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-light);
+}
+
+.admin-page .product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==== منصة التحميل ==== */
+.admin-page .loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+}
+
+.admin-page .spinner-border.text-primary {
+  color: var(--primary-color) !important;
+} 

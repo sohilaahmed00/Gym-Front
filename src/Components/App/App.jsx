@@ -39,6 +39,9 @@ import PendingSubscriptions from '../../admin/PendingSubscriptions';
 import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSettings, ContentSettings } from '../../admin/AdminSettings';
 import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
+import ExerciseCategories from '../../admin/ExerciseCategories';
+import AdminExercises from '../../admin/Exercises';
+
 
 
 
@@ -93,6 +96,8 @@ const routes = createBrowserRouter([
           { path: 'subscriptions', element: <ManageSubscriptions /> },
           { path: 'orders', element: <Placeholder title="Orders" /> },
           { path: 'reports', element: <Placeholder title="Reports" /> },
+          { path: 'exercise-categories', element: <ExerciseCategories /> },
+          { path: 'exercises/:categoryId', element: <AdminExercises /> },
           {
             path: 'settings',
             element: <AdminSettings />,
