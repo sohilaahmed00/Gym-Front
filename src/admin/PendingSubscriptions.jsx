@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
 const PendingSubscriptions = () => {
   // Pending subscriptions state
@@ -12,59 +13,53 @@ const PendingSubscriptions = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  // Mock API call function
+  // Fetch subscriptions from real API
   const fetchPendingSubscriptions = async (searchQuery = '') => {
     setLoading(true);
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/pending');
+      
+      // Transform API data to match component structure
+      const transformedData = response.data.map(subscription => {
+        return {
+          id: subscription.subscribe_ID,
+          clientName: subscription.user?.userId || 'Unknown User',
+          gender: subscription.user?.gender || 'Unknown',
+          plan: subscription.subscriptionType,
+          requestDate: new Date(subscription.startDate).toISOString().split('T')[0],
+          endDate: new Date(subscription.endDate).toISOString().split('T')[0],
+          amount: getAmountForPlan(subscription.subscriptionType),
+          status: subscription.status,
+          isPaid: subscription.isPaid,
+          isApproved: subscription.isApproved,
+          paymentProof: subscription.paymentProof,
+          user_ID: subscription.user_ID,
+          coach_ID: subscription.coach_ID,
+          fitnessGoal: subscription.user?.fitness_Goal || 'Not specified'
+        };
+      });
 
-      // Mock data
-      const data = [
-        { 
-          id: 1, 
-          clientName: 'John Smith', 
-          email: 'john.smith@email.com',
-          plan: 'Premium', 
-          requestDate: '2024-03-15',
-          amount: 1200.00,
-          status: 'Pending Review'
-        },
-        { 
-          id: 2, 
-          clientName: 'Emma Wilson', 
-          email: 'emma.wilson@email.com',
-          plan: 'Basic', 
-          requestDate: '2024-03-14',
-          amount: 600.00,
-          status: 'Pending Review'
-        },
-        { 
-          id: 3, 
-          clientName: 'Michael Brown', 
-          email: 'michael.brown@email.com',
-          plan: 'Premium', 
-          requestDate: '2024-03-13',
-          amount: 1200.00,
-          status: 'Pending Review'
-        }
-      ];
-
-      // Filter data based on search query
-      const filteredData = searchQuery
-        ? data.filter(subscription => 
-            subscription.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            subscription.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            subscription.plan.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : data;
-
-      setPendingSubscriptions(filteredData);
-      setFilteredSubscriptions(filteredData); // This should use filteredData from the mock API call
+      setPendingSubscriptions(transformedData);
+      setFilteredSubscriptions(transformedData);
     } catch (error) {
       console.error('Error fetching pending subscriptions:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Helper function to get amount based on plan type
+  const getAmountForPlan = (planType) => {
+    switch(planType) {
+      
+      case '3_Months':
+        return 550.00;
+      case '6_Months':
+        return 1000.00;
+      case '12_Months':
+        return 1800.00;
+      default:
+        return 0.00;
     }
   };
 
@@ -73,9 +68,9 @@ const PendingSubscriptions = () => {
     fetchPendingSubscriptions();
   }, []);
 
-  // Handle search and filters - This effect should depend on pendingSubscriptions and filters, not call fetch again
+  // Handle search and filters
   useEffect(() => {
-    let result = [...pendingSubscriptions]; // Start with all fetched subscriptions
+    let result = [...pendingSubscriptions];
 
     // Apply plan filter
     if (filters.plan) {
@@ -85,17 +80,17 @@ const PendingSubscriptions = () => {
     if (filters.requestDate) {
       result = result.filter(subscription => subscription.requestDate === filters.requestDate);
     }
-    // Apply search term filter (if searchTerm is not empty)
+    // Apply search term filter
     if (searchTerm) {
         result = result.filter(subscription => 
-            subscription.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subscription.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            subscription.plan.toLowerCase().includes(searchTerm.toLowerCase())
+            (subscription.clientName && subscription.clientName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (subscription.fitnessGoal && subscription.fitnessGoal.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (subscription.plan && subscription.plan.toLowerCase().includes(searchTerm.toLowerCase()))
         );
     }
 
     setFilteredSubscriptions(result);
-  }, [searchTerm, filters, pendingSubscriptions]); // Added searchTerm and pendingSubscriptions to dependencies
+  }, [searchTerm, filters, pendingSubscriptions]);
 
   // Handle filter changes
   const handleFilterChange = (filterType, value) => {
@@ -104,52 +99,72 @@ const PendingSubscriptions = () => {
       [filterType]: value
     }));
   };
-  
-  // Handle search term change directly without an extra effect
-  // const handleSearchChange = (event) => {
-  //   setSearchTerm(event.target.value);
-  // };
 
-  const handleApprove = (id) => {
-    console.log(`Approve subscription ${id}`);
-    // Add logic to approve subscription
+  const handleApprove = async (id) => {
+    try {
+      await axios.post(`http://gymmatehealth.runasp.net/api/Subscribes/approve/${id}`);
+      // Update local state after successful API call
+      fetchPendingSubscriptions();
+    } catch (error) {
+      console.error(`Error approving subscription ${id}:`, error);
+    }
   };
 
-  const handleReject = (id) => {
-    console.log(`Reject subscription ${id}`);
-    // Add logic to reject subscription
+  const handleReject = async (id) => {
+    try {
+      await axios.post(`http://gymmatehealth.runasp.net/api/Subscribes/reject/${id}`);
+      // Update local state after successful API call
+      fetchPendingSubscriptions();
+    } catch (error) {
+      console.error(`Error rejecting subscription ${id}:`, error);
+    }
   };
+
+  // Get available plan types from the data
+  const availablePlans = [...new Set(pendingSubscriptions.map(sub => sub.plan))];
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-orange fw-bold">⏳ Pending Subscriptions</h3>
-        {/* Add any filters or search bar here if needed */}
+        <h3 className="text-orange fw-bold">⏳ الاشتراكات المعلقة</h3>
       </div>
-        {/* Example Search and Filter inputs - to be styled and integrated properly */}
-        {/* <input 
+      
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <input 
             type="text"
-            placeholder="Search..."
+            placeholder="بحث..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="form-control mb-2"
-        />
-        <select value={filters.plan} onChange={(e) => handleFilterChange('plan', e.target.value)} className="form-select mb-2">
-            <option value="">All Plans</option>
-            <option value="Premium">Premium</option>
-            <option value="Basic">Basic</option>
-        </select>
-        <input 
+            className="form-control"
+          />
+        </div>
+        <div className="col-md-4">
+          <select 
+            value={filters.plan} 
+            onChange={(e) => handleFilterChange('plan', e.target.value)} 
+            className="form-select"
+          >
+            <option value="">كل الخطط</option>
+            {availablePlans.map(plan => (
+              <option key={plan} value={plan}>{plan.replace('_', ' ')}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-4">
+          <input 
             type="date" 
             value={filters.requestDate} 
             onChange={(e) => handleFilterChange('requestDate', e.target.value)} 
-            className="form-control mb-4"
-        /> */}
+            className="form-control"
+          />
+        </div>
+      </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>جاري التحميل...</p>}
       {!loading && filteredSubscriptions.length === 0 ? (
         <div className="alert alert-info" role="alert">
-          No pending subscriptions found.
+          لا توجد اشتراكات معلقة.
         </div>
       ) : !loading && (
         <div className="table-responsive">
@@ -157,12 +172,15 @@ const PendingSubscriptions = () => {
             <thead className="table-light">
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">User Name</th>
-                <th scope="col">Plan Name</th>
-                <th scope="col">Request Date</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Status</th>
-                <th scope="col">Actions</th>
+                <th scope="col">معرف المستخدم</th>
+                <th scope="col">الجنس</th>
+                <th scope="col">نوع الاشتراك</th>
+                <th scope="col">تاريخ البدء</th>
+                <th scope="col">تاريخ الانتهاء</th>
+                <th scope="col">الهدف</th>
+                <th scope="col">الرسوم</th>
+                <th scope="col">الحالة</th>
+                <th scope="col">إجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -170,25 +188,39 @@ const PendingSubscriptions = () => {
                 <tr key={sub.id}>
                   <th scope="row">{index + 1}</th>
                   <td>{sub.clientName}</td>
-                  <td>{sub.plan}</td>
+                  <td>{sub.gender}</td>
+                  <td>{sub.plan.replace('_', ' ')}</td>
                   <td>{sub.requestDate}</td>
-                  <td>${sub.amount ? sub.amount.toFixed(2) : 'N/A'}</td>
+                  <td>{sub.endDate}</td>
+                  <td>{sub.fitnessGoal}</td>
+                  <td>${sub.amount.toFixed(2)}</td>
                   <td>
-                    <span className={`badge bg-warning text-dark`}>{sub.status}</span>
+                    <span className={`badge ${sub.status === 'Pending' ? 'bg-warning text-dark' : 
+                                             sub.status === 'Approved' ? 'bg-success' : 
+                                             'bg-danger'}`}>
+                      {sub.status}
+                    </span>
                   </td>
                   <td>
-                    <button 
-                      className="btn btn-success btn-sm me-2"
-                      onClick={() => handleApprove(sub.id)}
-                    >
-                      <i className="fas fa-check me-1"></i> Approve
-                    </button>
-                    <button 
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleReject(sub.id)}
-                    >
-                      <i className="fas fa-times me-1"></i> Reject
-                    </button>
+                    {sub.status === 'Pending' && (
+                      <>
+                        <button 
+                          className="btn btn-success btn-sm me-2"
+                          onClick={() => handleApprove(sub.id)}
+                        >
+                          <i className="fas fa-check me-1"></i> قبول
+                        </button>
+                        <button 
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleReject(sub.id)}
+                        >
+                          <i className="fas fa-times me-1"></i> رفض
+                        </button>
+                      </>
+                    )}
+                    {sub.status !== 'Pending' && (
+                      <span className="text-muted">تم معالجة الطلب</span>
+                    )}
                   </td>
                 </tr>
               ))}
