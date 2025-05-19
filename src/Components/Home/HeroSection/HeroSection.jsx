@@ -18,7 +18,7 @@ const HeroSection = () => {
           Achieve Your Fitness Goals.
         </p>
         <div className={styles.heroButtons}>
-          <Link to="/signup" className={styles.getStartedButton}>
+          <Link to="/register" className={styles.getStartedButton}>
             Get Started <span>→</span>
           </Link>
         </div>
