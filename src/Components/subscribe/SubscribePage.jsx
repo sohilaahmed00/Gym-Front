@@ -92,9 +92,9 @@ const SubscribePage = () => {
         setLoading(false);
         if (res.ok) {
           toast.current.show({ severity: 'success', summary: 'Success', detail: 'Subscription successful!, Waiting for admin approval', life: 3000 });
-          setTimeout(()=>{
-            navigate('/')
-          },3000)
+          setTimeout(() => {
+            navigate('/');
+          }, 3000);
           setFormData(prev => ({ ...prev, paymentProof: null, coachId: isCoachPreselected ? coachIdFromState : '' }));
           setPreviewUrl(null);
         } else {
@@ -120,6 +120,25 @@ const SubscribePage = () => {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <input type="hidden" name="userId" value={formData.userId} />
+
+        {/* حقل اختيار الخطة في حال عدم تحديدها في الصفحة */}
+        {!formData.subscriptionType && (
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Select Subscription Plan:</label>
+            <select
+              name="subscriptionType"
+              value={formData.subscriptionType}
+              onChange={handleChange}
+              required
+              className={styles.select}
+            >
+              <option value="">Select a plan</option>
+              <option value="3_Months">3 Months Plan</option>
+              <option value="6_Months">6 Months Plan</option>
+              <option value="1_Year">1 Year Plan</option>
+            </select>
+          </div>
+        )}
 
         <div className={`${styles.formGroup} ${styles.formGroupFlex}`}>
           <div className={styles.flexGrow}>

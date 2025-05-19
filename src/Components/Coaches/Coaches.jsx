@@ -24,14 +24,13 @@ function Coaches() {
         }
         
         const data = await response.json();
-        // تعديل الرابط الخاص بالصورة ليشمل الرابط الكامل أو إرجاع صورة افتراضية
         const transformedData = data.map(coach => ({
           id: coach.userId,
           name: coach.fullName,
           specialization: coach.specialization,
           bio: coach.bio,
           image: coach.image ? `http://gymmatehealth.runasp.net/images/${coach.image}` : '/placeholder-coach.jpg',
-          rating: 0, // يمكن تحسينها حسب بيانات API إذا كانت موجودة
+          rating: 0, 
           experience: `${coach.experience_Years} years`,
           availability: coach.availability === "true"
         }));
@@ -50,7 +49,7 @@ function Coaches() {
 
   const filteredCoaches = coaches.filter(coach => {
     const matchesSearch = coach.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         coach.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
+     coach.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesFilters = (!filters.specialization || coach.specialization === filters.specialization);
 
@@ -58,7 +57,6 @@ function Coaches() {
   });
 
   const handleSubscribe = (coachId) => {
-    // انتقل إلى صفحة الاشتراك مع تمرير معرف المدرب فقط
     navigate('/subscribe', { state: { coachId } });
   };
 
@@ -92,7 +90,7 @@ function Coaches() {
         <p>Choose the perfect coach for you!</p>
       </div>
 
-      <div className={styles.searchSection}>
+      <div className={`${styles.searchSection} d-flex justify-content-center gap-5`}>
         <div className={styles.searchBar}>
           <input
             type="text"
@@ -123,15 +121,12 @@ function Coaches() {
         {filteredCoaches.length > 0 ? (
           filteredCoaches.map(coach => (
             <div key={coach.id} className={styles.coachCard}>
-              {/* <img 
+              <img 
                 src={coach.image} 
                 alt={coach.name} 
                 className={styles.coachImage}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/placeholder-coach.jpg';
-                }}
-              /> */}
+               
+              />
               <div className={styles.coachInfo}>
                 <h2 className={styles.coachName}>{coach.name}</h2>
                 <p className={styles.coachSpecialization}>{coach.specialization}</p>
