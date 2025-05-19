@@ -10,21 +10,37 @@ const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الص
 const API_ENDPOINTS = {
   GET_CATEGORY: (id) => `${API_BASE_URL}/Categories/GetCategory/${id}`,
   GET_EXERCISES_BY_CATEGORY: (id) => `${API_BASE_URL}/Exercises/GetExercisesByCategory/${id}`,
+  GET_ALL_EXERCISES: `${API_BASE_URL}/Exercises/GetAllExercises`,
   ADD_EXERCISE: `${API_BASE_URL}/Exercises/AddExercise`,
   UPDATE_EXERCISE: `${API_BASE_URL}/Exercises/UpdateExercise`,
   DELETE_EXERCISE: (id) => `${API_BASE_URL}/Exercises/DeleteExercise/${id}`
 };
 
+// إضافة interceptor للتحقق من الاستجابات
+axios.interceptors.response.use(
+  response => {
+    console.log('استجابة API:', response.config.url, response.data);
+    return response;
+  },
+  error => {
+    console.error('خطأ في طلب API:', error.config?.url, error.message);
+    return Promise.reject(error);
+  }
+);
+
 // قالب تمرين جديد فارغ
 const EMPTY_EXERCISE = {
-  exerciseId: 0,
-  exerciseName: "",
+  exercise_ID: 0,
+  exercise_Name: "",
   description: "",
-  imageUrl: "",
-  videoUrl: "",
-  categoryId: 0,
-  difficulty: "متوسط", // افتراضي متوسط
-  targetMuscle: ""
+  image_url: "",
+  image_gif: "",
+  duration: 30,
+  target_Muscle: "",
+  difficulty_Level: 2,
+  calories_Burned: 0,
+  category_ID: 0,
+  category: null
 };
 
 const DIFFICULTY_LEVELS = [
@@ -47,7 +63,7 @@ const Exercises = () => {
   const [editingExercise, setEditingExercise] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
-  const [newExercise, setNewExercise] = useState({ ...EMPTY_EXERCISE, categoryId: parseInt(categoryId) });
+  const [newExercise, setNewExercise] = useState({ ...EMPTY_EXERCISE, category_ID: parseInt(categoryId) });
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('');
   
@@ -82,13 +98,13 @@ const Exercises = () => {
     setShowImageModal(true);
   };
 
-  // عرض الفيديو في النافذة المنبثقة
-  const handleShowVideo = (videoUrl, exerciseName) => {
-    if (!videoUrl) return;
+  // عرض الجيف في النافذة المنبثقة
+  const handleShowGif = (gifUrl, exerciseName) => {
+    if (!gifUrl) return;
     
-    setSelectedVideo(videoUrl);
-    setSelectedVideoName(exerciseName);
-    setShowVideoModal(true);
+    setSelectedImage(gifUrl);
+    setSelectedExerciseName(exerciseName);
+    setShowImageModal(true);
   };
 
   // Function to get correct image URL
@@ -109,6 +125,8 @@ const Exercises = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null); // إعادة تعيين حالة الخطأ
+
       // جلب معلومات القسم
       const categoryResponse = await axios.get(API_ENDPOINTS.GET_CATEGORY(categoryId));
       const categoryData = categoryResponse.data;
@@ -120,15 +138,32 @@ const Exercises = () => {
       
       setCategory(categoryData);
       
-      // جلب التمارين
-      const exercisesResponse = await axios.get(API_ENDPOINTS.GET_EXERCISES_BY_CATEGORY(categoryId));
-      setExercises(exercisesResponse.data);
+      try {
+        // جلب جميع التمارين
+        const exercisesResponse = await axios.get(API_ENDPOINTS.GET_ALL_EXERCISES);
+        console.log('تمارين API:', exercisesResponse.data); // للتأكد من البيانات المستلمة
+        
+        if (Array.isArray(exercisesResponse.data)) {
+          // تصفية التمارين حسب القسم
+          const filteredExercises = exercisesResponse.data.filter(ex => 
+            ex.category_ID === parseInt(categoryId)
+          );
+          console.log('التمارين المصفاة:', filteredExercises); // للتأكد من التصفية
+          setExercises(filteredExercises);
+        } else {
+          console.error('البيانات المستلمة ليست مصفوفة:', exercisesResponse.data);
+          setError('تنسيق البيانات غير صحيح');
+        }
+      } catch (exercisesError) {
+        console.error('خطأ في جلب التمارين:', exercisesError);
+        setError('فشل في جلب التمارين');
+      }
       
       setLoading(false);
     } catch (err) {
+      console.error('خطأ في جلب البيانات:', err);
       setError('فشل في جلب البيانات');
       setLoading(false);
-      console.error(err);
     }
   };
 
@@ -161,7 +196,7 @@ const Exercises = () => {
         
         if (response.status === 200) {
           // تحديث قائمة التمارين
-          setExercises(exercises.filter(ex => ex.exerciseId !== exerciseId));
+          setExercises(exercises.filter(ex => ex.exercise_ID !== exerciseId));
           showAlert('تم حذف التمرين بنجاح', 'success');
         } else {
           throw new Error('فشل في حذف التمرين');
@@ -177,7 +212,7 @@ const Exercises = () => {
   // Start adding exercise
   const handleStartAddExercise = () => {
     setIsAddingExercise(true);
-    setNewExercise({ ...EMPTY_EXERCISE, categoryId: parseInt(categoryId) });
+    setNewExercise({ ...EMPTY_EXERCISE, category_ID: parseInt(categoryId) });
   };
 
   // Cancel adding exercise
@@ -251,7 +286,7 @@ const Exercises = () => {
       if (response.status === 200) {
         // تحديث التمرين في القائمة المحلية
         setExercises(exercises.map(ex => 
-          ex.exerciseId === editingExercise.exerciseId ? editingExercise : ex
+          ex.exercise_ID === editingExercise.exercise_ID ? editingExercise : ex
         ));
         
         setEditingExercise(null);
@@ -270,11 +305,11 @@ const Exercises = () => {
   // Filter exercises based on search term and difficulty
   const filteredExercises = exercises.filter(ex => {
     const matchesSearch = 
-      ex.exerciseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ex.exercise_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (ex.description && ex.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (ex.targetMuscle && ex.targetMuscle.toLowerCase().includes(searchTerm.toLowerCase()));
+      (ex.target_Muscle && ex.target_Muscle.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesDifficulty = !difficultyFilter || ex.difficulty === difficultyFilter;
+    const matchesDifficulty = !difficultyFilter || ex.difficulty_Level === difficultyFilter;
     
     return matchesSearch && matchesDifficulty;
   });
@@ -355,8 +390,8 @@ const Exercises = () => {
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="exerciseName" 
-                    value={newExercise.exerciseName} 
+                    name="exercise_Name" 
+                    value={newExercise.exercise_Name} 
                     onChange={handleAddExerciseInputChange}
                     required 
                   />
@@ -365,8 +400,8 @@ const Exercises = () => {
                   <label className="form-label">مستوى الصعوبة</label>
                   <select 
                     className="form-select" 
-                    name="difficulty" 
-                    value={newExercise.difficulty || 'متوسط'} 
+                    name="difficulty_Level" 
+                    value={newExercise.difficulty_Level || 'متوسط'} 
                     onChange={handleAddExerciseInputChange}
                     required
                   >
@@ -382,8 +417,8 @@ const Exercises = () => {
                 <input 
                   type="text" 
                   className="form-control" 
-                  name="targetMuscle" 
-                  value={newExercise.targetMuscle} 
+                  name="target_Muscle" 
+                  value={newExercise.target_Muscle} 
                   onChange={handleAddExerciseInputChange}
                   placeholder="مثال: عضلات الصدر، عضلات البطن..."
                 />
@@ -395,24 +430,24 @@ const Exercises = () => {
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="imageUrl" 
-                    value={newExercise.imageUrl} 
+                    name="image_url" 
+                    value={newExercise.image_url} 
                     onChange={handleAddExerciseInputChange}
                     placeholder="أدخل اسم ملف الصورة"
                   />
                   <small className="text-muted">مثال: exercise-image.jpg</small>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">رابط الفيديو</label>
+                  <label className="form-label">رابط الجيف</label>
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="videoUrl" 
-                    value={newExercise.videoUrl} 
+                    name="image_gif" 
+                    value={newExercise.image_gif} 
                     onChange={handleAddExerciseInputChange}
-                    placeholder="أدخل رابط الفيديو"
+                    placeholder="أدخل اسم ملف الجيف"
                   />
-                  <small className="text-muted">مثال: https://www.youtube.com/watch?v=...</small>
+                  <small className="text-muted">مثال: exercise-gif.gif</small>
                 </div>
               </div>
               
@@ -463,8 +498,8 @@ const Exercises = () => {
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="exerciseName" 
-                    value={editingExercise.exerciseName || ''} 
+                    name="exercise_Name" 
+                    value={editingExercise.exercise_Name || ''} 
                     onChange={handleInputChange}
                     required 
                   />
@@ -473,8 +508,8 @@ const Exercises = () => {
                   <label className="form-label">مستوى الصعوبة</label>
                   <select 
                     className="form-select" 
-                    name="difficulty" 
-                    value={editingExercise.difficulty || 'متوسط'} 
+                    name="difficulty_Level" 
+                    value={editingExercise.difficulty_Level || 'متوسط'} 
                     onChange={handleInputChange}
                     required
                   >
@@ -490,8 +525,8 @@ const Exercises = () => {
                 <input 
                   type="text" 
                   className="form-control" 
-                  name="targetMuscle" 
-                  value={editingExercise.targetMuscle || ''} 
+                  name="target_Muscle" 
+                  value={editingExercise.target_Muscle || ''} 
                   onChange={handleInputChange}
                   placeholder="مثال: عضلات الصدر، عضلات البطن..."
                 />
@@ -503,24 +538,24 @@ const Exercises = () => {
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="imageUrl" 
-                    value={editingExercise.imageUrl || ''} 
+                    name="image_url" 
+                    value={editingExercise.image_url || ''} 
                     onChange={handleInputChange}
                     placeholder="أدخل اسم ملف الصورة"
                   />
                   <small className="text-muted">مثال: exercise-image.jpg</small>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">رابط الفيديو</label>
+                  <label className="form-label">رابط الجيف</label>
                   <input 
                     type="text" 
                     className="form-control" 
-                    name="videoUrl" 
-                    value={editingExercise.videoUrl || ''} 
+                    name="image_gif" 
+                    value={editingExercise.image_gif || ''} 
                     onChange={handleInputChange}
-                    placeholder="أدخل رابط الفيديو"
+                    placeholder="أدخل اسم ملف الجيف"
                   />
-                  <small className="text-muted">مثال: https://www.youtube.com/watch?v=...</small>
+                  <small className="text-muted">مثال: exercise-gif.gif</small>
                 </div>
               </div>
               
@@ -598,20 +633,22 @@ const Exercises = () => {
                     <th className="border-0">الوصف</th>
                     <th className="border-0">العضلات المستهدفة</th>
                     <th className="border-0">المستوى</th>
+                    <th className="border-0">المدة</th>
+                    <th className="border-0">السعرات</th>
                     <th className="border-0">الوسائط</th>
                     <th className="border-0">الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredExercises.map((exercise) => (
-                    <tr key={exercise.exerciseId} className="exercise-row">
+                    <tr key={exercise.exercise_ID} className="exercise-row">
                       <td className="text-start">
                         <span style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 10,
                         }}>
-                          {exercise.imageUrl ? (
+                          {exercise.image_url ? (
                             <div 
                               style={{
                                 width: 60,
@@ -625,14 +662,14 @@ const Exercises = () => {
                                 justifyContent: 'center',
                                 backgroundColor: '#f8f9fa'
                               }}
-                              onClick={() => handleShowImage(getImageUrl(exercise.imageUrl), exercise.exerciseName)}
+                              onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
                               title="انقر لتكبير الصورة"
                             >
                               <img 
-                                src={getImageUrl(exercise.imageUrl)} 
-                                alt={exercise.exerciseName}
+                                src={getImageUrl(exercise.image_url)} 
+                                alt={exercise.exercise_Name}
                                 onError={(e) => {
-                                  console.log('خطأ في تحميل الصورة:', exercise.imageUrl);
+                                  console.log('خطأ في تحميل الصورة:', exercise.image_url);
                                   e.target.onerror = null;
                                   e.target.src = "https://via.placeholder.com/60?text=صورة";
                                 }}
@@ -658,7 +695,7 @@ const Exercises = () => {
                               <i className="fas fa-dumbbell"></i>
                             </span>
                           )}
-                          <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exerciseName}</span>
+                          <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
                         </span>
                       </td>
                       <td>
@@ -668,32 +705,44 @@ const Exercises = () => {
                       </td>
                       <td>
                         <span className="badge bg-light text-dark">
-                          {exercise.targetMuscle || "غير محدد"}
+                          {exercise.target_Muscle || "غير محدد"}
                         </span>
                       </td>
                       <td>
-                        <span className={`badge bg-${getDifficultyBadge(exercise.difficulty)}`}>
-                          {exercise.difficulty}
+                        <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
+                          {exercise.difficulty_Level === 1 ? 'مبتدئ' : 
+                           exercise.difficulty_Level === 2 ? 'متوسط' : 
+                           exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="badge bg-info">
+                          {exercise.duration} دقيقة
+                        </span>
+                      </td>
+                      <td>
+                        <span className="badge bg-warning">
+                          {exercise.calories_Burned} سعرة
                         </span>
                       </td>
                       <td>
                         <div className="d-flex gap-2">
-                          {exercise.imageUrl && (
+                          {exercise.image_url && (
                             <button 
                               className="btn btn-sm btn-outline-primary"
-                              onClick={() => handleShowImage(getImageUrl(exercise.imageUrl), exercise.exerciseName)}
+                              onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
                               title="عرض الصورة"
                             >
                               <i className="fas fa-image"></i>
                             </button>
                           )}
-                          {exercise.videoUrl && (
+                          {exercise.image_gif && (
                             <button 
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => handleShowVideo(exercise.videoUrl, exercise.exerciseName)}
-                              title="عرض الفيديو"
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() => handleShowGif(getImageUrl(exercise.image_gif), exercise.exercise_Name)}
+                              title="عرض الجيف"
                             >
-                              <i className="fab fa-youtube"></i>
+                              <i className="fas fa-film"></i>
                             </button>
                           )}
                         </div>
@@ -709,10 +758,10 @@ const Exercises = () => {
                           </button>
                           <button 
                             className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteExercise(exercise.exerciseId)}
-                            disabled={deletingId === exercise.exerciseId}
+                            onClick={() => handleDeleteExercise(exercise.exercise_ID)}
+                            disabled={deletingId === exercise.exercise_ID}
                           >
-                            {deletingId === exercise.exerciseId ? (
+                            {deletingId === exercise.exercise_ID ? (
                               <>
                                 <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                                 جارٍ الحذف...
