@@ -1,0 +1,196 @@
+.dietPlanPage {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.pageTitle {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.pageTitle h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.pageTitle p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.plansContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.planCard {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.planCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.planCard.selected {
+  border: 2px solid #FF5722;
+}
+
+.planHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.planHeader h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-size: 2rem;
+  color: #FF5722;
+  font-weight: bold;
+}
+
+.planDetails {
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.features {
+  margin-bottom: 1.5rem;
+}
+
+.features h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.features li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+.features li i {
+  color: #FF5722;
+  margin-right: 0.5rem;
+}
+
+.macros {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.macros h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.macroGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.macroItem {
+  text-align: center;
+}
+
+.macroValue {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #FF5722;
+}
+
+.macroLabel {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.planInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #555;
+}
+
+.infoItem i {
+  color: #FF5722;
+}
+
+.selectButton {
+  width: 100%;
+  padding: 1rem;
+  background: #FF5722;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.selectButton:hover {
+  background: #e64a19;
+}
+
+@media (max-width: 768px) {
+  .dietPlanPage {
+    padding: 1rem;
+  }
+
+  .plansContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .planCard {
+    padding: 1.5rem;
+  }
+
+  .pageTitle h1 {
+    font-size: 2rem;
+  }
+} 
