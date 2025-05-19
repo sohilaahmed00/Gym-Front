@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Exercises.module.css';
 import { fetchCategories, fetchExercises } from '../../services/exerciseAPI';
+import { Link } from 'react-router-dom';
 
 export default function Exercises() {
   const [categories, setCategories] = useState([]);
@@ -124,7 +125,7 @@ export default function Exercises() {
               <div className="row g-4">
                 {exercises.map((exercise) => (
                   <div key={exercise.exercise_ID} className="col-lg-3 col-md-6">
-                    <div className={`card h-100 shadow-sm ${styles.Box_border}`}>
+                    <Link to={`/exercise/${exercise.exercise_ID}`} className="card h-100 shadow-sm" style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div className="card-img-top overflow-hidden" style={{ height: '250px' }}>
                         <img
                           src={
@@ -158,7 +159,7 @@ export default function Exercises() {
                           {exercise.calories_Burned} Calories Burned
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
