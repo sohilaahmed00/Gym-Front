@@ -12,6 +12,7 @@
   background-color: #fff;
   margin-bottom: 3rem;
   position: relative;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .pageTitle::after {
@@ -44,28 +45,25 @@
 .searchSection {
   max-width: 1200px;
   margin: 0 auto 3rem;
-  padding: 0;
+  padding: 0 2rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .searchBar {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  flex: 1;
+  min-width: 300px;
 }
 
 .searchInput {
-  flex: 1;
+  width: 100%;
   padding: 1rem 1.5rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
-  background: white;
-  color: #333;
   transition: all 0.3s ease;
-}
-
-.searchInput::placeholder {
-  color: #999;
 }
 
 .searchInput:focus {
@@ -80,19 +78,12 @@
   flex-wrap: wrap;
 }
 
-.filterGroup {
-  flex: 1;
-  min-width: 200px;
-}
-
 .filterGroup select {
-  width: 100%;
   padding: 1rem 1.5rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
-  background: white;
-  color: #333;
+  background-color: white;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -109,7 +100,7 @@
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 0 4rem;
+  padding: 0 2rem 4rem;
 }
 
 .coachCard {
@@ -131,7 +122,7 @@
   width: 100%;
   height: 250px;
   object-fit: cover;
-  object-position: center;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .coachInfo {
@@ -141,26 +132,25 @@
 .coachName {
   font-size: 1.5rem;
   color: #333;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
 .coachSpecialization {
   color: #FF5722;
-  font-weight: 500;
+  font-size: 1.1rem;
   margin-bottom: 1rem;
-  font-size: 1rem;
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  background: rgba(255,87,34,0.1);
-  border-radius: 20px;
+  font-weight: 500;
 }
 
 .coachBio {
   color: #666;
   margin-bottom: 1.5rem;
   line-height: 1.6;
-  font-size: 0.95rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .rating {
@@ -171,27 +161,91 @@
 }
 
 .star {
-  color: #FF5722;
-  font-size: 1.1rem;
+  color: #FFD700;
+  font-size: 1.2rem;
 }
 
 .viewProfileBtn {
   display: inline-block;
-  padding: 0.8rem 1.5rem;
+  width: 100%;
+  padding: 1rem;
   background: #FF5722;
   color: white;
+  text-align: center;
   text-decoration: none;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
-  width: 100%;
-  text-align: center;
-  border: 2px solid #FF5722;
 }
 
 .viewProfileBtn:hover {
-  background: transparent;
-  color: #FF5722;
+  background: #f4511e;
+  transform: translateY(-2px);
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #FF5722;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 2rem;
+  text-align: center;
+}
+
+.errorMessage {
+  color: #dc3545;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  padding: 0.8rem 2rem;
+  background: #FF5722;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+  background: #f4511e;
+}
+
+.noResults {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 @media (max-width: 768px) {
@@ -212,12 +266,7 @@
   }
 
   .coachesGrid {
-    grid-template-columns: 1fr;
-    padding: 0 1rem 3rem;
-  }
-
-  .coachImage {
-    height: 200px;
+    padding: 0 1rem 2rem;
   }
 } 
 
