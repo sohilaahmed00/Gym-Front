@@ -220,3 +220,24 @@
     height: 200px;
   }
 } 
+
+.buttonsContainer {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.subscribeBtn {
+  padding: 8px 14px;
+  background-color: #e57631;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.subscribeBtn:hover {
+  background-color: #d55d12;
+}

@@ -37,6 +37,7 @@ export default function Navbar() {
     { name: 'Home', icon: <i className="fa fa-home me-1"></i>, path: '/' },
     { name: 'Calories', icon: <i className="fa fa-calculator me-1"></i>, path: '/calories-calc' },
     { name: 'Diet Plans', icon: <i className="fa fa-apple-alt me-1"></i>, path: '/nutrition-plan' },
+    { name: 'Trainers', icon: <i className="fa fa-chalkboard-teacher me-1"></i>, path: '/coaches' },
     { name: 'Exercises', icon: <i className="fa fa-dumbbell me-1"></i>, path: '/exercises' },
     { name: 'Products', icon: <i className="fa fa-store me-1"></i>, path: '/products' },
     { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/user' },
