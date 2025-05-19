@@ -22,7 +22,7 @@ import ExpiredSubscriberDetails from '../../coach/pages/ExpiredSubscriberDetails
 import UserDashboard from '../../UserProfile/UserDashboard';
 import UserHome from '../../UserProfile/pages/UserHome';
 import TrainingSchedule from '../../UserProfile/pages/TrainingSchedule';
-import DietPlan from '../../UserProfile/pages/DietPlan';
+import DietPlan from '../DietPlan/DietPlan';
 import Coaches from '../Coaches/Coaches';
 import CoachProfile from '../CoachProfile/CoachProfile';
 import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
@@ -76,6 +76,7 @@ const routes = createBrowserRouter([
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
+      { path: 'nutrition-plan', element: <DietPlan /> },
       { path: 'register', element: <Register />},
       { path: 'confirm-mail', element: <ConfirmMail />},
       { path: 'complete-profile', element: <CompleteProfile />},
