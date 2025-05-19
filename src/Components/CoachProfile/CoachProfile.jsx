@@ -33,6 +33,10 @@ function CoachProfile() {
     fetchCoachProfile();
   }, [id]);
 
+  const handleSubscribe = () => {
+    navigate(`/subscribe?coachId=${id}`);
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -104,10 +108,6 @@ function CoachProfile() {
               <span className={styles.statValue}>{coach.experience_Years}</span>
               <span className={styles.statLabel}>Years Experience</span>
             </div>
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>{coach.availability}</span>
-              <span className={styles.statLabel}>Availability</span>
-            </div>
           </div>
 
           <div className={styles.bio}>
@@ -129,8 +129,12 @@ function CoachProfile() {
             </div>
           </div>
 
-          <button className={styles.bookButton}>
-            Book a Session
+          <button 
+            className={styles.bookButton}
+            onClick={handleSubscribe}
+            
+          >
+            Subscribe Now
           </button>
         </div>
       </div>
