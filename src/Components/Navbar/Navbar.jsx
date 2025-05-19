@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaShoppingCart } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -12,13 +12,13 @@ export default function Navbar() {
   const [fullName, setFullName] = useState(''); 
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const navigate = useNavigate();
-
+  const location = useLocation();
   
   useEffect(() => {
     const storedFullName = localStorage.getItem('fullName') || ''; 
     setFullName(localStorage.getItem('fullName') || ''); 
     setIsLoggedIn(checkLoginStatus());
-  }, []); 
+  }, [location.pathname]); 
 
   
   const guestLinks = [

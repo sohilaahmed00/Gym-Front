@@ -1,41 +1,38 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome, faCalendarCheck, faAppleAlt, faComments,faCog } from '@fortawesome/free-solid-svg-icons';
+import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
   const menuItems = [
-    { label: 'Home', path: '' },
-    { label: 'Training Schedule', path: 'schedule' },
-    { label: 'Diet Plan', path: 'diet' },
-    { label: 'Chat with Coach', path: 'chat' },
+    { label: 'Home', path: '', icon: faHome },
+    { label: 'Training Schedule', path: 'schedule', icon: faCalendarCheck },
+    { label: 'Diet Plan', path: 'diet', icon: faAppleAlt },
+    { label: 'Chat with Coach', path: 'chat', icon: faComments },
+    { label: 'Setting', path: 'settings', icon: faCog },
+
   ];
 
   return (
-    <div style={{
-      width: '250px',
-      backgroundColor: '#ffffff',
-      borderRight: '1px solid #ddd',
-      padding: '20px',
-      boxShadow: '2px 0 6px rgba(0,0,0,0.05)'
-    }}>
-      <h4 className="text-center fw-bold mb-4" style={{ color: '#fd5c28' }}>
-        🧍 User Panel
-      </h4>
-
-      <nav className="d-flex flex-column gap-3">
-        {menuItems.map((item) => (
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>
+        <span className={styles.sidebarTitle}>🧍 User Panel</span>
+      </div>
+      <nav className={styles.nav}>
+        {menuItems.map((item, idx) => (
           <NavLink
-            key={item.path}
             to={item.path}
-            end
-            className={({ isActive }) =>
-              `fw-medium text-decoration-none ${isActive ? 'text-primary' : 'text-dark'}`
-            }
+            key={idx}
+            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+            end={item.path === ''}
           >
-            ▸ {item.label}
+            <FontAwesomeIcon icon={item.icon} className={styles.icon} />
+            <span className={styles.label}>{item.label}</span>
           </NavLink>
         ))}
       </nav>
-    </div>
+    </aside>
   );
 };
 
