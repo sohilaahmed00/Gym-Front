@@ -1,120 +1,134 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './Coaches.module.css';
 import { Link } from 'react-router-dom';
 
 function Coaches() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-    specialization: '',
-    language: '',
-    location: ''
+    specialization: ''
   });
+  const [coaches, setCoaches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const coaches = [
-    {
-      id: 1,
-      name: "Ahmed Said",
-      specialization: "Fitness Trainer",
-      bio: "Certified fitness trainer with 5 years of experience in personal training. Specialized in strength and endurance training.",
-      rating: 4.5,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      language: "Arabic",
-      location: "Dubai"
-    },
-    {
-      id: 2,
-      name: "Sarah Mohamed",
-      specialization: "Nutrition Coach",
-      bio: "Certified nutritionist with 3 years of experience in meal planning and client coaching.",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80",
-      language: "Arabic",
-      location: "Abu Dhabi"
-    },
-    {
-      id: 3,
-      name: "Mohamed Ali",
-      specialization: "Sports Coach",
-      bio: "Professional sports coach with 7 years of experience in team sports and professional athletes training.",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      language: "Arabic",
-      location: "Dubai"
-    },
-    {
-      id: 4,
-      name: "Layla Ahmed",
-      specialization: "Fitness Trainer",
-      bio: "Certified fitness trainer specialized in women's training with 4 years of experience in fitness.",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      language: "Arabic",
-      location: "Abu Dhabi"
-    },
-    {
-      id: 5,
-      name: "John Smith",
-      specialization: "Sports Coach",
-      bio: "International sports coach with 10 years of experience in elite athlete training.",
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      language: "English",
-      location: "Dubai"
-    },
-    {
-      id: 6,
-      name: "Nora Khalid",
-      specialization: "Nutrition Coach",
-      bio: "Certified nutritionist specialized in sports nutrition with 6 years of experience.",
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80",
-      language: "Arabic",
-      location: "Abu Dhabi"
-    },
-    {
-      id: 7,
-      name: "Ali Hassan",
-      specialization: "Fitness Trainer",
-      bio: "Certified fitness trainer specialized in senior training with 8 years of experience.",
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      language: "Arabic",
-      location: "Dubai"
-    },
-    {
-      id: 8,
-      name: "Emily Wilson",
-      specialization: "Nutrition Coach",
-      bio: "Certified nutritionist specialized in therapeutic nutrition with 5 years of experience.",
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1976&q=80",
-      language: "English",
-      location: "Abu Dhabi"
-    }
-  ];
+  // Fetch coaches data from API
+  useEffect(() => {
+    const fetchCoaches = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        // Transform the data to match our component's structure
+        const transformedData = data.map(coach => ({
+          id: coach.userId,
+          name: coach.fullName,
+          specialization: coach.specialization,
+          bio: coach.bio,
+          image: coach.image,
+          rating: 0, // Default rating since it's not in the API
+          experience: `${coach.experience_Years} years`,
+          availability: coach.availability === "true"
+        }));
+        setCoaches(transformedData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching coaches:', err);
+        setError('Failed to load coaches. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCoaches();
+  }, []);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = async (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'specialization' && value) {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://gymmatehealth.runasp.net/api/Coaches/GetCoachesByspecialization/${value}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const transformedData = data.map(coach => ({
+          id: coach.userId,
+          name: coach.fullName,
+          specialization: coach.specialization,
+          bio: coach.bio,
+          image: coach.image,
+          rating: 0,
+          experience: `${coach.experience_Years} years`,
+          availability: coach.availability === "true"
+        }));
+        setCoaches(transformedData);
+      } catch (err) {
+        console.error('Error fetching coaches by specialization:', err);
+        setError('Failed to load coaches. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
+  // Get unique values for filter dropdowns
+  const getUniqueValues = (field) => {
+    if (!coaches || coaches.length === 0) return [];
+    const values = [...new Set(coaches.map(coach => coach[field]))];
+    return values.filter(value => value); // Filter out null/undefined values
+  };
+
+  const specializations = getUniqueValues('specialization');
+
   const filteredCoaches = coaches.filter(coach => {
-    const matchesSearch = coach.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         coach.specialization.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = coach.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         coach.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilters = (!filters.specialization || coach.specialization === filters.specialization) &&
-                          (!filters.language || coach.language === filters.language) &&
-                          (!filters.location || coach.location === filters.location);
+    const matchesFilters = (!filters.specialization || coach.specialization === filters.specialization);
 
     return matchesSearch && matchesFilters;
   });
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loader}></div>
+        <p>Loading coaches...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <p className={styles.errorMessage}>{error}</p>
+        <button 
+          className={styles.retryButton}
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.coachesPage}>
@@ -142,63 +156,53 @@ function Coaches() {
               onChange={handleFilterChange}
             >
               <option value="">All Specializations</option>
-              <option value="Fitness Trainer">Fitness Trainer</option>
-              <option value="Nutrition Coach">Nutrition Coach</option>
-              <option value="Sports Coach">Sports Coach</option>
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <select
-              name="language"
-              value={filters.language}
-              onChange={handleFilterChange}
-            >
-              <option value="">All Languages</option>
-              <option value="Arabic">Arabic</option>
-              <option value="English">English</option>
-            </select>
-          </div>
-
-          <div className={styles.filterGroup}>
-            <select
-              name="location"
-              value={filters.location}
-              onChange={handleFilterChange}
-            >
-              <option value="">All Locations</option>
-              <option value="Dubai">Dubai</option>
-              <option value="Abu Dhabi">Abu Dhabi</option>
+              {specializations.map(spec => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
             </select>
           </div>
         </div>
       </div>
 
       <div className={styles.coachesGrid}>
-        {filteredCoaches.map(coach => (
-          <div key={coach.id} className={styles.coachCard}>
-            <img src={coach.image} alt={coach.name} className={styles.coachImage} />
-            <div className={styles.coachInfo}>
-              <h2 className={styles.coachName}>{coach.name}</h2>
-              <p className={styles.coachSpecialization}>{coach.specialization}</p>
-              <p className={styles.coachBio}>{coach.bio}</p>
-              <div className={styles.rating}>
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={styles.star}>
-                    {i < Math.floor(coach.rating) ? '★' : '☆'}
-                  </span>
-                ))}
-                <span>({coach.rating})</span>
+        {filteredCoaches.length > 0 ? (
+          filteredCoaches.map(coach => (
+            <div key={coach.id} className={styles.coachCard}>
+              <img 
+                src={coach.image || '/placeholder-coach.jpg'} 
+                alt={coach.name} 
+                className={styles.coachImage}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/placeholder-coach.jpg';
+                }}
+              />
+              <div className={styles.coachInfo}>
+                <h2 className={styles.coachName}>{coach.name}</h2>
+                <p className={styles.coachSpecialization}>{coach.specialization}</p>
+                <p className={styles.coachBio}>{coach.bio}</p>
+                <div className={styles.rating}>
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={styles.star}>
+                      {i < Math.floor(coach.rating || 0) ? '★' : '☆'}
+                    </span>
+                  ))}
+                  <span>({coach.rating || 'N/A'})</span>
+                </div>
+                <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
+                  View Profile
+                </Link>
               </div>
-              <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
-                View Profile
-              </Link>
             </div>
+          ))
+        ) : (
+          <div className={styles.noResults}>
+            <p>No coaches found matching your criteria.</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 }
 
-export default Coaches; 
+export default Coaches;
