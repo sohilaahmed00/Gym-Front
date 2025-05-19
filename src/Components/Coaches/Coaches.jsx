@@ -16,7 +16,7 @@ function Coaches() {
     const fetchCoaches = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://cors-anywhere.herokuapp.com/https://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
         ;
         
         if (!response.ok) {
