@@ -34,7 +34,7 @@ function CoachProfile() {
   }, [id]);
 
   const handleSubscribe = () => {
-    navigate(`/subscribe?coachId=${id}`);
+    navigate('/subscribe', { state: { coachId: id } });
   };
 
   if (loading) {
