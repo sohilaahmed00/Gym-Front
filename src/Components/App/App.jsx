@@ -29,6 +29,7 @@ import CaloriesCalculator from '../CaloriesCalculator/CaloriesCalculator';
 import CoachSettings from '../../coach/pages/CoachSetting';
 import Payment from '../Payment/Payment';
 import PricingPlans from '../Home/PricingPlans/PricingPlans';
+import ExerciseDetails from '../ExerciseDetails/ExerciseDetails';
 
 // Admin
 import Admin from '../../admin/Admin';
@@ -77,6 +78,7 @@ const routes = createBrowserRouter([
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
       { path: 'exercises', element: <Exercises /> },
+      { path: 'exercise/:id', element: <ExerciseDetails /> },
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'PricingPlans', element: <PricingPlans /> },

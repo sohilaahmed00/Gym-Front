@@ -52,7 +52,7 @@ export default function Navbar() {
 
   const userLinks = [
     { name: 'Home', icon: <i className="fa fa-home me-1"></i>, path: '/' },
-    { name: 'Calories', icon: <i className="fa fa-calculator me-1"></i>, path: '/calories-calc' },
+    { name: 'Calories', icon: <i className="fa fa-calculator me-1"></i>, path: '/calories-calculator' },
     { name: 'Diet Plans', icon: <i className="fa fa-apple-alt me-1"></i>, path: '/nutrition-plan' },
     { name: 'Trainers', icon: <i className="fa fa-chalkboard-teacher me-1"></i>, path: '/coaches' },
     { name: 'Exercises', icon: <i className="fa fa-dumbbell me-1"></i>, path: '/exercises' },
