@@ -25,7 +25,7 @@ const PricingPlans = () => {
         {/* 3 Months Plan */}
         <div className={styles.planCard}>
           <h3>3 Months Plan</h3>
-          <div className={styles.price}>$19<span>/mo</span></div>
+          <div className={styles.price}>600 EGP</div>
           <ul>
             <li><span className={styles.checkmark}>✓</span> Unlimited Access to Gym Equipment</li>
             <li><span className={styles.checkmark}>✓</span> Access to Group Fitness Classes</li>
@@ -36,14 +36,15 @@ const PricingPlans = () => {
             className={styles.getStartedBtn}
             onClick={() => handleSubscribe('3 Months Plan')}
           >
-            Subscribe
+            Subscribe Now
           </button>
         </div>
 
         {/* 6 Months Plan */}
         <div className={`${styles.planCard} ${styles.highlighted}`}>
-          <h3>6 Months Plan</h3>
-          <div className={styles.price}>$40<span>/mo</span></div>
+          <div className={styles.popularBadge}>Most Popular</div>
+          <h3 style={{marginTop: '1.5rem'}}>6 Months Plan</h3>
+          <div className={styles.price}>1200 EGP</div>
           <ul>
             <li><span className={styles.checkmark}>✓</span> Unlimited Access to Gym Equipment</li>
             <li><span className={styles.checkmark}>✓</span> Access to Group Fitness Classes</li>
@@ -55,14 +56,14 @@ const PricingPlans = () => {
             className={styles.getStartedBtn}
             onClick={() => handleSubscribe('6 Months Plan')}
           >
-            Subscribe
+            Subscribe Now
           </button>
         </div>
 
         {/* 1 Year Plan */}
         <div className={styles.planCard}>
           <h3>1 Year Plan</h3>
-          <div className={styles.price}>$60<span>/mo</span></div>
+          <div className={styles.price}>1800 EGP</div>
           <ul>
             <li><span className={styles.checkmark}>✓</span> All Premium Plan Benefits</li>
             <li><span className={styles.checkmark}>✓</span> Weekly Personal Training Sessions</li>
@@ -74,7 +75,7 @@ const PricingPlans = () => {
             className={styles.getStartedBtn}
             onClick={() => handleSubscribe('1 Year Plan')}
           >
-            Subscribe
+            Subscribe Now
           </button>
         </div>
       </div>
