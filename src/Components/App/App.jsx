@@ -55,6 +55,7 @@ import ResetPassword from '../Auth/reset-password/ResetPassword';
 
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import UserSettings from '../../UserProfile/pages/UserSettings';
+import SubscribePage from '../subscribe/SubscribePage';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -76,6 +77,7 @@ const routes = createBrowserRouter([
       { path: 'exercises', element: <Exercises /> },
       { path: 'coaches', element: <Coaches /> },
       { path: 'coach/:id', element: <CoachProfile /> },
+      {path: "/subscribe" ,element : <SubscribePage />},
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
       { path: 'register', element: <Register />},
       { path: 'confirm-mail', element: <ConfirmMail />},

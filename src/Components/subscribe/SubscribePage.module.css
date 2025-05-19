@@ -1,0 +1,124 @@
+.container {
+    max-width: 480px;
+    margin: 40px auto;
+    padding: 20px;
+    margin-top: 100px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .heading {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #333;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .input,
+  .select {
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    outline: none;
+    background-color: #fff;
+  }
+  
+  .button {
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #e57631;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #d55d12;
+  }
+  
+  .imagePreview {
+    margin-top: 10px;
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    object-fit: contain;
+    border: 1px solid #ccc;
+  }
+  
+  .formGroupFlex {
+    display: flex;
+    /* align-items: center; */
+    gap: 12px;
+  }
+  
+  .viewProfileBtn {
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 6px;
+    border: 1px solid #bd4b03;
+    background-color: #c14e07;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .viewProfileBtn:disabled,
+  .viewProfileBtn[disabled] {
+    background-color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .viewProfileBtn:not(:disabled):hover {
+    background-color: #f4823b;
+    border-color: #d55d12;
+  }
+  
+  .flexGrow {
+    flex: 1;
+  }
+  
+  .priceText {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .coachPreselectedNote {
+    color: #666;
+    margin-top: 6px;
+    display: block;
+  }
+  
+  .paymentNote {
+    color: #666;
+    margin-top: 6px;
+    display: block;
+  }
+  
