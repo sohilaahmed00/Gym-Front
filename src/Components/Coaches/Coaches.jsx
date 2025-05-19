@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Coaches.module.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Coaches() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,8 +10,8 @@ function Coaches() {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch coaches data from API
   useEffect(() => {
     const fetchCoaches = async () => {
       try {
@@ -23,14 +23,14 @@ function Coaches() {
         }
         
         const data = await response.json();
-        // Transform the data to match our component's structure
+        // تعديل الرابط الخاص بالصورة ليشمل الرابط الكامل أو إرجاع صورة افتراضية
         const transformedData = data.map(coach => ({
           id: coach.userId,
           name: coach.fullName,
           specialization: coach.specialization,
           bio: coach.bio,
-          image: coach.image,
-          rating: 0, // Default rating since it's not in the API
+          image: coach.image ? `http://gymmatehealth.runasp.net/images/${coach.image}` : '/placeholder-coach.jpg',
+          rating: 0, // يمكن تحسينها حسب بيانات API إذا كانت موجودة
           experience: `${coach.experience_Years} years`,
           availability: coach.availability === "true"
         }));
@@ -47,57 +47,6 @@ function Coaches() {
     fetchCoaches();
   }, []);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleFilterChange = async (e) => {
-    const { name, value } = e.target;
-    
-    if (name === 'specialization' && value) {
-      try {
-        setLoading(true);
-        const response = await fetch(`http://gymmatehealth.runasp.net/api/Coaches/GetCoachesByspecialization/${value}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        const transformedData = data.map(coach => ({
-          id: coach.userId,
-          name: coach.fullName,
-          specialization: coach.specialization,
-          bio: coach.bio,
-          image: coach.image,
-          rating: 0,
-          experience: `${coach.experience_Years} years`,
-          availability: coach.availability === "true"
-        }));
-        setCoaches(transformedData);
-      } catch (err) {
-        console.error('Error fetching coaches by specialization:', err);
-        setError('Failed to load coaches. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      setFilters(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  // Get unique values for filter dropdowns
-  const getUniqueValues = (field) => {
-    if (!coaches || coaches.length === 0) return [];
-    const values = [...new Set(coaches.map(coach => coach[field]))];
-    return values.filter(value => value); // Filter out null/undefined values
-  };
-
-  const specializations = getUniqueValues('specialization');
-
   const filteredCoaches = coaches.filter(coach => {
     const matchesSearch = coach.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          coach.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,6 +55,11 @@ function Coaches() {
 
     return matchesSearch && matchesFilters;
   });
+
+  const handleSubscribe = (coachId) => {
+    // انتقل إلى صفحة الاشتراك مع تمرير معرف المدرب فقط
+    navigate('/subscribe', { state: { coachId } });
+  };
 
   if (loading) {
     return (
@@ -144,7 +98,7 @@ function Coaches() {
             className={styles.searchInput}
             placeholder="Search for a coach..."
             value={searchTerm}
-            onChange={handleSearch}
+            onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
 
@@ -153,10 +107,10 @@ function Coaches() {
             <select
               name="specialization"
               value={filters.specialization}
-              onChange={handleFilterChange}
+              onChange={e => setFilters(prev => ({ ...prev, specialization: e.target.value }))}
             >
               <option value="">All Specializations</option>
-              {specializations.map(spec => (
+              {[...new Set(coaches.map(c => c.specialization).filter(Boolean))].map(spec => (
                 <option key={spec} value={spec}>{spec}</option>
               ))}
             </select>
@@ -168,15 +122,15 @@ function Coaches() {
         {filteredCoaches.length > 0 ? (
           filteredCoaches.map(coach => (
             <div key={coach.id} className={styles.coachCard}>
-              <img 
-                src={coach.image || '/placeholder-coach.jpg'} 
+              {/* <img 
+                src={coach.image} 
                 alt={coach.name} 
                 className={styles.coachImage}
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = '/placeholder-coach.jpg';
                 }}
-              />
+              /> */}
               <div className={styles.coachInfo}>
                 <h2 className={styles.coachName}>{coach.name}</h2>
                 <p className={styles.coachSpecialization}>{coach.specialization}</p>
@@ -189,9 +143,18 @@ function Coaches() {
                   ))}
                   <span>({coach.rating || 'N/A'})</span>
                 </div>
-                <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
-                  View Profile
-                </Link>
+                <div className={styles.buttonsContainer}>
+                  <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
+                    View Profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleSubscribe(coach.id)}
+                    className={styles.subscribeBtn}
+                  >
+                    Subscribe
+                  </button>
+                </div>
               </div>
             </div>
           ))
