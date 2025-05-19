@@ -16,6 +16,31 @@ const planNames = {
   '1_Year': '1 Year Plan',
 };
 
+const paymentMethods = {
+  '': 'Select a payment method',
+  'instapay': {
+    name: 'InstaPay',
+    details: 'Username: @yourinstapayusername \n Please include your full name in the transaction notes.',
+    iconClass: 'fas fa-money-bill-wave' // Using Font Awesome icon class
+  },
+  'vodafonecash': {
+    name: 'Vodafone Cash',
+    details: 'Phone Number: 01012345678 \n Transfer the exact amount and upload a screenshot of the transaction.',
+    iconClass: 'fas fa-mobile-alt' // Using Font Awesome icon class
+  },
+  'fawry': {
+    name: 'Fawry',
+    details: 'Fawry Code: 98765 \n Use this code at any Fawry machine or app. Upload the receipt image.',
+    iconClass: 'fas fa-barcode' // Using Font Awesome icon class
+  },
+  'banktransfer': {
+    name: 'Bank Transfer',
+    details: 'Bank Name: [Your Bank Name] \n Account Number: 1234567890 \n Account Name: [Your Name] \n Please include your full name as reference and upload the transfer confirmation.',
+    iconClass: 'fas fa-university' // Using Font Awesome icon class
+  },
+  // Add other payment methods as needed
+};
+
 const SubscribePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -27,6 +52,7 @@ const SubscribePage = () => {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
 
   const isCoachPreselected = Boolean(coachIdFromState);
 
@@ -35,6 +61,7 @@ const SubscribePage = () => {
     coachId: coachIdFromState,
     subscriptionType: planFromState,
     paymentProof: null,
+    paymentMethod: '',
   });
 
   useEffect(() => {
@@ -69,6 +96,9 @@ const SubscribePage = () => {
       }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+      if (name === 'paymentMethod') {
+        setSelectedPaymentMethod(value);
+      }
     }
   };
 
@@ -76,10 +106,17 @@ const SubscribePage = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!formData.paymentMethod) {
+      toast.current.show({ severity: 'warn', summary: 'Warning', detail: 'Please select a payment method.', life: 3000 });
+      setLoading(false);
+      return;
+    }
+
     const data = new FormData();
     data.append('User_ID', formData.userId);
     data.append('Coach_ID', formData.coachId);
     data.append('SubscriptionType', formData.subscriptionType);
+    data.append('PaymentMethod', formData.paymentMethod);
     if (formData.paymentProof) {
       data.append('PaymentProof', formData.paymentProof);
     }
@@ -191,6 +228,33 @@ const SubscribePage = () => {
             className={styles.input}
           />
         </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Payment Method:</label>
+          <select
+            name="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleChange}
+            required
+            className={styles.select}
+          >
+            {Object.entries(paymentMethods).map(([key, method]) => (
+              <option key={key} value={key} disabled={key === ''}>
+                {method.name || method}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedPaymentMethod && selectedPaymentMethod !== '' && paymentMethods[selectedPaymentMethod] && (
+          <div className={`${styles.formGroup} ${styles.paymentDetails}`}>
+            <h3>{paymentMethods[selectedPaymentMethod].name} Details:</h3>
+            {paymentMethods[selectedPaymentMethod].iconClass && (
+              <i className={`${paymentMethods[selectedPaymentMethod].iconClass} ${styles.paymentMethodIcon}`}></i>
+            )}
+            <p className={styles.paymentDetailsText}>{paymentMethods[selectedPaymentMethod].details}</p>
+          </div>
+        )}
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Payment Proof:</label>
