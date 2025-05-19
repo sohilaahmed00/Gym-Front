@@ -39,6 +39,7 @@ export default function ManageProducts() {
   
   // Image Preview State
   const [showImageModal, setShowImageModal] = useState(false);
+  // متغير لتخزين معرف المنتج المحدد عند النقر على الصورة
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProductName, setSelectedProductName] = useState('');
 
@@ -52,10 +53,10 @@ export default function ManageProducts() {
   };
 
   // عرض الصورة في النافذة المنبثقة
-  const handleShowImage = (imageUrl, productName) => {
-    if (!imageUrl) return;
+  const handleShowImage = (productId, productName) => {
+    if (!productId) return;
     
-    setSelectedImage(imageUrl);
+    setSelectedImage(productId);
     setSelectedProductName(productName);
     setShowImageModal(true);
   };
@@ -355,6 +356,7 @@ export default function ManageProducts() {
                   className="form-control" 
                   name="image_URL" 
                   value={newProduct.image_URL} 
+                  // value={selectedImage}
                   onChange={handleAddProductInputChange}
                   placeholder="أدخل اسم ملف الصورة"
                 />
@@ -554,35 +556,37 @@ export default function ManageProducts() {
                   {products.map((product) => (
                     <tr key={product.product_ID} className="product-row">
                       <td className="text-start">
-                        <span style={{
-                          display: 'inline-flex',
+                        <div style={{
+                          display: 'flex',
                           alignItems: 'center',
-                          gap: 10,
+                          gap: '15px',
                         }}>
                           {product.image_URL ? (
                             <div 
                               style={{
-                                width: 60,
-                                height: 60,
-                                borderRadius: '8px',
+                                width: 80,
+                                height: 80,
+                                borderRadius: '10px',
                                 overflow: 'hidden',
                                 cursor: 'pointer',
-                                border: '1px solid #dee2e6',
+                                border: '2px solid #e9ecef',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: '#f8f9fa'
+                                backgroundColor: '#f8f9fa',
+                                transition: 'all 0.3s ease',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                               }}
-                              onClick={() => handleShowImage(getImageUrl(product.image_URL), product.product_Name)}
+                              onClick={() => handleShowImage(product.product_ID, product.product_Name)}
                               title="انقر لتكبير الصورة"
                             >
                               <img 
-                                src={getImageUrl(product.image_URL)} 
+                                src={`http://gymmatehealth.runasp.net/Images/Products/${product.image_URL}`} 
                                 alt={product.product_Name}
                                 onError={(e) => {
                                   console.log('خطأ في تحميل الصورة:', product.image_URL);
                                   e.target.onerror = null;
-                                  e.target.src = "https://via.placeholder.com/60?text=صورة";
+                                  // e.target.src = "https://via.placeholder.com/80?text=صورة";
                                 }}
                                 style={{
                                   width: '100%',
@@ -592,22 +596,38 @@ export default function ManageProducts() {
                               />
                             </div>
                           ) : (
-                            <span style={{
-                              display: 'inline-flex',
+                            <div style={{
+                              display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              width: 60,
-                              height: 60,
-                              borderRadius: '8px',
+                              width: 80,
+                              height: 80,
+                              borderRadius: '10px',
                               background: '#0d6efd22',
                               color: '#0d6efd',
-                              fontSize: 20,
+                              fontSize: 24,
+                              border: '2px solid #e9ecef',
                             }}>
                               <i className="fas fa-box"></i>
-                            </span>
+                            </div>
                           )}
-                          <span style={{ fontWeight: 600, fontSize: 16 }}>{product.product_Name}</span>
-                        </span>
+                          <div>
+                            <h6 style={{ 
+                              margin: 0, 
+                              fontWeight: 600, 
+                              fontSize: 16,
+                              color: '#2c3e50'
+                            }}>
+                              {product.product_Name}
+                            </h6>
+                            <small style={{ 
+                              color: '#6c757d',
+                              fontSize: 13
+                            }}>
+                              ID: {product.product_ID}
+                            </small>
+                          </div>
+                        </div>
                       </td>
                       <td>
                         <span className="text-muted" style={{ fontSize: '0.9rem' }}>
@@ -689,7 +709,7 @@ export default function ManageProducts() {
               minHeight: '300px'
             }}>
               <img 
-                src={selectedImage} 
+                src={`http://gymmatehealth.runasp.net/api/Products/GetProductById1/${selectedImage}`} 
                 alt="صورة المنتج" 
                 style={{ 
                   maxWidth: '100%', 
@@ -700,7 +720,7 @@ export default function ManageProducts() {
                 }} 
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "https://via.placeholder.com/400x300?text=صورة+غير+متوفرة";
+                  // e.target.src = "https://via.placeholder.com/400x300?text=صورة+غير+متوفرة";
                 }}
               />
             </div>
