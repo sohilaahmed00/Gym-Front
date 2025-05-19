@@ -7,9 +7,9 @@ const PricingPlans = () => {
   const navigate = useNavigate();
 
   const planApiNames = {
-    '3 Months Plan': '3_Months',
-    '6 Months Plan': '6_Months',
-    '1 Year Plan': '1_Year',
+    '3 Months Plan': '3 Months',
+    '6 Months Plan': '6 Months',
+    '1 Year Plan': '1 Year',
   };
 
   const handleSubscribe = (planDisplayName) => {
