@@ -49,7 +49,7 @@ const DIFFICULTY_LEVELS = [
   { value: "متقدم", color: "danger" }
 ];
 
-const Exercises = () => {
+const AdminExercises = () => {
   // استخراج معرف القسم من الرابط
   const { categoryId } = useParams();
   const navigate = useNavigate();
