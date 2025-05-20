@@ -9,7 +9,7 @@ const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
 const API_ENDPOINTS = {
   GET_CATEGORY: (id) => `${API_BASE_URL}/Categories/GetCategory/${id}`,
-  GET_EXERCISES_BY_CATEGORY: (id) => `${API_BASE_URL}/Exercises/GetExercisesByCategory/${id}`,
+  GET_EXERCISES_BY_CATEGORY: (id) => `http://gymmatehealth.runasp.net/api/Exercises/GetByCategoryId/${id}`,
   GET_ALL_EXERCISES: `${API_BASE_URL}/Exercises/GetAllExercises`,
   ADD_EXERCISE: `${API_BASE_URL}/Exercises/AddExercise`,
   UPDATE_EXERCISE: `${API_BASE_URL}/Exercises/UpdateExercise`,
