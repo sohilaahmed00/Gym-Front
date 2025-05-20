@@ -1,16 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import subscribers from '../data/subscribers.json';
 
-const Sidebar = ({ onSubscriberSelect }) => {
+const Sidebar = () => {
   const navigate = useNavigate();
-
+  const coachId = localStorage.getItem('id');
+  console.log(coachId);
+  
+  const [subscribers, setSubscribers] = useState([]);
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState('All');
   const [showNotif, setShowNotif] = useState(false);
   const [showMsgs, setShowMsgs] = useState(false);
   const [notifCount, setNotifCount] = useState(3);
   const [msgCount, setMsgCount] = useState(5);
+
+  useEffect(() => {
+    const fetchSubscribers = async () => {
+      try {
+        const response = await fetch(`http://gymmatehealth.runasp.net/api/Subscribes/coach/${coachId}`);
+        if (!response.ok) throw new Error('Failed to fetch subscribers');
+        const data = await response.json();
+  
+        const transformed = data.map((item) => ({
+          id: item.userId,
+          name: item.userName,
+          email: item.userEmail,
+          plan: 'Standard',
+          status: 'active',
+          hasNewMessage: false,
+          ...item,
+        }));
+  
+        setSubscribers(transformed);
+      } catch (err) {
+        console.error('Error fetching subscribers:', err);
+      }
+    };
+  
+    if (coachId) fetchSubscribers();
+  }, [coachId]);
+  
 
   const activeSubscribers = subscribers.filter((s) => s.status === 'active');
 
@@ -163,22 +192,22 @@ const Sidebar = ({ onSubscriberSelect }) => {
                 cursor: 'pointer',
                 transition: '0.2s'
               }}
-              onClick={() => onSubscriberSelect(sub.id)}
-            >
+              onClick={() => navigate(`/coach/subscriber/${sub.id}`, { state: { subscriber: sub } })}
+              >
               <span>{sub.name}</span>
               {sub.hasNewMessage && <span className="text-danger fs-6">●</span>}
             </div>
           ))
         )}
-         <NavLink
-        to="/coach/setting"
-        className="d-block mb-4 text-decoration-none fw-medium"
-        style={({ isActive }) => ({
-          color: isActive ? '#0d6efd' : '#333',
-        })}
-      >
-        <i className="bi bi-bar-setting me-2"></i>⚙️ Setting
-      </NavLink>
+        <NavLink
+          to="/coach/setting"
+          className="d-block mb-4 text-decoration-none fw-medium"
+          style={({ isActive }) => ({
+            color: isActive ? '#0d6efd' : '#333',
+          })}
+        >
+          <i className="bi bi-bar-setting me-2"></i>⚙️ Setting
+        </NavLink>
       </div>
     </div>
   );

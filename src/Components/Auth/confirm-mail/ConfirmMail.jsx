@@ -6,24 +6,33 @@ import { SaveRegistrationProgress } from '../../../services/checkRegisterationSt
 import styles from './ConfirmMail.module.css'
 import { Spinner } from 'react-bootstrap';
 
+function decodeJWT(token) {
+  try {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+}
+
 const ConfirmMail = () => {
   const [otp, setOtp] = useState('');
   const [email, setEmail] = useState(''); 
   const [userId, setUserId] = useState('');
+  const [role, setRole] = useState('');  // New state to hold role
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const toast = React.useRef(null);
   const navigate = useNavigate();
   
   const location = useLocation(); 
-  const { email: initialEmail } = location.state || {}; 
+  const { email: initialEmail, userType  } = location.state || {}; 
 
   useEffect(() => {
     if (initialEmail) {
       setEmail(initialEmail); 
     }
   }, [initialEmail]);
-
 
   const validateForm = () => {
     const newErrors = {};
@@ -39,14 +48,15 @@ const ConfirmMail = () => {
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
- if (!validateForm()) return;
+    if (!validateForm()) return;
+
     if (!email) {
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'Email is required', life: 3000 });
       return;
     }
 
     try {
-        setLoading(true);
+      setLoading(true);
       const response = await fetch('http://gymmatehealth.runasp.net/Auth/confirm-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,23 +64,25 @@ const ConfirmMail = () => {
       });
 
       const data = await response.json();
-    //   console.log(data);
 
       if (response.ok) {
+        
         toast.current.show({ severity: 'success', summary: 'Success', detail: 'Email confirmed successfully! Please complete your profile', life: 3000 });
         
         const userId = data.id; 
         setUserId(userId);
-        SaveRegistrationProgress(2)
+        SaveRegistrationProgress(2);
+    
         setTimeout(() => {
-          navigate('/complete-profile', { state: { id: userId } }); 
+          // Send both id and role to the next page
+          navigate('/complete-profile', { state: { id: userId, userType: userType } }); 
         }, 3000); 
       } else {
         toast.current.show({ severity: 'error', summary: 'Error', detail: data.message || 'Invalid OTP', life: 3000 });
       }
       setLoading(false);
     } catch (error) {
-        setLoading(false);
+      setLoading(false);
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to confirm email', life: 3000 });
     }
   };
@@ -87,7 +99,6 @@ const ConfirmMail = () => {
             className={styles.formControl} 
             value={email} 
             onChange={handleEmailChange} 
-             
           />
           {errors.email && <p className={styles.errorText}>{errors.email}</p>}
         </div>
@@ -98,13 +109,12 @@ const ConfirmMail = () => {
             className={styles.formControl} 
             value={otp} 
             onChange={(e) => setOtp(e.target.value)} 
-             
           />
           {errors.otp && <p className={styles.errorText}>{errors.otp}</p>}
         </div>
         <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? <Spinner animation="border" size="sm" /> : 'Verify OTP'}
-            </button>
+          {loading ? <Spinner animation="border" size="sm" /> : 'Verify OTP'}
+        </button>
       </form>
     </div>
   );

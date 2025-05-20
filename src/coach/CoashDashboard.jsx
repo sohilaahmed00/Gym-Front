@@ -14,7 +14,7 @@ const CoachDashboard = () => {
       <div
         className="p-4"
         style={{
-          marginLeft: '250px', // نفس عرض السايدبار
+          marginLeft: '250px', 
           background: '#f8f9fa',
           minHeight: '100vh',
         }}
