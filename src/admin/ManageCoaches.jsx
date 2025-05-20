@@ -30,7 +30,7 @@ export default function ManageCoaches() {
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
-
+  console.log(coaches);
   return (
     <div className="container-fluid py-4">
       <div className="card border-0 shadow-sm">
@@ -96,10 +96,10 @@ export default function ManageCoaches() {
                         alignItems: 'center',
                         gap: 10,
                       }}>
-                        {coach.applicationUser.image ? (
+                        {coach?.image ? (
                           <img 
-                            src={`http://gymmatehealth.runasp.net/Images/${coach.applicationUser.image}`} 
-                            alt={coach.applicationUser.fullName}
+                            src={`http://gymmatehealth.runasp.net/images/profiles/${coach?.image}`} 
+                            alt={coach?.fullName}
                             style={{
                               width: 38,
                               height: 38,
@@ -123,7 +123,7 @@ export default function ManageCoaches() {
                             <i className="fas fa-user-tie"></i>
                           </span>
                         )}
-                        <span style={{ fontWeight: 600, fontSize: 16 }}>{coach.applicationUser.fullName}</span>
+                        <span style={{ fontWeight: 600, fontSize: 16 }}>{coach?.fullName}</span>
                       </span>
                     </td>
                     <td>

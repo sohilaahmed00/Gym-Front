@@ -42,8 +42,7 @@ import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSe
 import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
 import ExerciseCategories from '../../admin/ExerciseCategories';
-import AdminExercises from '../../admin/Exercises';
-
+import AdminExercises from '../../admin/AdminExercises';
 
 
 
@@ -79,7 +78,7 @@ const routes = createBrowserRouter([
       { path: 'checkout', element: <Checkout /> },
       { path: 'exercises', element: <Exercises /> },
       { path: 'exercise/:id', element: <ExerciseDetails /> },
-      { path: 'coaches', element: <Coaches /> },
+      { path: 'coaches', element: <Coaches/> },
       { path: 'coach/:id', element: <CoachProfile /> },
       { path: 'PricingPlans', element: <PricingPlans /> },
       { path: 'subscribe', element: <SubscribePage /> },

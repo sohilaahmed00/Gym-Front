@@ -55,7 +55,7 @@ export default function ManageUsers() {
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
-
+console.log(users);
   return (
     <div className="container-fluid py-4">
       {/* Alert Component */}
@@ -134,10 +134,10 @@ export default function ManageUsers() {
                         alignItems: 'center',
                         gap: 10,
                       }}>
-                        {user.applicationUser.image ? (
+                        {user.image ? (
                           <img 
-                            src={`${API_BASE_URL.replace('/api', '')}/Images/${user.applicationUser.image}`} 
-                            alt={user.applicationUser.fullName}
+                            src={`${API_BASE_URL.replace('/api', '')}/images/profiles/${user.image}`} 
+                            alt={user.fullName}
                             style={{
                               width: 38,
                               height: 38,
@@ -161,24 +161,24 @@ export default function ManageUsers() {
                             <i className="fas fa-user"></i>
                           </span>
                         )}
-                        <span style={{ fontWeight: 600, fontSize: 16 }}>{user.applicationUser.fullName}</span>
+                        <span style={{ fontWeight: 600, fontSize: 16 }}>{user?.fullName}</span>
                       </span>
                     </td>
                     <td>
                       <span className={`badge ${
-                        user.applicationUser.userType === 0 ? 'bg-danger' :
-                        user.applicationUser.userType === 1 ? 'bg-primary' :
-                        user.applicationUser.userType === 2 ? 'bg-info' :
+                        user?.userType === 0 ? 'bg-danger' :
+                        user?.userType === 1 ? 'bg-primary' :
+                        user?.userType === 2 ? 'bg-info' :
                         'bg-success'
                       }`}>
-                        {user.applicationUser.userType === 0 ? 'مدير' : 
-                         user.applicationUser.userType === 1 ? 'طبيب' : 
-                         user.applicationUser.userType === 2 ? 'مستخدم' : 
+                        {user?.userType === 0 ? 'مدير' : 
+                        
+                         user.userType === 2 ? 'مستخدم' : 
                          'مدرب'}
                       </span>
                     </td>
-                    <td>{user.applicationUser.email}</td>
-                    <td>{user.gender === 'Male' ? 'ذكر' : 'أنثى'}</td>
+                    <td>{user?.email}</td>
+                    <td>{user?.gender === 'Male' ? 'ذكر' : 'أنثى'}</td>
                     <td>
                       <span className="badge bg-secondary">
                         {user.fitness_Goal}
