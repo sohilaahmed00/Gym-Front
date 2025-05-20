@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 
 export default function ManageClients() {
   // Clients state
@@ -12,6 +15,35 @@ export default function ManageClients() {
     joinDate: ''
   });
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [alert, setAlert] = useState({ show: false, message: '', type: '' });
+
+  // Show alert function
+  const showAlert = (message, type = 'success') => {
+    setAlert({ show: true, message, type });
+    setTimeout(() => setAlert({ show: false, message: '', type: '' }), 3000);
+  };
+
+  // Handle delete client
+  const handleDeleteClient = async (userId) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+
+    try {
+      setDeletingId(userId);
+      const response = await axios.delete(`${API_BASE_URL}/Users/DeleteUser/${userId}`);
+      
+      if (response.status === 200) {
+        setClients(clients.filter(client => client.id !== userId));
+        setFilteredClients(filteredClients.filter(client => client.id !== userId));
+        showAlert('تم حذف المستخدم بنجاح', 'success');
+      }
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      showAlert('حدث خطأ أثناء حذف المستخدم', 'danger');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // Mock API call function
   const fetchClients = async (searchQuery = '') => {
@@ -111,6 +143,26 @@ export default function ManageClients() {
 
   return (
     <div className="container-fluid py-4">
+      {/* Alert Component */}
+      {alert.show && (
+        <div className={`alert alert-${alert.type} alert-dismissible fade show mt-2 mb-3`} role="alert">
+          <div className="d-flex align-items-center">
+            {alert.type === 'success' ? (
+              <i className="fas fa-check-circle me-2"></i>
+            ) : (
+              <i className="fas fa-exclamation-circle me-2"></i>
+            )}
+            <strong>{alert.message}</strong>
+          </div>
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={() => setAlert({ ...alert, show: false })}
+            aria-label="إغلاق"
+          ></button>
+        </div>
+      )}
+
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
@@ -190,16 +242,16 @@ export default function ManageClients() {
                     <td colSpan="7" className="text-center py-4">
                       <div className="d-flex justify-content-center align-items-center">
                         <div className="spinner-border text-primary me-2" role="status">
-                          <span className="visually-hidden">Loading...</span>
+                          <span className="visually-hidden">جاري التحميل...</span>
                         </div>
-                        Loading clients...
+                        جاري تحميل البيانات...
                       </div>
                     </td>
                   </tr>
                 ) : filteredClients.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="text-center py-4">
-                      No clients found
+                      لا يوجد مستخدمين
                     </td>
                   </tr>
                 ) : (
@@ -245,11 +297,24 @@ export default function ManageClients() {
                         <div className="btn-group">
                           <button className="btn btn-sm btn-outline-primary">
                             <i className="fas fa-edit me-1"></i>
-                            Edit
+                            تعديل
                           </button>
-                          <button className="btn btn-sm btn-outline-danger">
-                            <i className="fas fa-trash me-1"></i>
-                            Delete
+                          <button 
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeleteClient(client.id)}
+                            disabled={deletingId === client.id}
+                          >
+                            {deletingId === client.id ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                جاري الحذف...
+                              </>
+                            ) : (
+                              <>
+                                <i className="fas fa-trash me-1"></i>
+                                حذف
+                              </>
+                            )}
                           </button>
                         </div>
                       </td>

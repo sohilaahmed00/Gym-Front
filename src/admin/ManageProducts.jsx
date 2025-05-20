@@ -7,8 +7,8 @@ const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
-  DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct2?id=${id}`,
-  UPDATE_PRODUCT: `${API_BASE_URL}/Products/UpdateProdcut1`,
+  DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
+  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProdcut${id}`,
   ADD_PRODUCT: `${API_BASE_URL}/Products/AddNewProduct`
 };
 
@@ -39,14 +39,12 @@ export default function ManageProducts() {
   
   // Image Preview State
   const [showImageModal, setShowImageModal] = useState(false);
-  // متغير لتخزين معرف المنتج المحدد عند النقر على الصورة
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedProductName, setSelectedProductName] = useState('');
 
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
-    // إخفاء التنبيه تلقائيًا بعد 3 ثوان
     setTimeout(() => {
       setAlert({ show: false, message: '', type: '' });
     }, 3000);
@@ -65,10 +63,8 @@ export default function ManageProducts() {
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
     
-    // محاولة استخدام مسارات متعددة للصور
     try {
-      // مسار 1: مجلد الصور الكامل
-      return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
+      return `${API_BASE_IMAGE_URL}/Images/Products/${imageFileName}`;
     } catch (err) {
       console.error('Error loading image:', err);
       return null;
@@ -110,7 +106,6 @@ export default function ManageProducts() {
           throw new Error('فشل في حذف المنتج');
         }
         
-        // تحديث قائمة المنتجات
         setProducts(products.filter(product => product.product_ID !== productId));
         showAlert('تم حذف المنتج بنجاح', 'success');
       } catch (err) {
@@ -136,14 +131,12 @@ export default function ManageProducts() {
   const handleAddProductInputChange = (e) => {
     const { name, value } = e.target;
     
-    // للتعامل مع الأرقام
     if (name === 'price' || name === 'stock_Quantity') {
       setNewProduct({
         ...newProduct,
         [name]: parseFloat(value) || 0
       });
     } else if (name === 'discount') {
-      // تحويل النسبة المئوية إلى عشري
       const discountValue = parseFloat(value) || 0;
       setNewProduct({
         ...newProduct,
@@ -176,9 +169,7 @@ export default function ManageProducts() {
         throw new Error('فشل في إضافة المنتج');
       }
       
-      // إعادة تحميل البيانات من الخادم
       await fetchProducts();
-      
       setIsAddingProduct(false);
       showAlert('تم إضافة المنتج بنجاح', 'success');
     } catch (err) {
@@ -202,14 +193,12 @@ export default function ManageProducts() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // للتعامل مع الأرقام
     if (name === 'price' || name === 'stock_Quantity') {
       setEditingProduct({
         ...editingProduct,
         [name]: parseFloat(value) || 0
       });
     } else if (name === 'discount') {
-      // تحويل النسبة المئوية إلى عشري
       const discountValue = parseFloat(value) || 0;
       setEditingProduct({
         ...editingProduct,
@@ -229,27 +218,42 @@ export default function ManageProducts() {
     
     try {
       setIsSubmitting(true);
-      
-      const response = await fetch(API_ENDPOINTS.UPDATE_PRODUCT, {
+
+      const formData = new FormData();
+      formData.append('Product_Name', editingProduct.product_Name);
+      formData.append('Description', editingProduct.description);
+      formData.append('Price', editingProduct.price.toString());
+      formData.append('Discount', editingProduct.discount.toString());
+      formData.append('Stock_Quantity', editingProduct.stock_Quantity.toString());
+      // product_ID يُرسل في الرابط، لا حاجة لإضافته هنا مرة أخرى
+
+      // طباعة محتويات formData للتحقق
+      console.log("البيانات التي سيتم إرسالها (FormData):");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      const response = await fetch(API_ENDPOINTS.UPDATE_PRODUCT(editingProduct.product_ID), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editingProduct)
+        // لا نُحدد Content-Type هنا، المتصفح سيقوم بذلك مع FormData
+        body: formData
       });
       
       if (!response.ok) {
-        throw new Error('فشل في تحديث المنتج');
+        const errorData = await response.text(); // محاولة قراءة جسم الخطأ كنص
+        console.error('Update failed response status:', response.status, 'Error data:', errorData);
+        throw new Error(`فشل في تحديث المنتج. الحالة: ${response.status}. التفاصيل: ${errorData}`);
       }
       
       // تحديث المنتج في القائمة المحلية
       setProducts(products.map(product => 
-        product.product_ID === editingProduct.product_ID ? editingProduct : product
+        product.product_ID === editingProduct.product_ID ? { ...editingProduct } : product
       ));
       
       setEditingProduct(null);
       showAlert('تم تحديث المنتج بنجاح', 'success');
     } catch (err) {
+      console.error('Error during submit edit:', err); // طباعة الخطأ الكامل في الكونسول
       showAlert(err.message, 'danger');
     } finally {
       setIsSubmitting(false);
@@ -356,7 +360,6 @@ export default function ManageProducts() {
                   className="form-control" 
                   name="image_URL" 
                   value={newProduct.image_URL} 
-                  // value={selectedImage}
                   onChange={handleAddProductInputChange}
                   placeholder="أدخل اسم ملف الصورة"
                 />
@@ -568,7 +571,6 @@ export default function ManageProducts() {
                                 height: 80,
                                 borderRadius: '10px',
                                 overflow: 'hidden',
-                                cursor: 'pointer',
                                 border: '2px solid #e9ecef',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -577,16 +579,13 @@ export default function ManageProducts() {
                                 transition: 'all 0.3s ease',
                                 boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                               }}
-                              onClick={() => handleShowImage(product.product_ID, product.product_Name)}
-                              title="انقر لتكبير الصورة"
                             >
                               <img 
-                                src={`http://gymmatehealth.runasp.net/Images/Products/${product.image_URL}`} 
+                                src={getImageUrl(product.image_URL)} 
                                 alt={product.product_Name}
                                 onError={(e) => {
                                   console.log('خطأ في تحميل الصورة:', product.image_URL);
                                   e.target.onerror = null;
-                                  // e.target.src = "https://via.placeholder.com/80?text=صورة";
                                 }}
                                 style={{
                                   width: '100%',
@@ -620,12 +619,6 @@ export default function ManageProducts() {
                             }}>
                               {product.product_Name}
                             </h6>
-                            <small style={{ 
-                              color: '#6c757d',
-                              fontSize: 13
-                            }}>
-                              ID: {product.product_ID}
-                            </small>
                           </div>
                         </div>
                       </td>
@@ -689,41 +682,17 @@ export default function ManageProducts() {
       )}
 
       {/* Image Preview Modal */}
-      <Modal 
-        show={showImageModal} 
-        onHide={() => setShowImageModal(false)} 
-        centered 
-        size="lg"
-      >
+      <Modal show={showImageModal} onHide={() => setShowImageModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{selectedProductName || 'صورة المنتج'}</Modal.Title>
+          <Modal.Title>{selectedProductName}</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="text-center p-0">
+        <Modal.Body>
           {selectedImage && (
-            <div style={{ 
-              backgroundColor: '#f8f9fa', 
-              padding: '15px', 
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '300px'
-            }}>
-              <img 
-                src={`http://gymmatehealth.runasp.net/api/Products/GetProductById1/${selectedImage}`} 
-                alt="صورة المنتج" 
-                style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '70vh',
-                  objectFit: 'contain',
-                  borderRadius: '4px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }} 
-                onError={(e) => {
-                  e.target.onerror = null;
-                  // e.target.src = "https://via.placeholder.com/400x300?text=صورة+غير+متوفرة";
-                }}
-              />
-            </div>
+            <img
+              src={getImageUrl(selectedImage)}
+              alt={selectedProductName}
+              style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+            />
           )}
         </Modal.Body>
         <Modal.Footer>
