@@ -10,7 +10,8 @@ import ManageSubscriptions from './ManageSubscriptions'
 import PendingSubscriptions from './PendingSubscriptions'
 import PendingCoaches from './PendingCoaches'
 import ExerciseCategories from './ExerciseCategories'
-import Exercises from './Exercises'
+
+
 const stats = [
   { title: 'Coaches', value: '12', color: 'primary', icon: 'fas fa-user-tie', link: '/admin/coaches' },
   { title: 'Clients', value: '120', color: 'info', icon: 'fas fa-user', link: '/admin/clients' },
@@ -43,7 +44,9 @@ function Admin() {
     
     <div style={{ background: '#f6f8fa', minHeight: '100vh'  }}>
       
-      <Exercises />
+      
+    
+     
       <div className="container py-4">
         {/* Title, welcome, and notifications in the same row */}
         <div className="row align-items-center mb-4">

@@ -9,9 +9,9 @@ const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
 const API_ENDPOINTS = {
   GET_ALL_CATEGORIES: `${API_BASE_URL}/Categories/GetAllCategories`,
-  ADD_CATEGORY: `${API_BASE_URL}/Categories/AddCategory`,
-  UPDATE_CATEGORY: `${API_BASE_URL}/Categories/UpdateCategory`,
-  DELETE_CATEGORY: (id) => `${API_BASE_URL}/Categories/DeleteCategory/${id}`
+  ADD_CATEGORY: `${API_BASE_URL}/Categories/AddNewCategory`,
+  UPDATE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Updatecategory/${id}`,
+  DELETE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Deletecategory/${id}`
 };
 
 // قالب قسم جديد فارغ
@@ -172,7 +172,13 @@ const ExerciseCategories = () => {
     try {
       setIsSubmitting(true);
       
-      const response = await axios.post(API_ENDPOINTS.ADD_CATEGORY, newCategory);
+      // تجهيز البيانات بالتنسيق المطلوب
+      const payload = {
+        CategoryName: newCategory.category_Name,
+        CategoryImage: newCategory.imageUrl
+      };
+      
+      const response = await axios.post(API_ENDPOINTS.ADD_CATEGORY, payload);
       
       if (response.status === 201 || response.status === 200) {
         // إعادة تحميل البيانات من الخادم
@@ -217,7 +223,7 @@ const ExerciseCategories = () => {
     try {
       setIsSubmitting(true);
       
-      const response = await axios.put(API_ENDPOINTS.UPDATE_CATEGORY, editingCategory);
+      const response = await axios.put(API_ENDPOINTS.UPDATE_CATEGORY(editingCategory.category_ID), editingCategory);
       
       if (response.status === 200) {
         // تحديث القسم في القائمة المحلية
@@ -422,7 +428,7 @@ const ExerciseCategories = () => {
                       <div className="card-img-top d-flex align-items-center justify-content-center bg-light" style={{ height: '120px' }}>
                         {category.imageUrl ? (
                           <img 
-                            src={getImageUrl(category.imageUrl)}
+                            src={`http://gymmatehealth.runasp.net/images/category/${category.imageUrl}`}
                             alt={category.category_Name}
                             style={{ 
                               width: '100%', 
