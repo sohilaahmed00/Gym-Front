@@ -16,7 +16,7 @@ function Coaches() {
     const fetchCoaches = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/AllApprovedCoaches');
         ;
         
         if (!response.ok) {
@@ -29,7 +29,7 @@ function Coaches() {
           name: coach.fullName,
           specialization: coach.specialization,
           bio: coach.bio,
-          image: coach.image ? `http://gymmatehealth.runasp.net/images/${coach.image}` : '/placeholder-coach.jpg',
+          image: coach.image ? `http://gymmatehealth.runasp.net/images/profiles/${coach.image}` : '/placeholder-coach.jpg',
           rating: 0, 
           experience: `${coach.experience_Years} years`,
           availability: coach.availability === "true"

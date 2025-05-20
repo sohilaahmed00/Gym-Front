@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Spinner } from 'react-bootstrap';
 
 const CompleteProfile = () => {
-  const [type, setType] = useState('user');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [bDate, setBDate] = useState('');
@@ -24,11 +23,12 @@ const CompleteProfile = () => {
   const toast = React.useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { id, userType } = location.state || {}; // userType: 'user' or 'coach'
+  const { id, userType } = location.state || {};
 
+  // Validate the form based on userType
   const validateForm = () => {
     const newErrors = {};
-    if (userType === 'user') {
+    if (userType === 'User') {
       if (!height) newErrors.height = 'Height is required';
       if (!weight) newErrors.weight = 'Weight is required';
       if (!bDate) newErrors.bDate = 'Birth Date is required';
@@ -46,6 +46,8 @@ const CompleteProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate form before submitting
     if (!validateForm()) return;
 
     if (!id) {
@@ -54,9 +56,9 @@ const CompleteProfile = () => {
     }
 
     setLoading(true);
-    const endpoint = userType === 'user' ? 'AddNewUser' : 'AddNewCoach';
+    const endpoint = userType === 'User' ? 'AddNewUser' : 'AddNewCoach';
     const bodyData =
-      userType === 'user'
+      userType === 'User'
         ? { id, height, weight, bDate, gender, medicalConditions, allergies, fitness_Goal }
         : { id, specialization, portfolio_Link, experience_Years: Number(experience_Years), availability, bio };
 
@@ -71,6 +73,7 @@ const CompleteProfile = () => {
       setLoading(false);
 
       if (response.ok) {
+        // Store user information and navigate
         localStorage.setItem('token', data.token);
         localStorage.setItem('id', data.id);
         localStorage.setItem('fullName', data.fullName);
@@ -81,6 +84,7 @@ const CompleteProfile = () => {
         toast.current.show({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully!', life: 3000 });
         setTimeout(() => navigate('/'), 3000);
       } else {
+        // Handle validation errors
         if (data.errors) {
           Object.values(data.errors).forEach((errs) => {
             errs.forEach((err) => {
@@ -102,7 +106,7 @@ const CompleteProfile = () => {
       <Toast ref={toast} />
       <h2 className={styles.title}>Complete Your Profile</h2>
       <form onSubmit={handleSubmit} className={styles.profileForm}>
-        {userType === 'user' ? (
+        {userType === 'User' ? (
           <>
             <div className={styles.formGroup}>
               <label>Height</label>

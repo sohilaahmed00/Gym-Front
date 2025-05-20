@@ -65,7 +65,7 @@ const SubscribePage = () => {
   });
 
   useEffect(() => {
-    fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches')
+    fetch('http://gymmatehealth.runasp.net/api/Coaches/AllApprovedCoaches')
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
