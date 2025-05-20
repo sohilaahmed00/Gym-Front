@@ -90,7 +90,7 @@ const Register = () => {
         toast.current.show({ severity: 'success', summary: 'Success', detail: 'Registration successful, Please confirm your email', life: 3000 });
         SaveRegistrationProgress(1);
         setTimeout(()=>{
-        navigate('/confirm-mail', { state: { email } });
+        navigate('/confirm-mail', { state: { email , userType} });
        },3000)
       } else {
         try {
