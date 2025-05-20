@@ -1,0 +1,39 @@
+.btn:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.form-control:focus {
+  border-color: #FF5722;
+  box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+}
+
+/* تأثير hover على زر حذف المنتج */
+.removeButton svg:hover {
+  color: white !important;
+}
+
+.cartTable th,
+.cartTable td {
+  vertical-align: middle;
+}
+
+.productCell {
+  text-align: left;
+}
+
+.priceCell,
+.subtotalCell {
+  text-align: right;
+}
+
+.quantityInput {
+  width: 60px;
+  font-size: 14px;
+  padding: 2px 5px;
+} 
