@@ -1,0 +1,340 @@
+.container {
+  padding: 60px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+.loading {
+  text-align: center;
+  font-size: 18px;
+  color: #555;
+  margin-top: 50px;
+}
+
+.title {
+  color: #FF5722; /* Orange color */
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.description {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.details {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.details h3 {
+  color: #1a1a1a;
+  font-size: 28px;
+  margin-bottom: 20px;
+  border-bottom: none; /* Remove bottom border from h3 here */
+  padding-bottom: 0;
+  text-align: left; /* Align heading left */
+  position: relative;
+  padding-left: 15px; /* Add padding for a pseudo-element */
+}
+
+.details h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 80%;
+  background-color: #FF5722; /* Orange accent */
+  border-radius: 3px;
+}
+
+.details p {
+  font-size: 17px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.imageContainer {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.imageContainer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sectionTitle {
+  color: #1a1a1a;
+  font-size: 24px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #FF5722; /* Orange border */
+  display: inline-block; /* Shrink border to text width */
+  padding-bottom: 5px;
+}
+
+.featuresList, .benefitsList {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 30px;
+}
+
+.featuresList li, .benefitsList li {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+  padding-left: 25px;
+  position: relative;
+}
+
+.featuresList li::before, .benefitsList li::before {
+  content: '\2713'; /* Checkmark character */
+  position: absolute;
+  left: 0;
+  color: #28a745; /* Green checkmark */
+  font-weight: bold;
+}
+
+.ctaButton {
+  display: block;
+  width: 250px;
+  margin: 40px auto 20px auto;
+  padding: 15px 25px;
+  background-color: #FF5722; /* Orange */
+  color: white;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.ctaButton:hover {
+  background-color: #e64a19; /* Darker orange */
+  transform: translateY(-2px);
+}
+
+/* Trainer Section Styles */
+.trainersSection {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.trainersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.trainerCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.trainerCard:hover {
+  transform: translateY(-5px);
+}
+
+.trainerImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 3px solid #FF5722; /* Orange border */
+}
+
+.trainerName {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+}
+
+.trainerSpecialty {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Pricing Section Styles */
+.pricingSection {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.priceCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: #f9f9f9;
+}
+
+.priceCard:hover {
+  transform: translateY(-5px);
+  border-color: #FF5722; /* Highlight on hover */
+}
+
+.priceDuration {
+  font-size: 20px;
+  font-weight: bold;
+  color: #FF5722; /* Orange */
+  margin-bottom: 10px;
+}
+
+.priceAmount {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.priceDescription {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Plans Section Styles */
+.plansSection {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.planCard {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.planCard:hover {
+   transform: translateY(-5px);
+  border-color: #FF5722; /* Highlight on hover */
+}
+
+.planName {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.planFeatures {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  flex-grow: 1; /* Allow features list to take available space */
+}
+
+.planFeatures li {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.planFeatures li::before {
+  content: '\2022'; /* Bullet point */
+  position: absolute;
+  left: 0;
+  color: #FF5722; /* Orange bullet */
+  font-weight: bold;
+}
+
+.planButton {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  background-color: #FF5722; /* Orange */
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.planButton:hover {
+  background-color: #e64a19; /* Darker orange */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 40px 15px;
+  }
+  
+  .title {
+    font-size: 28px;
+  }
+
+  .description {
+    font-size: 16px;
+  }
+
+  .details h3 {
+    font-size: 22px;
+  }
+
+  .details p {
+    font-size: 15px;
+  }
+
+  .ctaButton {
+    width: 100%;
+    font-size: 18px;
+    padding: 12px 20px;
+  }
+
+  .trainersGrid, .pricingGrid, .plansGrid {
+    grid-template-columns: 1fr;
+  }
+} 

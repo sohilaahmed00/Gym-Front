@@ -13,31 +13,37 @@ const services = [
     title: "Personal Training",
     description: "Get customized workouts and one-on-one coaching from our expert trainers to achieve your specific fitness goals.",
     image: personalTraining,
+    path: "/services/personal-training",
   },
   {
     title: "Group Fitness Classes",
     description: "Join our dynamic and motivating group classes, ranging from yoga to high-intensity interval training, designed for all fitness levels.",
     image: groupFitness,
+    path: "/services/group-fitness",
   },
   {
     title: "Nutritional Guidance",
     description: "Nutrition plans and advice from our certified nutritionists to complement your fitness routine and enhance your results.",
     image: nutrition,
+    path: "/services/nutritional-guidance",
   },
   {
     title: "Wellness Programs",
     description: "Wellness programs that include stress management, mental well-being, and recovery techniques to support your overall health.",
     image: wellness,
+    path: "/services/wellness-programs",
   },
   {
     title: "Cardio Workouts",
     description: "Boost your endurance and cardiovascular health with our variety of cardio classes and equipment, tailored to all fitness levels.",
     image: cardio,
+    path: "/services/cardio-workouts",
   },
   {
     title: "Strength Training",
     description: "Build muscle and increase strength with our structured strength training programs and state-of-the-art weightlifting equipment.",
     image: strength,
+    path: "/services/strength-training",
   }
 ];
 
@@ -58,7 +64,7 @@ const Services = () => {
               </div>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
-              <Link to="/services" className={styles.learnMoreBtn}>
+              <Link to={service.path} className={styles.learnMoreBtn}>
                 Learn More
               </Link>
             </div>
