@@ -100,8 +100,8 @@ const SubscriberCalendar = ({ userId, userName }) => {
     setSelectedDate(day);
     setModalOpen(true);
 
-    const existingAssignment = assignments.find(a => a.day === day);
-    const existingNutrition = nutritionPlans.find(n => n.day === day);
+    const existingAssignment = Array.isArray(assignments) ? assignments.find(a => a.day === day) : undefined;
+    const existingNutrition = Array.isArray(nutritionPlans) ? nutritionPlans.find(n => n.day === day) : undefined;
 
     setFormData({
       exerciseId: existingAssignment ? existingAssignment.exercise_ID.toString() : '',
@@ -178,8 +178,8 @@ const SubscriberCalendar = ({ userId, userName }) => {
   const daysToShow = calendarDays.slice(currentWeek * 7, (currentWeek + 1) * 7);
 
   const renderDayBox = (dayObj) => {
-    const hasAssignment = assignments.find(a => a.day === dayObj.date);
-    const hasNutrition = nutritionPlans.find(n => n.day === dayObj.date);
+    const hasAssignment = Array.isArray(assignments) ? assignments.find(a => a.day === dayObj.date) : undefined;
+    const hasNutrition = Array.isArray(nutritionPlans) ? nutritionPlans.find(n => n.day === dayObj.date) : undefined;
     const workoutName = hasAssignment?.exercise?.exercise_Name || null;
 
     const date = new Date(dayObj.date);
