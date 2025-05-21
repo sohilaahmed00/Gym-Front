@@ -27,7 +27,7 @@ export default function OnlineStore() {
 
   const handleAddToCart = (product) => {
     if (!isNaN(product.price) && product.price > 0) {
-      addToCart(product);
+      addToCart({ ...product, quantity: 1 });
     } else {
       console.error("Invalid product price:", product);
     }
@@ -79,12 +79,12 @@ export default function OnlineStore() {
                     <p className="text-muted">{product.description}</p>
                     <div className={styles.priceSection}>
                       {product.discount > 0 && (
-                        <span className="text-decoration-line-through me-2 text-muted small">
-                          ${(product.price / (1 - product.discount)).toFixed(2)}
+                        <span className="text-decoration-line-through me-3 text-muted small">
+                          EGP {(product.price / (1 - product.discount)).toFixed(2)}
                         </span>
                       )}
                       <span className={`fw-bold ${product.discount > 0 ? 'text-danger' : 'text-dark'}`}>
-                        ${(product.price).toFixed(2)}
+                        EGP {(product.price).toFixed(2)}
                       </span>
                     </div>
                     <div className={styles.stockInfo}>

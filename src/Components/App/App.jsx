@@ -58,6 +58,7 @@ import "primereact/resources/themes/lara-light-cyan/theme.css";
 import UserSettings from '../../UserProfile/pages/UserSettings';
 import SubscribePage from '../subscribe/SubscribePage';
 import DietPlan from '../../UserProfile/pages/DietPlan';
+import ServiceDetails from '../../pages/ServiceDetails/ServiceDetails';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -84,6 +85,7 @@ const routes = createBrowserRouter([
       { path: 'subscribe', element: <SubscribePage /> },
       { path: 'calories-calculator', element: <CaloriesCalculator /> },
       { path: 'nutrition-plan', element: <NutritionPlan /> },
+      { path: 'services/:serviceName', element: <ServiceDetails /> },
       { path: 'register', element: <Register />},
       { path: 'confirm-mail', element: <ConfirmMail />},
       { path: 'complete-profile', element: <CompleteProfile />},

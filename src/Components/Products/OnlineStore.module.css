@@ -136,5 +136,6 @@
   .disabledBtn {
     background-color: #ddd;
     cursor: not-allowed;
+    color: #555; /* Make text color darker for better visibility */
   }
   
