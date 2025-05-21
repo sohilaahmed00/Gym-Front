@@ -36,10 +36,10 @@ export default function ManageCoaches() {
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">إدارة المدربين</h4>
+            <h4 className="fw-bold mb-0">Coaches Management</h4>
             <button className="btn btn-primary">
               <i className="fas fa-plus me-2"></i>
-              إضافة مدرب جديد
+              Add New Coach
             </button>
           </div>
 
