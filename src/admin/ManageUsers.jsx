@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // تعريف متغيرات API
 const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
-  GET_ALL_USERS: `${API_BASE_URL}/Users/GetAllUsers`
+  GET_ALL_USERS: `${API_BASE_URL}/Users/GetAllUsers`,
+  DELETE_USER: `${API_BASE_URL}/Users/DeleteUser`
 };
 
 export default function ManageUsers() {
@@ -12,6 +13,12 @@ export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [genderFilter, setGenderFilter] = useState('');
+  const [userTypeFilter, setUserTypeFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Alert State
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
@@ -19,10 +26,61 @@ export default function ManageUsers() {
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
-    // إخفاء التنبيه تلقائيًا بعد 3 ثوان
+    // Hide alert automatically after 3 seconds
     setTimeout(() => {
       setAlert({ show: false, message: '', type: '' });
     }, 3000);
+  };
+
+  // Handle Delete User
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      setDeletingId(userId);
+      const response = await fetch(`${API_ENDPOINTS.DELETE_USER}/${userId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setUsers(users.filter(user => user.userId !== userId));
+        showAlert('User deleted successfully', 'success');
+      } else {
+        throw new Error('Failed to delete user');
+      }
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      showAlert('An error occurred while deleting the user', 'danger');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Edit modal open
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+  };
+
+  // Update user data
+  const handleUpdateUser = async (updatedData) => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${editingUser.userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update user data');
+      }
+      showAlert('User updated successfully', 'success');
+      setEditingUser(null);
+      fetchUsers();
+    } catch (err) {
+      showAlert(err.message, 'danger');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   // Fetch users data from API
@@ -46,12 +104,22 @@ export default function ManageUsers() {
     fetchUsers();
   }, []);
 
-  // تنسيق التاريخ
+  // Date formatting
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
   };
+
+  // تحديث قائمة المستخدمين عند تغيير الفلاتر
+  const filteredUsers = users.filter(user => {
+    const matchesGender = !genderFilter || user.gender === genderFilter;
+    const matchesUserType = !userTypeFilter ||
+      (userTypeFilter === 'admin' && user.userType === 0) ||
+      (userTypeFilter === 'user' && user.userType !== 0);
+    const matchesSearch = !searchTerm || (user.fullName && user.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesGender && matchesUserType && matchesSearch;
+  });
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
@@ -75,7 +143,7 @@ console.log(users);
             type="button" 
             className="btn-close" 
             onClick={() => setAlert({ ...alert, show: false })}
-            aria-label="إغلاق"
+            aria-label="Close"
           ></button>
         </div>
       )}
@@ -83,33 +151,27 @@ console.log(users);
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">إدارة المستخدمين</h4>
-            <button className="btn btn-primary">
-              <i className="fas fa-plus me-2"></i>
-              إضافة مستخدم جديد
-            </button>
+            <h4 className="fw-bold mb-0">User Management</h4>
           </div>
           
           {/* Filters Section */}
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <select className="form-select">
-                <option value="">جميع الأنواع</option>
-                <option value="0">مدير</option>
-                <option value="1">طبيب</option>
-                <option value="2">مستخدم</option>
-                <option value="3">مدرب</option>
+              <select className="form-select" value={userTypeFilter} onChange={e => setUserTypeFilter(e.target.value)}>
+                <option value="">All Users</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
               </select>
             </div>
             <div className="col-md-3">
-              <select className="form-select">
-                <option value="">حسب الجنس</option>
-                <option value="Male">ذكر</option>
-                <option value="Female">أنثى</option>
+              <select className="form-select" value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
+                <option value="">Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
             </div>
             <div className="col-md-6">
-              <input type="text" className="form-control" placeholder="بحث عن مستخدمين..." />
+              <input type="text" className="form-control" placeholder="Search by name..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
           </div>
           
@@ -117,16 +179,16 @@ console.log(users);
             <table className="table align-middle">
               <thead className="bg-light">
                 <tr>
-                  <th className="text-start">المستخدم</th>
-                  <th>نوع المستخدم</th>
-                  <th>البريد الإلكتروني</th>
-                  <th>الجنس</th>
-                  <th>الهدف</th>
-                  <th>الإجراءات</th>
+                  <th className="text-start">User</th>
+                  <th>User Type</th>
+                  <th>Email</th>
+                  <th>Gender</th>
+                  <th>Goal</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user.userId} className="user-row">
                     <td className="text-start">
                       <span style={{
@@ -165,20 +227,14 @@ console.log(users);
                       </span>
                     </td>
                     <td>
-                      <span className={`badge ${
-                        user?.userType === 0 ? 'bg-danger' :
-                        user?.userType === 1 ? 'bg-primary' :
-                        user?.userType === 2 ? 'bg-info' :
-                        'bg-success'
+                      <span className={`badge user-type-badge ${
+                        user?.userType === 0 ? 'bg-danger' : 'bg-info'
                       }`}>
-                        {user?.userType === 0 ? 'مدير' : 
-                        
-                         user.userType === 2 ? 'مستخدم' : 
-                         'مدرب'}
+                        {user?.userType === 0 ? 'Admin' : 'User'}
                       </span>
                     </td>
                     <td>{user?.email}</td>
-                    <td>{user?.gender === 'Male' ? 'ذكر' : 'أنثى'}</td>
+                    <td>{user?.gender === 'Male' ? 'Male' : 'Female'}</td>
                     <td>
                       <span className="badge bg-secondary">
                         {user.fitness_Goal}
@@ -186,13 +242,26 @@ console.log(users);
                     </td>
                     <td>
                       <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary">
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditUser(user)}>
                           <i className="fas fa-edit me-1"></i>
-                          تعديل
+                          Edit
                         </button>
-                        <button className="btn btn-sm btn-outline-danger">
-                          <i className="fas fa-trash me-1"></i>
-                          حذف
+                        <button 
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDeleteUser(user.userId)}
+                          disabled={deletingId === user.userId}
+                        >
+                          {deletingId === user.userId ? (
+                            <>
+                              <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <i className="fas fa-trash me-1"></i>
+                              Delete
+                            </>
+                          )}
                         </button>
                       </div>
                     </td>
@@ -207,6 +276,11 @@ console.log(users);
           .badge {
             font-weight: 500;
             padding: 6px 10px;
+          }
+          .user-type-badge {
+            min-width: 70px;
+            text-align: center;
+            display: inline-block;
           }
           .table th {
             font-size: 13px;
@@ -244,6 +318,74 @@ console.log(users);
           }
         `}</style>
       </div>
+
+      {/* Edit Modal */}
+      {editingUser && (
+        <div className="modal show" style={{ display: 'block', background: 'rgba(0,0,0,0.3)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit User</h5>
+                <button type="button" className="btn-close" onClick={() => setEditingUser(null)}></button>
+              </div>
+              <form onSubmit={e => {
+                e.preventDefault();
+                handleUpdateUser({
+                  height: editingUser.height,
+                  weight: editingUser.weight,
+                  bDate: editingUser.bDate,
+                  gender: editingUser.gender,
+                  medicalConditions: editingUser.medicalConditions,
+                  allergies: editingUser.allergies,
+                  fitness_Goal: editingUser.fitness_Goal
+                });
+              }}>
+                <div className="modal-body">
+                  <div className="mb-2">
+                    <label className="form-label">Height</label>
+                    <input type="number" className="form-control" value={editingUser.height || ''} onChange={e => setEditingUser({ ...editingUser, height: e.target.value })} />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Weight</label>
+                    <input type="number" className="form-control" value={editingUser.weight || ''} onChange={e => setEditingUser({ ...editingUser, weight: e.target.value })} />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Birth Date</label>
+                    <input type="date" className="form-control" value={editingUser.bDate ? editingUser.bDate.slice(0,10) : ''} onChange={e => setEditingUser({ ...editingUser, bDate: e.target.value })} />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Gender</label>
+                    <select className="form-select" value={editingUser.gender || ''} onChange={e => setEditingUser({ ...editingUser, gender: e.target.value })}>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Medical Conditions</label>
+                    <input type="text" className="form-control" value={editingUser.medicalConditions || ''} onChange={e => setEditingUser({ ...editingUser, medicalConditions: e.target.value })} />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Allergies</label>
+                    <input type="text" className="form-control" value={editingUser.allergies || ''} onChange={e => setEditingUser({ ...editingUser, allergies: e.target.value })} />
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Fitness Goal</label>
+                    <input type="text" className="form-control" value={editingUser.fitness_Goal || ''} onChange={e => setEditingUser({ ...editingUser, fitness_Goal: e.target.value })} />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button type="submit" className="btn btn-success" disabled={isUpdating}>
+                    {isUpdating ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button type="button" className="btn btn-secondary" onClick={() => setEditingUser(null)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

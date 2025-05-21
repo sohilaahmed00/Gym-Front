@@ -38,7 +38,7 @@ const DIFFICULTY_LEVELS = [
 const Exercises = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
-
+  
   const [category, setCategory] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,30 +51,16 @@ const Exercises = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('');
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
-
+  
   // Alert helper
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
     setTimeout(() => setAlert({ show: false, message: '', type: '' }), 3000);
   };
 
-  const getCategoryDescription = (categoryName) => {
-    const descriptions = {
-      "Chest": "تمارين لتقوية وبناء عضلات الصدر",
-      "Back": "تمارين لتقوية عضلات الظهر والحفاظ على استقامة العمود الفقري",
-      "Shoulders": "تمارين لتقوية وتحسين شكل عضلات الكتفين",
-      "Biceps": "تمارين لتقوية وتضخيم عضلات الذراعين الأمامية",
-      "Triceps": "تمارين متنوعة لعضلات الذراعين الخلفية",
-      "Wrist & Forearm": "تمارين لتقوية عضلات المعصم والساعد",
-      "Legs": "تمارين متكاملة لعضلات الأرجل والفخذين",
-      "Abs": "تمارين متنوعة لعضلات البطن وتقوية عضلات المركز"
-    };
-    return descriptions[categoryName] || "مجموعة متنوعة من التمارين الرياضية";
-  };
-
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
-    return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
+      return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
   };
 
   // Fetch category info and exercises by category ID only
@@ -86,21 +72,18 @@ const Exercises = () => {
       // Fetch category info
       const categoryResponse = await axios.get(API_ENDPOINTS.GET_CATEGORY(categoryId));
       const categoryData = categoryResponse.data;
-      if (!categoryData.categoryDescription) {
-        categoryData.categoryDescription = getCategoryDescription(categoryData.category_Name);
-      }
       setCategory(categoryData);
-
+      
       // Fetch exercises by category
       const exercisesResponse = await axios.get(API_ENDPOINTS.GET_EXERCISES_BY_CATEGORY(categoryId));
       console.log('تمارين القسم:', exercisesResponse.data);
-
-      if (Array.isArray(exercisesResponse.data)) {
+        
+        if (Array.isArray(exercisesResponse.data)) {
         setExercises(exercisesResponse.data);
-      } else {
+        } else {
         setError('تنسيق بيانات التمارين غير صحيح');
       }
-
+      
       setLoading(false);
     } catch (err) {
       console.error('خطأ في جلب البيانات:', err);
@@ -117,19 +100,19 @@ const Exercises = () => {
   const handleDeleteExercise = async (exerciseId) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا التمرين؟')) return;
 
-    try {
-      setDeletingId(exerciseId);
-      const response = await axios.delete(API_ENDPOINTS.DELETE_EXERCISE(exerciseId));
-      if (response.status === 200) {
-        setExercises(exercises.filter(ex => ex.exercise_ID !== exerciseId));
-        showAlert('تم حذف التمرين بنجاح', 'success');
-      } else {
-        throw new Error('فشل في حذف التمرين');
-      }
-    } catch (err) {
-      showAlert('حدث خطأ أثناء حذف التمرين', 'danger');
-    } finally {
-      setDeletingId(null);
+      try {
+        setDeletingId(exerciseId);
+        const response = await axios.delete(API_ENDPOINTS.DELETE_EXERCISE(exerciseId));
+        if (response.status === 200) {
+          setExercises(exercises.filter(ex => ex.exercise_ID !== exerciseId));
+          showAlert('تم حذف التمرين بنجاح', 'success');
+        } else {
+          throw new Error('فشل في حذف التمرين');
+        }
+      } catch (err) {
+        showAlert('حدث خطأ أثناء حذف التمرين', 'danger');
+      } finally {
+        setDeletingId(null);
     }
   };
 
@@ -202,13 +185,13 @@ const Exercises = () => {
 
   // Filtering and searching
   const filteredExercises = exercises.filter(ex => {
-    const matchesSearch =
+    const matchesSearch = 
       ex.exercise_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (ex.description && ex.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (ex.target_Muscle && ex.target_Muscle.toLowerCase().includes(searchTerm.toLowerCase()));
-
+    
     const matchesDifficulty = !difficultyFilter || ex.difficulty_Level === difficultyFilter;
-
+    
     return matchesSearch && matchesDifficulty;
   });
 
@@ -237,9 +220,9 @@ const Exercises = () => {
             )}
             <strong>{alert.message}</strong>
           </div>
-          <button
-            type="button"
-            className="btn-close"
+          <button 
+            type="button" 
+            className="btn-close" 
             onClick={() => setAlert({ ...alert, show: false })}
             aria-label="إغلاق"
           ></button>
@@ -248,8 +231,8 @@ const Exercises = () => {
 
       {/* Back & Category */}
       <div className="d-flex align-items-center mb-4">
-        <button
-          className="btn btn-sm btn-outline-secondary me-3"
+        <button 
+          className="btn btn-sm btn-outline-secondary me-3" 
           onClick={handleGoBack}
         >
           <i className="fas fa-arrow-right me-1"></i>
@@ -264,7 +247,7 @@ const Exercises = () => {
           </div>
         )}
       </div>
-
+      
       {/* Add or Edit Form */}
       {isAddingExercise ? (
         <div className="card border-0 shadow-sm mb-4">
@@ -297,106 +280,106 @@ const Exercises = () => {
       ) : (
         <>
           {/* Exercises List Header */}
-          <div className="card border-0 shadow-sm">
-            <div className="card-body p-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="fw-bold mb-0">قائمة التمارين</h4>
-                <button className="btn btn-primary" onClick={handleStartAddExercise}>
+        <div className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h4 className="fw-bold mb-0">قائمة التمارين</h4>
+              <button className="btn btn-primary" onClick={handleStartAddExercise}>
                   <i className="fas fa-plus me-2"></i>إضافة تمرين جديد
-                </button>
-              </div>
+              </button>
+            </div>
 
               {/* Filters */}
-              <div className="row g-3 mb-4">
-                <div className="col-md-6">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="بحث عن تمارين..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <select
-                    className="form-select"
-                    value={difficultyFilter}
-                    onChange={(e) => setDifficultyFilter(e.target.value)}
-                  >
-                    <option value="">جميع المستويات</option>
-                    {DIFFICULTY_LEVELS.map(level => (
-                      <option key={level.value} value={level.value}>{level.value}</option>
-                    ))}
-                  </select>
-                </div>
+            <div className="row g-3 mb-4">
+              <div className="col-md-6">
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="بحث عن تمارين..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
+              <div className="col-md-6">
+                <select 
+                  className="form-select"
+                  value={difficultyFilter}
+                  onChange={(e) => setDifficultyFilter(e.target.value)}
+                >
+                  <option value="">جميع المستويات</option>
+                  {DIFFICULTY_LEVELS.map(level => (
+                    <option key={level.value} value={level.value}>{level.value}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
               {/* Exercises Table */}
-              <div className="table-responsive">
-                <table className="table align-middle mb-0">
-                  <thead className="bg-light">
-                    <tr>
-                      <th className="border-0 text-start">التمرين</th>
-                      <th className="border-0">الوصف</th>
-                      <th className="border-0">العضلات المستهدفة</th>
-                      <th className="border-0">المستوى</th>
-                      <th className="border-0">المدة</th>
-                      <th className="border-0">السعرات</th>
-                      <th className="border-0">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+            <div className="table-responsive">
+              <table className="table align-middle mb-0">
+                <thead className="bg-light">
+                  <tr>
+                    <th className="border-0 text-start">التمرين</th>
+                    <th className="border-0">الوصف</th>
+                    <th className="border-0">العضلات المستهدفة</th>
+                    <th className="border-0">المستوى</th>
+                    <th className="border-0">المدة</th>
+                    <th className="border-0">السعرات</th>
+                    <th className="border-0">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
                     {filteredExercises.map(exercise => (
-                      <tr key={exercise.exercise_ID} className="exercise-row">
-                        <td className="text-start">
-                          <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 10,
-                          }}>
-                            {exercise.image_url ? (
-                              <div
-                                style={{
-                                  width: 60,
-                                  height: 60,
-                                  borderRadius: '8px',
-                                  overflow: 'hidden',
-                                  border: '1px solid #dee2e6',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  backgroundColor: '#f8f9fa'
-                                }}
-                              >
-                                <img
-                                  src={getImageUrl(exercise.image_url)}
-                                  alt={exercise.exercise_Name}
-                                  onError={e => {
-                                    e.target.onerror = null;
-                                    e.target.src = "https://via.placeholder.com/60?text=صورة";
-                                  }}
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                              </div>
-                            ) : (
-                              <span style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                    <tr key={exercise.exercise_ID} className="exercise-row">
+                      <td className="text-start">
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 10,
+                        }}>
+                          {exercise.image_url ? (
+                            <div 
+                              style={{
                                 width: 60,
                                 height: 60,
                                 borderRadius: '8px',
-                                background: '#0d6efd22',
-                                color: '#0d6efd',
-                                fontSize: 20,
-                              }}>
-                                <i className="fas fa-dumbbell"></i>
-                              </span>
-                            )}
-                            <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
-                          </span>
-                        </td>
-                        <td>
+                                overflow: 'hidden',
+                                border: '1px solid #dee2e6',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: '#f8f9fa'
+                              }}
+                            >
+                              <img 
+                                src={getImageUrl(exercise.image_url)} 
+                                alt={exercise.exercise_Name}
+                                  onError={e => {
+                                  e.target.onerror = null;
+                                  e.target.src = "https://via.placeholder.com/60?text=صورة";
+                                }}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
+                            </div>
+                          ) : (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 60,
+                              height: 60,
+                              borderRadius: '8px',
+                              background: '#0d6efd22',
+                              color: '#0d6efd',
+                              fontSize: 20,
+                            }}>
+                              <i className="fas fa-dumbbell"></i>
+                            </span>
+                          )}
+                          <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
+                        </span>
+                      </td>
+                      <td>
                           <span className="text-muted" style={{
                             fontSize: '0.9rem',
                             maxWidth: '200px',
@@ -405,59 +388,59 @@ const Exercises = () => {
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
                           }}>
-                            {exercise.description}
-                          </span>
-                        </td>
-                        <td>
+                          {exercise.description}
+                        </span>
+                      </td>
+                      <td>
                           <span className="badge bg-light text-dark">{exercise.target_Muscle || "غير محدد"}</span>
-                        </td>
-                        <td>
-                          <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
-                            {exercise.difficulty_Level === 1 ? 'مبتدئ' :
-                              exercise.difficulty_Level === 2 ? 'متوسط' :
-                                exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
-                          </span>
-                        </td>
+                      </td>
+                      <td>
+                        <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
+                          {exercise.difficulty_Level === 1 ? 'مبتدئ' : 
+                           exercise.difficulty_Level === 2 ? 'متوسط' : 
+                           exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
+                        </span>
+                      </td>
                         <td><span className="badge bg-info">{exercise.duration} دقيقة</span></td>
                         <td><span className="badge bg-warning">{exercise.calories_Burned} سعرة</span></td>
-                        <td>
-                          <div className="btn-group">
+                      <td>
+                        <div className="btn-group">
                             <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditClick(exercise)}>
                               <i className="fas fa-edit me-1"></i>تعديل
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => handleDeleteExercise(exercise.exercise_ID)}
-                              disabled={deletingId === exercise.exercise_ID}
-                            >
-                              {deletingId === exercise.exercise_ID ? (
-                                <>
-                                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                  جارٍ الحذف...
-                                </>
-                              ) : (
-                                <>
+                          </button>
+                          <button 
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={() => handleDeleteExercise(exercise.exercise_ID)}
+                            disabled={deletingId === exercise.exercise_ID}
+                          >
+                            {deletingId === exercise.exercise_ID ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                جارٍ الحذف...
+                              </>
+                            ) : (
+                              <>
                                   <i className="fas fa-trash me-1"></i>حذف
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {filteredExercises.length === 0 && (
-                <div className="text-center py-5">
-                  <i className="fas fa-dumbbell text-muted mb-3" style={{ fontSize: '3rem' }}></i>
-                  <h5 className="text-muted">لا توجد تمارين للعرض</h5>
-                  <p className="text-muted">قم بإضافة تمارين جديدة لهذا القسم</p>
-                </div>
-              )}
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+
+            {filteredExercises.length === 0 && (
+              <div className="text-center py-5">
+                <i className="fas fa-dumbbell text-muted mb-3" style={{ fontSize: '3rem' }}></i>
+                <h5 className="text-muted">لا توجد تمارين للعرض</h5>
+                <p className="text-muted">قم بإضافة تمارين جديدة لهذا القسم</p>
+              </div>
+            )}
           </div>
+        </div>
         </>
       )}
 

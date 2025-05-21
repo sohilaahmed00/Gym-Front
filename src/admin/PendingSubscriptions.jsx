@@ -126,14 +126,14 @@ const PendingSubscriptions = () => {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h3 className="text-orange fw-bold">⏳ الاشتراكات المعلقة</h3>
+        <h3 className="text-orange fw-bold">⏳ Pending Subscriptions</h3>
       </div>
       
       <div className="row mb-4">
         <div className="col-md-4">
           <input 
             type="text"
-            placeholder="بحث..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="form-control"
@@ -145,7 +145,7 @@ const PendingSubscriptions = () => {
             onChange={(e) => handleFilterChange('plan', e.target.value)} 
             className="form-select"
           >
-            <option value="">كل الخطط</option>
+            <option value="">All Plans</option>
             {availablePlans.map(plan => (
               <option key={plan} value={plan}>{plan.replace('_', ' ')}</option>
             ))}
@@ -161,10 +161,10 @@ const PendingSubscriptions = () => {
         </div>
       </div>
 
-      {loading && <p>جاري التحميل...</p>}
+      {loading && <p>Loading...</p>}
       {!loading && filteredSubscriptions.length === 0 ? (
         <div className="alert alert-info" role="alert">
-          لا توجد اشتراكات معلقة.
+          No pending subscriptions.
         </div>
       ) : !loading && (
         <div className="table-responsive">
@@ -172,15 +172,15 @@ const PendingSubscriptions = () => {
             <thead className="table-light">
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">معرف المستخدم</th>
-                <th scope="col">الجنس</th>
-                <th scope="col">نوع الاشتراك</th>
-                <th scope="col">تاريخ البدء</th>
-                <th scope="col">تاريخ الانتهاء</th>
-                <th scope="col">الهدف</th>
-                <th scope="col">الرسوم</th>
-                <th scope="col">الحالة</th>
-                <th scope="col">إجراءات</th>
+                <th scope="col">User ID</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Plan</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Goal</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -208,18 +208,18 @@ const PendingSubscriptions = () => {
                           className="btn btn-success btn-sm me-2"
                           onClick={() => handleApprove(sub.id)}
                         >
-                          <i className="fas fa-check me-1"></i> قبول
+                          <i className="fas fa-check me-1"></i> Approve
                         </button>
                         <button 
                           className="btn btn-danger btn-sm"
                           onClick={() => handleReject(sub.id)}
                         >
-                          <i className="fas fa-times me-1"></i> رفض
+                          <i className="fas fa-times me-1"></i> Reject
                         </button>
                       </>
                     )}
                     {sub.status !== 'Pending' && (
-                      <span className="text-muted">تم معالجة الطلب</span>
+                      <span className="text-muted">Request processed</span>
                     )}
                   </td>
                 </tr>
