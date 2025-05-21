@@ -27,6 +27,17 @@ export default function Cart() {
     const quantity = parseInt(newQuantity, 10);
     if (!isNaN(quantity) && quantity >= 0) {
       setLocalQuantities((prev) => ({ ...prev, [productId]: quantity }));
+      if (quantity === 0) {
+        if (window.confirm('Are you sure you want to remove this item?')) {
+          removeFromCart(productId);
+        } else {
+          // If user cancels removal, reset to previous quantity
+          const item = cart.find(item => item.id === productId);
+          setLocalQuantities((prev) => ({ ...prev, [productId]: item.quantity }));
+        }
+      } else {
+        updateQuantity(productId, quantity);
+      }
     } else {
       setLocalQuantities((prev) => ({ ...prev, [productId]: '' }));
     }
@@ -139,7 +150,7 @@ export default function Cart() {
                         />
                         {item.name}
                       </td>
-                      <td>${parseFloat(item.price).toFixed(2)}</td>
+                      <td>EGP {parseFloat(item.price).toFixed(2)}</td>
                       <td>
                         <div className="d-flex flex-column align-items-center">
                           <span className="fw-bold">Qty</span>
@@ -160,7 +171,7 @@ export default function Cart() {
                           )}
                         </div>
                       </td>
-                      <td>${(parseFloat(item.price) * quantity).toFixed(2)}</td>
+                      <td>EGP {(parseFloat(item.price) * quantity).toFixed(2)}</td>
                     </tr>
                   );
                 })}
@@ -202,22 +213,22 @@ export default function Cart() {
                 <h5 className="fw-bold mb-3">Cart Total</h5>
                 <div className="d-flex justify-content-between mb-2">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>EGP {subtotal.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="d-flex justify-content-between mb-2 text-success">
                     <span>Discount ({discount}%):</span>
-                    <span>− ${discountAmount.toFixed(2)}</span>
+                    <span>−EGP {discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="d-flex justify-content-between mb-2">
                   <span>Shipping:</span>
-                  <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? 'Free' : `EGP ${shipping.toFixed(2)}`}</span>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-between mb-3">
                   <span className="fw-bold">Total:</span>
-                  <span className="fw-bold">${total.toFixed(2)}</span>
+                  <span className="fw-bold">EGP {total.toFixed(2)}</span>
                 </div>
                 <Link
                   to="/checkout"
