@@ -7,18 +7,8 @@ const sidebarItems = [
   { icon: 'fas fa-users', label: 'Clients', path: '/admin/clients' },
   { icon: 'fas fa-box-open', label: 'Products', path: '/admin/products' },
   { icon: 'fas fa-id-card', label: 'Subscriptions', path: '/admin/subscriptions' },
-  { 
-    icon: 'fas fa-clock', 
-    label: 'Pending Subscriptions', 
-    path: '/admin/pending-subscriptions',
-    badge: 5 // عدد الاشتراكات المعلقة
-  },
-  { 
-    icon: 'fas fa-user-clock', 
-    label: 'Pending Coaches', 
-    path: '/admin/pending-coaches',
-    badge: 4 // عدد المدربين المعلقين
-  },
+  { icon: 'fas fa-clock', label: 'Pending Subscriptions', path: '/admin/pending-subscriptions' },
+  { icon: 'fas fa-user-clock', label: 'Pending Coaches', path: '/admin/pending-coaches' },
   { icon: 'fas fa-dumbbell', label: 'Exercise Categories', path: '/admin/exercise-categories' },
   { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
 ];
@@ -31,17 +21,17 @@ const settingsDropdown = [
   { icon: 'fas fa-file-alt', label: 'Content Settings', path: '/admin/settings/content' },
 ];
 
-export default function SideList() {
+export default function SideList({ pendingSubscriptionsCount = 0, pendingCoachesCount = 0 }) {
   const [showSettings, setShowSettings] = useState(false);
   return (
     <aside
       className="bg-white border-end"
       style={{
         width: 300,
-        minWidth: 250,
+        minWidth: 300,
         maxWidth: 300,
         minHeight: '100vh',
-        transition: 'width 0.2s',
+        transition: 'none',
         overflow: 'hidden',
         boxSizing: 'border-box'
       }}
@@ -90,6 +80,21 @@ export default function SideList() {
               </div>
             );
           }
+          // ديناميكي للبادج
+          let badge = null;
+          if (item.label === 'Pending Subscriptions') {
+            badge = (
+              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: '#ff7a00 !important' }}>
+                {pendingSubscriptionsCount}
+              </span>
+            );
+          } else if (item.label === 'Pending Coaches') {
+            badge = (
+              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: '#ff7a00 !important' }}>
+                {pendingCoachesCount}
+              </span>
+            );
+          }
           return (
             <NavLink
               to={item.path}
@@ -108,15 +113,7 @@ export default function SideList() {
             >
               <i className={item.icon} style={{ color: 'inherit' }}></i>
               <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
-              {item.badge && (
-                <span className="badge bg-danger rounded-pill ms-auto" style={{ 
-                  fontSize: '0.75rem',
-                  padding: '0.25rem 0.5rem',
-                  backgroundColor: '#ff7a00 !important'
-                }}>
-                  {item.badge}
-                </span>
-              )}
+              {badge}
             </NavLink>
           );
         })}

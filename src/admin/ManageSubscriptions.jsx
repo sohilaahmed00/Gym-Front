@@ -226,7 +226,7 @@ export default function ManageSubscriptions() {
                         <div className="d-flex align-items-center">
                           {users[subscription.user_ID].applicationUser.image ? (
                             <img 
-                              src={`${API_BASE_URL.replace('/api', '')}/Images/${users[subscription.user_ID].applicationUser.image}`} 
+                              src={`${API_BASE_URL.replace('/api', '')}/Images/$}`} 
                               alt={users[subscription.user_ID].applicationUser.fullName}
                               className="rounded-circle me-2"
                               width="32"
@@ -249,7 +249,7 @@ export default function ManageSubscriptions() {
                         <div className="d-flex align-items-center">
                           {coaches[subscription.coach_ID].applicationUser.image ? (
                             <img 
-                              src={`${API_BASE_URL.replace('/api', '')}/Images/${coaches[subscription.coach_ID].applicationUser.image}`} 
+                              src={`${API_BASE_URL.replace('/api', '')}/Images/profiles/${coaches[subscription.coach_ID].applicationUser.image}`} 
                               alt={coaches[subscription.coach_ID].applicationUser.fullName}
                               className="rounded-circle me-2"
                               width="32"
