@@ -90,7 +90,6 @@ function CoachProfile() {
           <img 
             src={`http://gymmatehealth.runasp.net/images/profiles/${coach.applicationUser?.image}` || '/placeholder-coach.jpg'} 
             alt={coach.applicationUser?.fullName}
-           
           />
         </div>
 
