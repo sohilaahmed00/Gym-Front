@@ -88,12 +88,9 @@ function CoachProfile() {
       <div className={styles.profileContent}>
         <div className={styles.profileImage}>
           <img 
-            src={coach.applicationUser?.image || '/placeholder-coach.jpg'} 
+            src={`http://gymmatehealth.runasp.net/images/profiles/${coach.applicationUser?.image}` || '/placeholder-coach.jpg'} 
             alt={coach.applicationUser?.fullName}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/placeholder-coach.jpg';
-            }}
+           
           />
         </div>
 

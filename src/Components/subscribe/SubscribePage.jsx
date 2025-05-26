@@ -61,7 +61,7 @@ const SubscribePage = () => {
     coachId: coachIdFromState,
     subscriptionType: planFromState,
     paymentProof: null,
-    paymentMethod: '',
+   
   });
 
   useEffect(() => {
@@ -106,20 +106,20 @@ const SubscribePage = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!formData.paymentMethod) {
-      toast.current.show({ severity: 'warn', summary: 'Warning', detail: 'Please select a payment method.', life: 3000 });
-      setLoading(false);
-      return;
-    }
+    // if (!formData.paymentMethod) {
+    //   toast.current.show({ severity: 'warn', summary: 'Warning', detail: 'Please select a payment method.', life: 3000 });
+    //   setLoading(false);
+    //   return;
+    // }
 
     const data = new FormData();
     data.append('User_ID', formData.userId);
     data.append('Coach_ID', formData.coachId);
     data.append('SubscriptionType', formData.subscriptionType);
-    data.append('PaymentMethod', formData.paymentMethod);
     if (formData.paymentProof) {
       data.append('PaymentProof', formData.paymentProof);
     }
+console.log(formData);
 
     fetch('http://gymmatehealth.runasp.net/api/Subscribes/AddNewSubscribe', {
       method: 'POST',
@@ -233,8 +233,8 @@ const SubscribePage = () => {
           <label className={styles.label}>Payment Method:</label>
           <select
             name="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={handleChange}
+            value={selectedPaymentMethod}
+            onChange={(e)=>{setSelectedPaymentMethod(e.target.value)}}
             required
             className={styles.select}
           >

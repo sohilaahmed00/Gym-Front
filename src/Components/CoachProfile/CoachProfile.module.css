@@ -54,6 +54,7 @@
   height: 300px;
   position: relative;
   overflow: hidden;
+  object-fit: cover;
 }
 
 .profileImage::after {

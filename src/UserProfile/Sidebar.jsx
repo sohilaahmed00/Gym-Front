@@ -8,8 +8,8 @@ const Sidebar = () => {
   const menuItems = [
     { label: 'Home', path: '', icon: faHome },
     { label: 'Training Schedule', path: 'schedule', icon: faCalendarCheck },
-    { label: 'Diet Plan', path: 'diet', icon: faAppleAlt },
-    { label: 'Chat with Coach', path: 'chat', icon: faComments },
+    // { label: 'Diet Plan', path: 'diet', icon: faAppleAlt },
+    { label: 'Chat Bot', path: 'chat', icon: faComments },
     { label: 'Setting', path: 'settings', icon: faCog },
 
   ];
