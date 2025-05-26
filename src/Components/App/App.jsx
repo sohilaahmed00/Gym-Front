@@ -59,6 +59,7 @@ import UserSettings from '../../UserProfile/pages/UserSettings';
 import SubscribePage from '../subscribe/SubscribePage';
 import DietPlan from '../../UserProfile/pages/DietPlan';
 import ServiceDetails from '../../pages/ServiceDetails/ServiceDetails';
+import ChatBot from '../../UserProfile/pages/ChatBot';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -145,12 +146,35 @@ const routes = createBrowserRouter([
     ],
   },
   {
+    ],
+  },
+  {
+    path: '/coach',
+    element: <CoachDashboard />,
+    children: [
+      { index: true, element: <CoachStats /> },
+      { path: 'expired', element: <ExpiredSubscribers /> },
+      { path: 'subscriber/:id', element: <SubscriberDetails /> },
+      {
+        path: '/coach/expired/:id',
+        element: <ExpiredSubscriberDetails />
+      },
+      {
+       path: 'setting',
+       element: <CoachSettings /> 
+      },
+
+    ],
+  },
+  {
     path: '/user',
     element: <UserDashboard />,
     children: [
       { index: true, element: <UserHome /> },
       { path: 'schedule', element: <TrainingSchedule  /> },
       { path: 'diet', element: <DietPlan/> },
+      { path: "settings", element: <UserSettings />},
+      { path: 'chat', element: <ChatBot /> },
      { path: "settings", element: <UserSettings />}
 
       // { path: 'chat', element: <ChatWithCoach /> },
