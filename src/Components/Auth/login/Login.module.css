@@ -1,0 +1,92 @@
+.loginContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+  }
+  
+  .title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .form {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .formControl {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .formControl:focus {
+    border-color: #ff6a00;
+    outline: none;
+  }
+  
+  .passwordWrapper {
+    position: relative;
+  }
+  
+  .eyeIcon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+  }
+  
+  .submitBtn {
+    padding: 10px;
+    background-color: #ff6a00;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submitBtn:hover {
+    background-color: #e65c00;
+  }
+  
+  .submitBtn:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .errorText {
+    background-color: rgba(255, 0, 0, 0.1);  /* خلفية حمراء باهتة */
+    color: #d9534f;  /* لون النص (أحمر) */
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+    border: 1px solid #d9534f;  /* حدود أحمر حول الرسالة */
+  }
+  

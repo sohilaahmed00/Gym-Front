@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // علشان نستخدم useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faMinus, faPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext';
+import { fetchProductById } from '../../services/productAPI';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -14,9 +15,16 @@ const ProductDetails = () => {
   const orangeColor = '#FF5722';
 
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/products/${id}`)
-      .then(res => res.json())
-      .then(data => setProduct(data));
+    const getProductDetails = async () => {
+      try {
+        const data = await fetchProductById(id);
+        setProduct(data);
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+      }
+    };
+
+    getProductDetails();
   }, [id]);
 
   const handleAddToCart = () => {
@@ -26,6 +34,8 @@ const ProductDetails = () => {
 
   if (!product) return <div className="text-center py-5">Loading...</div>;
 
+  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+
   return (
     <div className="container py-5">
       <div className="row">
@@ -33,22 +43,24 @@ const ProductDetails = () => {
         <div className="col-md-6">
           <div className="d-flex gap-2 flex-md-row flex-column">
             <div className="d-flex flex-md-column gap-2">
-              {[...Array(4)].map((_, i) => (
+              {[...Array(1)].map((_, i) => (
                 <img
                   key={i}
-                  src={product.image}
+                  src={`${baseUrl}${product.image_URL}`}
                   alt="thumbnail"
                   className="img-thumbnail"
                   style={{ width: "60px", height: "60px", objectFit: "contain" }}
+                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/60x60?text=No+Image'; }}
                 />
               ))}
             </div>
             <div className="flex-grow-1 text-center">
               <img
-                src={product.image}
-                alt={product.title}
+                src={`${baseUrl}${product.image_URL}`}
+                alt={product.product_Name}
                 className="img-fluid"
                 style={{ maxHeight: "400px", objectFit: "contain" }}
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'; }}
               />
             </div>
           </div>
@@ -56,16 +68,8 @@ const ProductDetails = () => {
 
         {/* التفاصيل */}
         <div className="col-md-6 text-start">
-          <h4>{product.title}</h4>
-          <div className="text-warning mb-2">
-            {[...Array(5)].map((_, i) => (
-              <FontAwesomeIcon key={i} icon={faStar} />
-            ))}
-            <span className="text-muted ms-2">(150 Reviews)</span>
-            <span className="ms-3 text-success">| In Stock</span>
-          </div>
-
-          <h3 className="text-danger mb-3">${product.price.toFixed(2)}</h3>
+          <h4>{product.product_Name}</h4>
+          <h3 className="text-danger mb-3">${product.price?.toFixed(2)}</h3>
           <p className="text-muted">{product.description}</p>
 
           {/* الكمية + الزر */}

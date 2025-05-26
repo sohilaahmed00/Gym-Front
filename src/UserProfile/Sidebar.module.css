@@ -1,0 +1,98 @@
+/* Sidebar container */
+.sidebar {
+    width: 300px;
+    min-width: 250px;
+    max-width: 300px;
+    min-height: 100vh;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+    transition: width 0.2s;
+    overflow: hidden;
+    padding-top: 20px;
+  }
+  
+  /* Sidebar header */
+  .sidebarHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .sidebarTitle {
+    font-size: 20px;
+    font-weight: bold;
+    color: #FF5722;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Sidebar nav container */
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+    margin-top: 20px;
+  }
+  
+  /* Sidebar nav links */
+  .navLink {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #333;
+    font-weight: medium;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+  
+ 
+  
+  /* Active link styles */
+  .active {
+    background-color: #FF5722;
+    color: white;
+  }
+  
+  /* Icon styles */
+  .icon {
+    font-size: 20px;
+    color: inherit;
+  }
+  
+  /* Label styles */
+  .label {
+    font-size: 16px;
+    color: inherit;
+  }
+  
+  /* Underline effect on hover */
+  .navLink::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #FF5722;
+    transition: width 0.3s ease;
+  }
+  
+  .navLink:hover::after {
+    width: 100%;  /* Expand underline on hover */
+  }
+  
+  .navLink.active::after {
+    width: 100%;  /* Keep underline visible for active link */
+  }
+  

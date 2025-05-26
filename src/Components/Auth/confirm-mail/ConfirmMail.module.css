@@ -1,0 +1,76 @@
+.confirmContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+  }
+  
+  .title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .confirmForm {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-wrap: wrap;  /* Allow the inputs to wrap */
+    gap: 20px;  /* Add gap between inputs */
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 45%;  /* Control width of input groups */
+  }
+  
+  label {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .formControl {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .formControl:focus {
+    border-color: #ff6a00;
+    outline: none;
+  }
+  
+  .submitBtn {
+    width: 100%;
+    padding: 10px;
+    background-color: #ff6a00;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .submitBtn:hover {
+    background-color: #e65c00;
+  }
+  
+  .errorText {
+    background-color: rgba(255, 0, 0, 0.1);  
+    color: #d9534f; 
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 5px;
+    border: 1px solid #d9534f;  
+  }

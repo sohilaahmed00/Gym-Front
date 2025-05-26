@@ -1,0 +1,48 @@
+{
+  "id": "u001",
+  "name": "Ahmed Mostafa",
+  "image": "/images/users/mostafa.jpg",
+  "plan": "Gold Plan",
+  "startDate": "2025-04-01",
+  "endDate": "2025-07-01",
+  "status": "active",
+  "completedSessions": 12,
+  "progress": 33,
+  "nextWorkout": {
+    "focus": "Upper Body Strength",
+    "day": "Tuesday",
+    "date": "2025-04-22"
+  },
+  "subscription": {
+    "start": "2025-04-01",
+    "end": "2025-07-01",
+    "withCoach": true
+  },
+  "notifications": [
+    { "id": 1, "message": "New diet plan uploaded", "target": "/diet" },
+    { "id": 2, "message": "You have a new message from your coach", "target": "/chat" }
+  ],
+  "warnings": [
+    { "id": 1, "message": "You missed 3 sessions last week" },
+    { "id": 2, "message": "Your progress is below average" }
+  ],
+  "coachId": "c001",
+  "dietPlan": "High protein, low carbs. Drink 2L water/day.",
+  "attachments": [
+    {
+      "name": "Initial blood report.pdf",
+      "url": "/files/reports/blood-report.pdf"
+    }
+  ],
+  "tips": [
+    "Drink water before each workout 💧",
+    "Stretch for 10 mins post session 🧘‍♂️",
+    "Sleep early and track calories 🔁",
+    "Don’t skip leg day 🦵"
+  ],
+  "achievements": [
+    "Completed 1st month training 🏋️",
+    "Achieved 3KG fat loss 🎯",
+    "Improved flexibility & stamina"
+  ]
+}

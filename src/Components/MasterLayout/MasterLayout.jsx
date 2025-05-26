@@ -9,9 +9,15 @@ export default function MasterLayout() {
     <Navbar/>
     {/* <ClassComponent userName={this.state.userName}/> */}
     {/* <FunctionComponent userName={this.state.userName} userAge={this.state.userAge}/> */}
-    <div className='text-center container'>
+    <div className='text-center' style={{ width: '100%', padding: 0, marginTop: 70 }}>
       <Outlet>  </Outlet>
     </div>
+    {/* <style>
+      {
+        `.container{
+        margin-top:70px;}`
+      }
+    </style> */}
     <Footer/>
       </>
   )

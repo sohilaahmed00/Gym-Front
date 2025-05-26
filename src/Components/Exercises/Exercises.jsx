@@ -1,62 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Exercises.module.css';
-import { fetchExercises, fetchBodyParts } from '../../services/exerciseAPI';
+import { fetchCategories, fetchExercises } from '../../services/exerciseAPI';
+import { Link } from 'react-router-dom';
 
 export default function Exercises() {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [allExercises, setAllExercises] = useState([]);
   const [exercises, setExercises] = useState([]);
-  const [bodyParts, setBodyParts] = useState([]);
-  const [selectedBodyPart, setSelectedBodyPart] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const getBodyParts = async () => {
-      try {
-        console.log('Starting to fetch body parts in component');
-        setLoading(true);
-        setError('');
-        const parts = await fetchBodyParts();
-        console.log('Received body parts:', parts);
-        if (Array.isArray(parts) && parts.length > 0) {
-          setBodyParts(parts);
-          setSelectedBodyPart(parts[0]);
-        } else {
-          setError('No body parts data available');
-        }
-      } catch (err) {
-        console.error('Component error fetching body parts:', err);
-        setError('Failed to load body parts. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    getBodyParts();
-  }, []);
+  const baseUrl = 'http://gymmatehealth.runasp.net/images/Exercise/';
 
   useEffect(() => {
-    const getExercises = async () => {
-      if (!selectedBodyPart) return;
-      
-      try {
-        console.log('Starting to fetch exercises in component for:', selectedBodyPart);
-        setLoading(true);
-        setError('');
-        const data = await fetchExercises(selectedBodyPart);
-        console.log('Received exercises:', data);
-        if (Array.isArray(data)) {
-          setExercises(data.slice(0, 6));
+    setLoading(true);
+    setError('');
+  
+    fetchCategories()
+      .then((cats) => {
+        if (Array.isArray(cats) && cats.length > 0) {
+          setCategories(cats);
+          setSelectedCategoryId();
         } else {
-          setError('Invalid exercise data received');
+          throw new Error('No categories found');
         }
-      } catch (err) {
-        console.error('Component error fetching exercises:', err);
-        setError('Failed to load exercises. Please try again later.');
-      } finally {
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load categories');
+      });
+  
+    fetchExercises()
+      .then((exs) => {
+        if (Array.isArray(exs)) {
+          setAllExercises(exs);
+          setExercises(exs); 
+        } else {
+          throw new Error('Invalid exercises data');
+        }
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load exercises');
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-    getExercises();
-  }, [selectedBodyPart]);
+      });
+  }, []);
+  
+
+  useEffect(() => {
+    if (!selectedCategoryId) {
+      setExercises(allExercises); 
+    } else {
+      const filtered = allExercises.filter(
+        (e) => e.category_ID === selectedCategoryId
+      );
+      setExercises(filtered);
+    }
+  }, [selectedCategoryId, allExercises]);
 
   return (
     <div className={styles.exercisesPage}>
@@ -66,11 +67,12 @@ export default function Exercises() {
             <div className="col-lg-8">
               <h2 className="display-4 fw-bold mb-3">Explore Exercises</h2>
               <p className="lead text-muted">
-                Discover a wide range of exercises for different body parts and fitness levels
+                Discover a wide range of exercises for different body parts and fitness levels.
               </p>
             </div>
           </div>
 
+          {/* Loading Spinner */}
           {loading && (
             <div className="text-center mb-4">
               <div className="spinner-border text-primary" role="status">
@@ -79,10 +81,11 @@ export default function Exercises() {
             </div>
           )}
 
+          {/* Error Message */}
           {error && (
             <div className="alert alert-danger text-center mb-4" role="alert">
               {error}
-              <button 
+              <button
                 className="btn btn-outline-danger ms-3"
                 onClick={() => window.location.reload()}
               >
@@ -94,46 +97,69 @@ export default function Exercises() {
           {!loading && !error && (
             <>
               <div className="d-flex flex-wrap justify-content-center gap-2 mb-5">
-                {bodyParts.map((part) => (
+                <button
+                  className={`btn ${
+                    !selectedCategoryId ? 'btn-orange' : 'btn-light hover-orange'
+                  } text-capitalize`}
+                  onClick={() => setSelectedCategoryId(null)} 
+                >
+                  All Exercises
+                </button>
+
+                {categories.map((cat) => (
                   <button
-                    key={part}
+                    key={cat.category_ID}
                     className={`btn ${
-                      selectedBodyPart === part 
-                      ? 'btn-orange' 
-                      : 'btn-light hover-orange'
+                      selectedCategoryId === cat.category_ID
+                        ? 'btn-orange'
+                        : 'btn-light hover-orange'
                     } text-capitalize`}
-                    onClick={() => setSelectedBodyPart(part)}
+                    onClick={() => setSelectedCategoryId(cat.category_ID)}
                   >
-                    {part}
+                    {cat.category_Name}
                   </button>
                 ))}
               </div>
 
+              {/* Exercises Cards */}
               <div className="row g-4">
                 {exercises.map((exercise) => (
-                  <div key={exercise.id} className="col-lg-4 col-md-6">
-                    <div className="card h-100 shadow-sm">
+                  <div key={exercise.exercise_ID} className="col-lg-3 col-md-6">
+                    <Link to={`/exercise/${exercise.exercise_ID}`} className="card h-100 shadow-sm" style={{ textDecoration: 'none', color: 'inherit' }}>
                       <div className="card-img-top overflow-hidden" style={{ height: '250px' }}>
-                        <img 
-                          src={exercise.gifUrl} 
-                          alt={exercise.name} 
+                        <img
+                          src={
+                            exercise.image_gif
+                              ? `${baseUrl}${exercise.image_gif}`
+                              : `${baseUrl}${exercise.image_url}`
+                          }
+                          alt={exercise.exercise_Name}
                           className="w-100 h-100 object-fit-cover"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = 'https://via.placeholder.com/300x200?text=Exercise+Image';
+                            e.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
                           }}
                         />
                       </div>
                       <div className="card-body">
-                        <h5 className="card-title text-capitalize">{exercise.name}</h5>
-                        <p className="card-text mb-2">
-                          <span className="fw-medium">Equipment:</span> {exercise.equipment}
+                        <h5 className="card-title text-capitalize mb-4">
+                          {exercise.exercise_Name}
+                        </h5>
+                        <p className="card-text mb-2 d-flex justify-content-between">
+                          <span className="fw-medium">Target:</span>{' '}
+                          {exercise.target_Muscle}
                         </p>
-                        <p className="card-text">
-                          <span className="fw-medium">Target:</span> {exercise.target}
+                        <p className="card-text d-flex justify-content-between">
+                          <span className="fw-medium">Duration:</span>{' '}
+                          {exercise.duration} seconds
                         </p>
+
+                        
+                        <span className={styles.badge}>
+                          {exercise.calories_Burned} Calories Burned
+                        </span>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -143,4 +169,4 @@ export default function Exercises() {
       </section>
     </div>
   );
-} 
+}

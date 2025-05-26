@@ -18,6 +18,11 @@ body, html {
   overflow-x: hidden;
 }
 
+.aboutPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
 .hero-section {
   width: 100%;
   height: 60vh;
@@ -42,6 +47,28 @@ body, html {
   z-index: 1;
 }
 
+.heroSection {
+  position: relative;
+  height: 60vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  margin-bottom: 4rem;
+}
+
+.heroOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
 .hero-content {
   position: relative;
   z-index: 2;
@@ -51,14 +78,28 @@ body, html {
   padding: 0 2rem;
 }
 
-.hero-content h1 {
-  font-size: 3.5rem;
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.heroContent h1 {
+  font-size: 3rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-text {
   font-size: 1.4rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.heroText {
+  font-size: 1.2rem;
   line-height: 1.6;
   margin-bottom: 2rem;
 }
@@ -92,6 +133,20 @@ body, html {
   margin-bottom: 2rem;
 }
 
+.aboutTextContainer h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.aboutText {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
 .about-image-container {
   width: 100%;
   height: 100%;
@@ -103,6 +158,23 @@ body, html {
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.aboutImageContainer {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.aboutImage {
+  width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.aboutImage:hover {
+  transform: scale(1.05);
 }
 
 .mission-section {
@@ -122,6 +194,20 @@ body, html {
   color: #666;
 }
 
+.missionSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+}
+
+.missionSection h3 {
+  color: #FF5722;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 768px) {
   .about-grid {
     grid-template-columns: 1fr;
@@ -133,5 +219,13 @@ body, html {
   
   .hero-text {
     font-size: 1rem;
+  }
+
+  .heroSection {
+    height: 50vh;
+  }
+
+  .aboutTextContainer h2 {
+    font-size: 2rem;
   }
 }

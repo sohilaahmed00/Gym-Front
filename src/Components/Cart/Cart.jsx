@@ -3,43 +3,79 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext.jsx';
+import styles from './Cart.module.css';
 
 export default function Cart() {
   const orangeColor = '#FF5722';
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
-  const [localQuantities, setLocalQuantities] = useState(
-    cart.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {})
-  );
+  const [localQuantities, setLocalQuantities] = useState({});
+
+  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
 
   useEffect(() => {
     setLocalQuantities(
-      cart.reduce((acc, item) => ({ ...acc, [item.id]: item.quantity }), {})
+      cart.reduce((acc, item) => {
+        acc[item.id] = typeof item.quantity === 'number' && item.quantity >= 0 ? item.quantity : 0;
+        return acc;
+      }, {})
     );
   }, [cart]);
 
   const handleQuantityChange = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-      removeFromCart(productId);
-      return;
+    const quantity = parseInt(newQuantity, 10);
+    if (!isNaN(quantity) && quantity >= 0) {
+      setLocalQuantities((prev) => ({ ...prev, [productId]: quantity }));
+      if (quantity === 0) {
+        if (window.confirm('Are you sure you want to remove this item?')) {
+          removeFromCart(productId);
+        } else {
+          // If user cancels removal, reset to previous quantity
+          const item = cart.find(item => item.id === productId);
+          setLocalQuantities((prev) => ({ ...prev, [productId]: item.quantity }));
+        }
+      } else {
+        updateQuantity(productId, quantity);
+      }
+    } else {
+      setLocalQuantities((prev) => ({ ...prev, [productId]: '' }));
     }
-    setLocalQuantities((prev) => ({ ...prev, [productId]: newQuantity }));
   };
 
   const updateCart = () => {
     cart.forEach((item) => {
-      const newQuantity = localQuantities[item.id];
-      if (newQuantity && newQuantity !== item.quantity) {
-        updateQuantity(item.id, newQuantity);
+      const localQuantity = localQuantities[item.id];
+      const newQuantity = typeof localQuantity === 'number' && localQuantity >= 0 ? localQuantity : item.quantity;
+
+      if (typeof newQuantity === 'number' && newQuantity >= 0 && newQuantity !== item.quantity) {
+        if (newQuantity === 0) {
+          if (window.confirm(`Are you sure you want to remove ${item.name} from the cart?`)) {
+            removeFromCart(item.id);
+          }
+        } else {
+          updateQuantity(item.id, newQuantity);
+        }
       }
     });
+    setLocalQuantities(
+      cart.reduce((acc, item) => {
+        acc[item.id] = typeof item.quantity === 'number' && item.quantity >= 0 ? item.quantity : 0;
+        return acc;
+      }, {})
+    );
     alert('Cart updated successfully!');
   };
 
-  const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => {
+    const price = parseFloat(item.price);
+    const quantity = localQuantities[item.id] ?? item.quantity;
+    if (isNaN(price) || isNaN(quantity) || price < 0 || quantity < 0) return total;
+    return total + price * quantity;
+  }, 0);
+
   const shipping = 0;
-  const discountAmount = (discount / 100) * subtotal;
+  const discountAmount = discount > 0 ? (discount / 100) * subtotal : 0;
   const total = subtotal - discountAmount + shipping;
 
   const applyCoupon = () => {
@@ -54,7 +90,6 @@ export default function Cart() {
 
   return (
     <div className="container py-5">
-      {/* Breadcrumb */}
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><Link to="/">Home</Link></li>
@@ -66,89 +101,92 @@ export default function Cart() {
         <p className="text-center">Your cart is empty.</p>
       ) : (
         <>
-          {/* Cart Table */}
           <div className="table-responsive">
-            <table className="table align-middle">
+            <table className="table align-middle text-center">
               <thead>
                 <tr>
                   <th>Product</th>
                   <th>Price</th>
-                  <th>Quantity</th>
+                  <th>
+                    Quantity
+                    <div>
+                      <small className="text-muted">(editable)</small>
+                    </div>
+                  </th>
                   <th>Subtotal</th>
                 </tr>
               </thead>
               <tbody>
-                {cart.map((item) => (
-                  <tr key={item.id}>
-                    <td className="d-flex align-items-center">
-                      <button className="btn btn-link p-0 me-2" onClick={() => {
-                        if (window.confirm('Are you sure you want to remove this item?')) {
-                          removeFromCart(item.id);
-                        }
-                      }}>
-                        <FontAwesomeIcon icon={faTimes} style={{ color: 'red' }} />
-                      </button>
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        style={{
-                          width: '60px',
-                          height: '60px',
-                          objectFit: 'cover',
-                          borderRadius: '8px',
-                          marginRight: '10px'
-                        }}
-                      />
-                      {item.name}
-                    </td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>
-                      <div className="d-flex flex-column align-items-center">
-                        <span className="mb-1">Quantity</span>
-                        <div className="d-flex align-items-center">
-                          <button
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.id,
-                                (localQuantities[item.id] || item.quantity) - 1
-                              )
+                {cart.map((item) => {
+                  const quantity = localQuantities[item.id] ?? item.quantity;
+                  const isZero = quantity === 0;
+                  return (
+                    <tr key={item.id} style={isZero ? { backgroundColor: '#fff3cd' } : {}}>
+                      <td className="d-flex align-items-center">
+                        <button
+                          className={`btn btn-link p-0 me-2 ${styles.removeButton}`}
+                          onClick={() => {
+                            if (window.confirm('Are you sure you want to remove this item?')) {
+                              removeFromCart(item.id);
                             }
-                          >
-                            -
-                          </button>
-                          <span className="mx-2">{localQuantities[item.id] || item.quantity}</span>
-                          <button
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={() =>
-                              handleQuantityChange(
-                                item.id,
-                                (localQuantities[item.id] || item.quantity) + 1
-                              )
-                            }
-                          >
-                            +
-                          </button>
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faTimes} style={{ color: 'red' }} />
+                        </button>
+                        <img
+                          src={`${baseUrl}${item.image}`}
+                          alt={item.name}
+                          style={{
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            marginRight: '10px'
+                          }}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/60x60?text=No+Image';
+                          }}
+                        />
+                        {item.name}
+                      </td>
+                      <td>EGP {parseFloat(item.price).toFixed(2)}</td>
+                      <td>
+                        <div className="d-flex flex-column align-items-center">
+                          <span className="fw-bold">Qty</span>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm text-center mt-1"
+                            value={quantity}
+                            min="0"
+                            style={{
+                              width: '60px',
+                              fontSize: '14px',
+                              padding: '2px 5px'
+                            }}
+                            onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                          />
+                          {isZero && (
+                            <div className="text-warning small mt-1">This item will be removed</div>
+                          )}
                         </div>
-                      </div>
-                    </td>
-                    <td>${(item.price * (localQuantities[item.id] || item.quantity)).toFixed(2)}</td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>EGP {(parseFloat(item.price) * quantity).toFixed(2)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* Buttons */}
           <div className="d-flex justify-content-between mb-4 flex-wrap gap-2">
             <Link to="/" className="btn btn-outline-secondary">Return to Shop</Link>
             <div className="d-flex gap-2">
               <button className="btn btn-outline-danger" onClick={clearCart}>Clear Cart</button>
-              <button className="btn btn-outline-secondary" onClick={updateCart}>Update Cart</button>
+              <button type="button" className="btn btn-outline-secondary" onClick={updateCart}>Update Cart</button>
             </div>
           </div>
 
-          {/* Coupon + Cart Summary */}
           <div className="row">
             <div className="col-md-6 mb-4">
               <div className="input-group">
@@ -160,6 +198,7 @@ export default function Cart() {
                   onChange={(e) => setCouponCode(e.target.value)}
                 />
                 <button
+                  type="button"
                   className="btn text-white"
                   style={{ backgroundColor: orangeColor, borderColor: orangeColor }}
                   onClick={applyCoupon}
@@ -174,22 +213,22 @@ export default function Cart() {
                 <h5 className="fw-bold mb-3">Cart Total</h5>
                 <div className="d-flex justify-content-between mb-2">
                   <span>Subtotal:</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>EGP {subtotal.toFixed(2)}</span>
                 </div>
-                {discount > 0 && (
+                {discountAmount > 0 && (
                   <div className="d-flex justify-content-between mb-2 text-success">
                     <span>Discount ({discount}%):</span>
-                    <span>− ${discountAmount.toFixed(2)}</span>
+                    <span>−EGP {discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="d-flex justify-content-between mb-2">
                   <span>Shipping:</span>
-                  <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span>{shipping === 0 ? 'Free' : `EGP ${shipping.toFixed(2)}`}</span>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-between mb-3">
                   <span className="fw-bold">Total:</span>
-                  <span className="fw-bold">${total.toFixed(2)}</span>
+                  <span className="fw-bold">EGP {total.toFixed(2)}</span>
                 </div>
                 <Link
                   to="/checkout"
@@ -203,28 +242,6 @@ export default function Cart() {
           </div>
         </>
       )}
-
-          {/* Styling */}
-          <style jsx>{`
-      .btn:hover {
-        background-color: #e64a19 !important;
-        border-color: #e64a19 !important;
-      }
-      .table th,
-      .table td {
-        vertical-align: middle;
-      }
-      .form-control:focus {
-        border-color: ${orangeColor};
-        box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
-      }
-
-      /* تأثير hover على زر حذف المنتج */
-      .btn-link:hover svg {
-        color: white !important;
-      }
-    `}</style>
-
     </div>
   );
 }
