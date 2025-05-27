@@ -146,7 +146,7 @@ const routes = createBrowserRouter([
     ],
   },
   {
-    ],
+    
   },
   {
     path: '/coach',
