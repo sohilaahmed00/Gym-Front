@@ -146,6 +146,27 @@ const routes = createBrowserRouter([
     ],
   },
   {
+    ],
+  },
+  {
+    path: '/coach',
+    element: <CoachDashboard />,
+    children: [
+      { index: true, element: <CoachStats /> },
+      { path: 'expired', element: <ExpiredSubscribers /> },
+      { path: 'subscriber/:id', element: <SubscriberDetails /> },
+      {
+        path: '/coach/expired/:id',
+        element: <ExpiredSubscriberDetails />
+      },
+      {
+       path: 'setting',
+       element: <CoachSettings /> 
+      },
+
+    ],
+  },
+  {
     path: '/user',
     element: <UserDashboard />,
     children: [
@@ -154,6 +175,9 @@ const routes = createBrowserRouter([
       { path: 'diet', element: <DietPlan/> },
       { path: "settings", element: <UserSettings />},
       { path: 'chat', element: <ChatBot /> },
+     { path: "settings", element: <UserSettings />}
+
+      // { path: 'chat', element: <ChatWithCoach /> },
     ]
   }
 ]);
