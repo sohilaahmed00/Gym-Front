@@ -77,10 +77,10 @@ export default function ManageProducts() {
       setLoading(true);
       const response = await fetch(API_ENDPOINTS.GET_ALL_PRODUCTS);
       if (!response.ok) {
-        throw new Error('فشل في جلب بيانات المنتجات');
+        throw new Error('Failed to fetch products data');
       }
       const data = await response.json();
-      console.log('تم استلام بيانات المنتجات:', data);
+      console.log('Products data received:', data);
       setProducts(data);
       setLoading(false);
     } catch (err) {
@@ -95,7 +95,7 @@ export default function ManageProducts() {
 
   // Delete product function
   const handleDeleteProduct = async (productId) => {
-    if (window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+    if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         setDeletingId(productId);
         const response = await fetch(API_ENDPOINTS.DELETE_PRODUCT(productId), {
@@ -103,11 +103,11 @@ export default function ManageProducts() {
         });
         
         if (!response.ok) {
-          throw new Error('فشل في حذف المنتج');
+          throw new Error('Failed to delete product');
         }
         
         setProducts(products.filter(product => product.product_ID !== productId));
-        showAlert('تم حذف المنتج بنجاح', 'success');
+        showAlert('Product deleted successfully', 'success');
       } catch (err) {
         showAlert(err.message, 'danger');
       } finally {
@@ -166,12 +166,12 @@ export default function ManageProducts() {
       });
       
       if (!response.ok) {
-        throw new Error('فشل في إضافة المنتج');
+        throw new Error('Failed to add product');
       }
       
       await fetchProducts();
       setIsAddingProduct(false);
-      showAlert('تم إضافة المنتج بنجاح', 'success');
+      showAlert('Product added successfully', 'success');
     } catch (err) {
       showAlert(err.message, 'danger');
     } finally {
@@ -228,7 +228,7 @@ export default function ManageProducts() {
       // product_ID يُرسل في الرابط، لا حاجة لإضافته هنا مرة أخرى
 
       // طباعة محتويات formData للتحقق
-      console.log("البيانات التي سيتم إرسالها (FormData):");
+      console.log("Data to be sent (FormData):");
       for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
       }
@@ -242,7 +242,7 @@ export default function ManageProducts() {
       if (!response.ok) {
         const errorData = await response.text(); // محاولة قراءة جسم الخطأ كنص
         console.error('Update failed response status:', response.status, 'Error data:', errorData);
-        throw new Error(`فشل في تحديث المنتج. الحالة: ${response.status}. التفاصيل: ${errorData}`);
+        throw new Error(`Failed to update product. Status: ${response.status}. Details: ${errorData}`);
       }
       
       // تحديث المنتج في القائمة المحلية
@@ -251,7 +251,7 @@ export default function ManageProducts() {
       ));
       
       setEditingProduct(null);
-      showAlert('تم تحديث المنتج بنجاح', 'success');
+      showAlert('Product updated successfully', 'success');
     } catch (err) {
       console.error('Error during submit edit:', err); // طباعة الخطأ الكامل في الكونسول
       showAlert(err.message, 'danger');
@@ -292,17 +292,17 @@ export default function ManageProducts() {
         <div className="card border-0 shadow-sm mb-4">
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">إضافة منتج جديد</h4>
+              <h4 className="fw-bold mb-0">Add New Product</h4>
               <button className="btn btn-outline-secondary" onClick={handleCancelAddProduct}>
                 <i className="fas fa-times me-2"></i>
-                إلغاء
+                Cancel
               </button>
             </div>
             
             <form onSubmit={handleSubmitNewProduct}>
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">اسم المنتج</label>
+                  <label className="form-label">Product Name</label>
                   <input 
                     type="text" 
                     className="form-control" 
@@ -313,7 +313,7 @@ export default function ManageProducts() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">السعر</label>
+                  <label className="form-label">Price</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -328,7 +328,7 @@ export default function ManageProducts() {
               
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">الخصم (%)</label>
+                  <label className="form-label">Discount (%)</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -340,7 +340,7 @@ export default function ManageProducts() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">الكمية المتاحة</label>
+                  <label className="form-label">Stock Quantity</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -354,7 +354,7 @@ export default function ManageProducts() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">رابط الصورة</label>
+                <label className="form-label">Image URL</label>
                 <input 
                   type="text" 
                   className="form-control" 
@@ -363,11 +363,11 @@ export default function ManageProducts() {
                   onChange={handleAddProductInputChange}
                   placeholder="أدخل اسم ملف الصورة"
                 />
-                <small className="text-muted">مثال: product-image.jpg</small>
+                <small className="text-muted">Example: product-image.jpg</small>
               </div>
               
               <div className="mb-3">
-                <label className="form-label">الوصف</label>
+                <label className="form-label">Description</label>
                 <textarea 
                   className="form-control" 
                   name="description" 
@@ -386,9 +386,9 @@ export default function ManageProducts() {
                   {isSubmitting ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      جارٍ الإضافة...
+                      Adding...
                     </>
-                  ) : 'إضافة المنتج'}
+                  ) : 'Add Product'}
                 </button>
               </div>
             </form>
@@ -399,17 +399,17 @@ export default function ManageProducts() {
         <div className="card border-0 shadow-sm mb-4">
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">تعديل المنتج</h4>
+              <h4 className="fw-bold mb-0">Edit Product</h4>
               <button className="btn btn-outline-secondary" onClick={handleCancelEdit}>
                 <i className="fas fa-times me-2"></i>
-                إلغاء
+                Cancel
               </button>
             </div>
             
             <form onSubmit={handleSubmitEdit}>
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">اسم المنتج</label>
+                  <label className="form-label">Product Name</label>
                   <input 
                     type="text" 
                     className="form-control" 
@@ -420,7 +420,7 @@ export default function ManageProducts() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">السعر</label>
+                  <label className="form-label">Price</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -435,7 +435,7 @@ export default function ManageProducts() {
               
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">الخصم (%)</label>
+                  <label className="form-label">Discount (%)</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -447,7 +447,7 @@ export default function ManageProducts() {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">الكمية المتاحة</label>
+                  <label className="form-label">Stock Quantity</label>
                   <input 
                     type="number" 
                     className="form-control" 
@@ -461,7 +461,7 @@ export default function ManageProducts() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">رابط الصورة</label>
+                <label className="form-label">Image URL</label>
                 <input 
                   type="text" 
                   className="form-control" 
@@ -470,11 +470,11 @@ export default function ManageProducts() {
                   onChange={handleInputChange}
                   placeholder="أدخل اسم ملف الصورة"
                 />
-                <small className="text-muted">مثال: product-image.jpg</small>
+                <small className="text-muted">Example: product-image.jpg</small>
               </div>
               
               <div className="mb-3">
-                <label className="form-label">الوصف</label>
+                <label className="form-label">Description</label>
                 <textarea 
                   className="form-control" 
                   name="description" 
@@ -493,9 +493,9 @@ export default function ManageProducts() {
                   {isSubmitting ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      جارٍ الحفظ...
+                      Saving...
                     </>
-                  ) : 'حفظ التغييرات'}
+                  ) : 'Save Changes'}
                 </button>
               </div>
             </form>
@@ -506,10 +506,10 @@ export default function ManageProducts() {
         <div className="card border-0 shadow-sm">
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">إدارة المنتجات</h4>
+              <h4 className="fw-bold mb-0">Manage Products</h4>
               <button className="btn btn-primary" onClick={handleStartAddProduct}>
                 <i className="fas fa-plus me-2"></i>
-                إضافة منتج جديد
+                Add New Product
               </button>
             </div>
 
@@ -517,28 +517,28 @@ export default function ManageProducts() {
             <div className="row g-3 mb-4">
               <div className="col-md-3">
                 <select className="form-select">
-                  <option value="">جميع الفئات</option>
-                  <option value="supplements">المكملات الغذائية</option>
-                  <option value="equipment">معدات رياضية</option>
+                  <option value="">All Categories</option>
+                  <option value="supplements">Supplements</option>
+                  <option value="equipment">Equipment</option>
                 </select>
               </div>
               <div className="col-md-3">
                 <select className="form-select">
-                  <option value="">حسب السعر</option>
-                  <option value="low">أقل من 300 جنيه</option>
-                  <option value="medium">300 - 500 جنيه</option>
-                  <option value="high">أكثر من 500 جنيه</option>
+                  <option value="">By Price</option>
+                  <option value="low">Less than 300 EGP</option>
+                  <option value="medium">300 - 500 EGP</option>
+                  <option value="high">More than 500 EGP</option>
                 </select>
               </div>
               <div className="col-md-3">
                 <select className="form-select">
-                  <option value="">حسب المخزون</option>
-                  <option value="in-stock">متوفر</option>
-                  <option value="out-stock">غير متوفر</option>
+                  <option value="">By Stock</option>
+                  <option value="in-stock">Available</option>
+                  <option value="out-stock">Out of Stock</option>
                 </select>
               </div>
               <div className="col-md-3">
-                <input type="text" className="form-control" placeholder="بحث عن منتجات..." />
+                <input type="text" className="form-control" placeholder="Search products..." />
               </div>
             </div>
 
@@ -547,12 +547,12 @@ export default function ManageProducts() {
               <table className="table align-middle mb-0">
                 <thead className="bg-light">
                   <tr>
-                    <th className="border-0 text-start">المنتج</th>
-                    <th className="border-0">الوصف</th>
-                    <th className="border-0">السعر</th>
-                    <th className="border-0">الخصم</th>
-                    <th className="border-0">المخزون</th>
-                    <th className="border-0">الإجراءات</th>
+                    <th className="border-0 text-start">Product</th>
+                    <th className="border-0">Description</th>
+                    <th className="border-0">Price</th>
+                    <th className="border-0">Discount</th>
+                    <th className="border-0">Stock</th>
+                    <th className="border-0">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -584,7 +584,7 @@ export default function ManageProducts() {
                                 src={getImageUrl(product.image_URL)} 
                                 alt={product.product_Name}
                                 onError={(e) => {
-                                  console.log('خطأ في تحميل الصورة:', product.image_URL);
+                                  console.log('Error loading image:', product.image_URL);
                                   e.target.onerror = null;
                                 }}
                                 style={{
@@ -628,7 +628,7 @@ export default function ManageProducts() {
                         </span>
                       </td>
                       <td>
-                        <span className="fw-bold">{product.price} جنيه</span>
+                        <span className="fw-bold">{product.price} EGP</span>
                       </td>
                       <td>
                         {product.discount > 0 ? (
@@ -636,12 +636,12 @@ export default function ManageProducts() {
                             {product.discount * 100}%
                           </span>
                         ) : (
-                          <span className="badge bg-secondary">بدون خصم</span>
+                          <span className="badge bg-secondary">No Discount</span>
                         )}
                       </td>
                       <td>
                         <span className={`badge ${product.stock_Quantity > 0 ? 'bg-success' : 'bg-danger'} text-white`}>
-                          {product.stock_Quantity > 0 ? `${product.stock_Quantity} قطعة` : 'غير متوفر'}
+                          {product.stock_Quantity > 0 ? `${product.stock_Quantity} pcs` : 'Out of Stock'}
                         </span>
                       </td>
                       <td>
@@ -651,7 +651,7 @@ export default function ManageProducts() {
                             onClick={() => handleEditClick(product)}
                           >
                             <i className="fas fa-edit me-1"></i>
-                            تعديل
+                            Edit
                           </button>
                           <button 
                             className="btn btn-sm btn-outline-danger"
@@ -661,12 +661,12 @@ export default function ManageProducts() {
                             {deletingId === product.product_ID ? (
                               <>
                                 <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                جارٍ الحذف...
+                                Deleting...
                               </>
                             ) : (
                               <>
                                 <i className="fas fa-trash me-1"></i>
-                                حذف
+                                Delete
                               </>
                             )}
                           </button>
@@ -697,7 +697,7 @@ export default function ManageProducts() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowImageModal(false)}>
-            إغلاق
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
