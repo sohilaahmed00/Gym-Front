@@ -1,27 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// تعريف متغيرات API
+// API variables
 const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_ALL_SUBSCRIPTIONS: `${API_BASE_URL}/Subscribes/GetAllSubscribtions`,
-  GET_USER_BY_ID: (userId) => `${API_BASE_URL}/Users/Getuserbyid/${userId}`
+  GET_USER_BY_ID: (userId) => `${API_BASE_URL}/Users/Getuserbyid/${userId}`,
+  GET_USER_SUBSCRIBES: (userId) => `${API_BASE_URL}/Subscribes/user/${userId}`
 };
 
-// ترجمة أنواع الاشتراكات
+// Subscription type translations
 const subscriptionTypeLabels = {
-  '1_Month': 'شهر واحد',
-  '3_Months': '3 أشهر',
-  '6_Months': '6 أشهر',
-  '1_Year': 'سنة كاملة'
+  '1_Month': '1 Month',
+  '3_Months': '3 Months',
+  '6_Months': '6 Months',
+  '1_Year': '1 Year'
 };
 
-// ترجمة حالة الاشتراك
+// Status translations
 const statusLabels = {
-  'Active': 'نشط',
-  'Expired': 'منتهي',
-  'Pending': 'قيد الانتظار',
-  'Rejected': 'مرفوض'
+  'Active': 'Active',
+  'Expired': 'Expired',
+  'Pending': 'Pending',
+  'Rejected': 'Rejected'
 };
 
 export default function ManageSubscriptions() {
@@ -29,16 +30,23 @@ export default function ManageSubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [users, setUsers] = useState({});
   const [coaches, setCoaches] = useState({});
+  const [userCoaches, setUserCoaches] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   // Alert State
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
+  // Filters State
+  const [filterType, setFilterType] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const [searchBy, setSearchBy] = useState('user'); // 'user' or 'coach'
+
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
-    // إخفاء التنبيه تلقائيًا بعد 3 ثوان
+    // Hide alert automatically after 3 seconds
     setTimeout(() => {
       setAlert({ show: false, message: '', type: '' });
     }, 3000);
@@ -49,13 +57,29 @@ export default function ManageSubscriptions() {
     try {
       const response = await fetch(API_ENDPOINTS.GET_USER_BY_ID(userId));
       if (!response.ok) {
-        throw new Error(`فشل في جلب بيانات المستخدم: ${userId}`);
+        throw new Error(`Failed to fetch user data: ${userId}`);
       }
       const userData = await response.json();
       return userData;
     } catch (error) {
-      console.error(`خطأ في جلب بيانات المستخدم ${userId}:`, error);
+      console.error(`Error fetching user data ${userId}:`, error);
       return null;
+    }
+  };
+
+  // Fetch all coaches for a user
+  const fetchUserCoaches = async (userId) => {
+    try {
+      const response = await fetch(API_ENDPOINTS.GET_USER_SUBSCRIBES(userId));
+      if (!response.ok) return [];
+      const subscribes = await response.json();
+      // استخرج أسماء المدربين من الاشتراكات
+      const coachNames = subscribes
+        .map(sub => sub.coachName || (sub.coach && sub.coach.applicationUser && sub.coach.applicationUser.fullName))
+        .filter(Boolean);
+      return coachNames;
+    } catch {
+      return [];
     }
   };
 
@@ -63,18 +87,20 @@ export default function ManageSubscriptions() {
   const fetchUsersData = async (subscriptionsData) => {
     const userPromises = {};
     const coachPromises = {};
+    const userCoachPromises = {};
     
-    // جمع جميع معرفات المستخدمين والمدربين
+    // Collect all user and coach IDs
     subscriptionsData.forEach(subscription => {
       if (subscription.user_ID && !userPromises[subscription.user_ID]) {
         userPromises[subscription.user_ID] = fetchUserData(subscription.user_ID);
+        userCoachPromises[subscription.user_ID] = fetchUserCoaches(subscription.user_ID);
       }
       if (subscription.coach_ID && !coachPromises[subscription.coach_ID]) {
         coachPromises[subscription.coach_ID] = fetchUserData(subscription.coach_ID);
       }
     });
     
-    // انتظار جميع طلبات API للمستخدمين
+    // Wait for all user API requests
     const userResults = await Promise.allSettled(Object.values(userPromises));
     const usersData = {};
     let index = 0;
@@ -85,7 +111,7 @@ export default function ManageSubscriptions() {
       index++;
     }
     
-    // انتظار جميع طلبات API للمدربين
+    // Wait for all coach API requests
     const coachResults = await Promise.allSettled(Object.values(coachPromises));
     const coachesData = {};
     index = 0;
@@ -96,8 +122,22 @@ export default function ManageSubscriptions() {
       index++;
     }
     
+    // Wait for all user coaches API requests
+    const userCoachResults = await Promise.allSettled(Object.values(userCoachPromises));
+    const userCoachesData = {};
+    index = 0;
+    for (const userId of Object.keys(userCoachPromises)) {
+      if (userCoachResults[index].status === 'fulfilled' && userCoachResults[index].value) {
+        userCoachesData[userId] = userCoachResults[index].value;
+      } else {
+        userCoachesData[userId] = [];
+      }
+      index++;
+    }
+    
     setUsers(usersData);
     setCoaches(coachesData);
+    setUserCoaches(userCoachesData);
   };
 
   // Fetch subscriptions data from API
@@ -106,12 +146,12 @@ export default function ManageSubscriptions() {
       setLoading(true);
       const response = await fetch(API_ENDPOINTS.GET_ALL_SUBSCRIPTIONS);
       if (!response.ok) {
-        throw new Error('فشل في جلب بيانات الاشتراكات');
+        throw new Error('Failed to fetch subscription data');
       }
       const data = await response.json();
       setSubscriptions(data);
       
-      // جلب بيانات المستخدمين والمدربين
+      // Fetch user and coach data
       await fetchUsersData(data);
       
       setLoading(false);
@@ -125,11 +165,11 @@ export default function ManageSubscriptions() {
     fetchSubscriptions();
   }, []);
 
-  // تنسيق التاريخ
+  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
   };
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
@@ -154,7 +194,7 @@ export default function ManageSubscriptions() {
             type="button" 
             className="btn-close" 
             onClick={() => setAlert({ ...alert, show: false })}
-            aria-label="إغلاق"
+            aria-label="Close"
           ></button>
         </div>
       )}
@@ -162,38 +202,34 @@ export default function ManageSubscriptions() {
       <div className="card border-0 shadow-sm">
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">إدارة الاشتراكات</h4>
-            <button className="btn btn-primary">
-              <i className="fas fa-plus me-2"></i>
-              إضافة اشتراك جديد
-            </button>
+            <h4 className="fw-bold mb-0">Manage Subscriptions</h4>
           </div>
 
           {/* Filters Section */}
-          <div className="row g-3 mb-4">
-            <div className="col-md-3">
-              <select className="form-select">
-                <option value="">جميع الاشتراكات</option>
-                <option value="1_Month">شهر واحد</option>
-                <option value="3_Months">3 أشهر</option>
-                <option value="6_Months">6 أشهر</option>
-                <option value="1_Year">سنة كاملة</option>
+          <div className="row g-3 mb-4 align-items-end">
+            <div className="col-md-4">
+              <select className="form-select" value={filterType} onChange={e => setFilterType(e.target.value)}>
+                <option value="">All Durations</option>
+                <option value="3_Months">3 Months</option>
+                <option value="6_Months">6 Months</option>
+                <option value="1_Year">1 Year</option>
               </select>
             </div>
-            <div className="col-md-3">
-              <select className="form-select">
-                <option value="">جميع الحالات</option>
-                <option value="Active">نشط</option>
-                <option value="Pending">قيد الانتظار</option>
-                <option value="Expired">منتهي</option>
-                <option value="Rejected">مرفوض</option>
+            <div className="col-md-4">
+              <select className="form-select" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Pending">Pending</option>
+                <option value="Expired">Expired</option>
+                <option value="Rejected">Rejected</option>
               </select>
             </div>
-            <div className="col-md-3">
-              <input type="date" className="form-control" placeholder="تاريخ البدء" />
-            </div>
-            <div className="col-md-3">
-              <input type="date" className="form-control" placeholder="تاريخ الانتهاء" />
+            <div className="col-md-4 d-flex gap-2">
+              <input type="text" className="form-control" placeholder={searchBy === 'user' ? 'Search by User Name' : 'Search by Coach Name'} value={searchText} onChange={e => setSearchText(e.target.value)} />
+              <select className="form-select w-auto" style={{ minWidth: 120 }} value={searchBy} onChange={e => setSearchBy(e.target.value)}>
+                <option value="user">User Name</option>
+                <option value="coach">Coach Name</option>
+              </select>
             </div>
           </div>
 
@@ -202,124 +238,119 @@ export default function ManageSubscriptions() {
             <table className="table align-middle mb-0">
               <thead className="bg-light">
                 <tr>
-                  <th className="border-0 text-start">رقم الاشتراك</th>
-                  <th className="border-0">المستخدم</th>
-                  <th className="border-0">المدرب</th>
-                  <th className="border-0">نوع الاشتراك</th>
-                  <th className="border-0">تاريخ البدء</th>
-                  <th className="border-0">تاريخ الانتهاء</th>
-                  <th className="border-0">الحالة</th>
-                  <th className="border-0">تم الدفع</th>
-                  <th className="border-0">تم الموافقة</th>
-                  <th className="border-0">إيصال الدفع</th>
-                  <th className="border-0">الإجراءات</th>
+                  <th className="border-0">User</th>
+                  <th className="border-0">Coach</th>
+                  <th className="border-0">Subscription Type</th>
+                  <th className="border-0">Start Date</th>
+                  <th className="border-0">End Date</th>
+                  <th className="border-0">Status</th>
+                  <th className="border-0">Approved</th>
+                  <th className="border-0">Payment Proof</th>
+                  <th className="border-0">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {subscriptions.map((subscription) => (
-                  <tr key={subscription.subscribe_ID} className="subscription-row">
-                    <td className="text-start">
-                      <span style={{ fontWeight: 600, fontSize: 16 }}>#{subscription.subscribe_ID}</span>
-                    </td>
-                    <td>
-                      {users[subscription.user_ID] ? (
-                        <div className="d-flex align-items-center">
-                          {users[subscription.user_ID].applicationUser.image ? (
-                            <img 
-                              src={`${API_BASE_URL.replace('/api', '')}/Images/$}`} 
-                              alt={users[subscription.user_ID].applicationUser.fullName}
-                              className="rounded-circle me-2"
-                              width="32"
-                              height="32"
-                              style={{ objectFit: 'cover' }}
-                            />
-                          ) : (
-                            <span className="avatar-placeholder me-2">
-                              <i className="fas fa-user"></i>
-                            </span>
-                          )}
-                          <span>{users[subscription.user_ID].applicationUser.fullName}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    <td>
-                      {coaches[subscription.coach_ID] ? (
-                        <div className="d-flex align-items-center">
-                          {coaches[subscription.coach_ID].applicationUser.image ? (
-                            <img 
-                              src={`${API_BASE_URL.replace('/api', '')}/Images/profiles/${coaches[subscription.coach_ID].applicationUser.image}`} 
-                              alt={coaches[subscription.coach_ID].applicationUser.fullName}
-                              className="rounded-circle me-2"
-                              width="32"
-                              height="32"
-                              style={{ objectFit: 'cover' }}
-                            />
-                          ) : (
-                            <span className="avatar-placeholder me-2">
-                              <i className="fas fa-user-tie"></i>
-                            </span>
-                          )}
-                          <span>{coaches[subscription.coach_ID].applicationUser.fullName}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    <td>
-                      <span className="badge bg-primary">
-                        {subscriptionTypeLabels[subscription.subscriptionType] || subscription.subscriptionType}
-                      </span>
-                    </td>
-                    <td>{formatDate(subscription.startDate)}</td>
-                    <td>{formatDate(subscription.endDate)}</td>
-                    <td>
-                      <span className={`badge ${
-                        subscription.status === 'Active' ? 'bg-success' : 
-                        subscription.status === 'Pending' ? 'bg-warning' : 
-                        subscription.status === 'Rejected' ? 'bg-danger' : 'bg-secondary'
-                      } text-white`}>
-                        {statusLabels[subscription.status] || subscription.status}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${subscription.isPaid ? 'bg-success' : 'bg-danger'}`}>
-                        {subscription.isPaid ? 'نعم' : 'لا'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${subscription.isApproved ? 'bg-success' : 'bg-danger'}`}>
-                        {subscription.isApproved ? 'نعم' : 'لا'}
-                      </span>
-                    </td>
-                    <td>
-                      {subscription.paymentProof ? (
-                        <a href={`${API_BASE_URL.replace('/api', '')}/Images/${subscription.paymentProof}`} 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           className="btn btn-sm btn-outline-info">
-                          <i className="fas fa-image me-1"></i>
-                          عرض
-                        </a>
-                      ) : (
-                        <span className="text-muted">-</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary">
-                          <i className="fas fa-edit me-1"></i>
-                          تعديل
+                {subscriptions
+                  .filter(subscription => {
+                    // فلتر الحالة
+                    if (filterStatus && subscription.status !== filterStatus) return false;
+                    // فلتر المدة
+                    if (filterType && subscription.subscriptionType !== filterType) return false;
+                    // لا تعرض pending دائماً
+                    if (subscription.status === 'Pending') return false;
+                    // فلتر البحث بالاسم
+                    if (searchText.trim()) {
+                      if (searchBy === 'user') {
+                        const userName = users[subscription.user_ID]?.applicationUser?.fullName?.toLowerCase() || '';
+                        if (!userName.includes(searchText.trim().toLowerCase())) return false;
+                      } else if (searchBy === 'coach') {
+                        const coachNames = (userCoaches[subscription.user_ID] || []).map(c => c.toLowerCase());
+                        if (!coachNames.some(name => name.includes(searchText.trim().toLowerCase()))) return false;
+                      }
+                    }
+                    return true;
+                  })
+                  .map((subscription) => (
+                    <tr key={subscription.subscribe_ID} className="subscription-row">
+                      <td>
+                        {users[subscription.user_ID] ? (
+                          <div className="d-flex align-items-center">
+                            {users[subscription.user_ID].applicationUser.image ? (
+                              <img 
+                                src={`${API_BASE_URL.replace('/api', '')}/Images/profiles/${users[subscription.user_ID].applicationUser.image}`} 
+                                alt={users[subscription.user_ID].applicationUser.fullName}
+                                className="rounded-circle me-2"
+                                width="26"
+                                height="26"
+                                style={{ objectFit: 'cover', border: '1.5px solid #dee2e6' }}
+                              />
+                            ) : (
+                              <span className="avatar-placeholder me-2" style={{ width: 26, height: 26, fontSize: 13, border: '1.5px solid #dee2e6' }}>
+                                <i className="fas fa-user"></i>
+                              </span>
+                            )}
+                            <span style={{ fontSize: 14 }}>{users[subscription.user_ID].applicationUser.fullName}</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td>
+                        {userCoaches[subscription.user_ID] && userCoaches[subscription.user_ID].length > 0 ? (
+                          <span style={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                            {userCoaches[subscription.user_ID].map((coach, idx, arr) => (
+                              <span key={idx}>
+                                {coach}
+                                {idx < arr.length - 1 && <span style={{ color: '#888', margin: '0 2px' }}>,</span>}
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="badge bg-primary" style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                          {subscriptionTypeLabels[subscription.subscriptionType] || subscription.subscriptionType}
+                        </span>
+                      </td>
+                      <td>{formatDate(subscription.startDate)}</td>
+                      <td>{formatDate(subscription.endDate)}</td>
+                      <td>
+                        <span className={`badge ${
+                          subscription.status === 'Active' ? 'bg-success' : 
+                          subscription.status === 'Pending' ? 'bg-warning' : 
+                          subscription.status === 'Rejected' ? 'bg-danger' : 'bg-secondary'
+                        } text-white`} style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                          {statusLabels[subscription.status] || subscription.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge ${subscription.isApproved ? 'bg-success' : 'bg-danger'}`} style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                          {subscription.isApproved ? 'Yes' : 'No'}
+                        </span>
+                      </td>
+                      <td>
+                        {subscription.paymentProof ? (
+                          <a href={`${API_BASE_URL.replace('/api', '')}/Images/${subscription.paymentProof}`} 
+                             target="_blank" 
+                             rel="noopener noreferrer" 
+                             className="btn btn-sm btn-outline-info">
+                            <i className="fas fa-image me-1"></i>
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td>
+                        <button className="btn btn-sm btn-warning text-white d-flex align-items-center p-1 px-2" style={{ fontWeight: 600, fontSize: 13, borderRadius: 6, height: 22, width: 65, gap: '3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-ban" style={{ fontSize: 13 }}></i>
+                          <span style={{ lineHeight: 1 }}>Suspend</span>
                         </button>
-                        <button className="btn btn-sm btn-outline-danger">
-                          <i className="fas fa-trash me-1"></i>
-                          حذف
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -362,11 +393,12 @@ export default function ManageSubscriptions() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
+          width: 26px;
+          height: 26px;
           border-radius: 50%;
           background-color: #e9ecef;
           color: #6c757d;
+          font-size: 13px;
         }
         @keyframes slideIn {
           from { 
