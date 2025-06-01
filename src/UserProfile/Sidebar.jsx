@@ -1,17 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faCalendarCheck, faAppleAlt, faComments,faCog } from '@fortawesome/free-solid-svg-icons';
+import {
+  faHome,
+  faCalendarCheck,
+  faAppleAlt,
+  faComments,
+  faCog,
+  faArrowLeft,
+} from '@fortawesome/free-solid-svg-icons';
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    fetch(`http://gymmatehealth.runasp.net/api/Subscribes/GetSubscribeByUserId/${localStorage.getItem('id')}`)
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('No subscription');
+      })
+      .then(data => {
+        setIsSubscribed(true);
+      })
+      .catch(() => {
+        setIsSubscribed(false);
+      });
+  }, [localStorage.getItem('id')]);
+
   const menuItems = [
     { label: 'Home', path: '', icon: faHome },
-    { label: 'Training Schedule', path: 'schedule', icon: faCalendarCheck },
-    // { label: 'Diet Plan', path: 'diet', icon: faAppleAlt },
-    { label: 'Chat Bot', path: 'chat', icon: faComments },
+    ...(isSubscribed
+      ? [
+          { label: 'Training Schedule', path: 'schedule', icon: faCalendarCheck },
+          { label: 'Chat Bot', path: 'chat', icon: faComments },
+        ]
+      : []),
     { label: 'Setting', path: 'settings', icon: faCog },
-
+    { label: 'Back Home', path: '/', icon: faArrowLeft },
   ];
 
   return (
@@ -24,7 +50,9 @@ const Sidebar = () => {
           <NavLink
             to={item.path}
             key={idx}
-            className={({ isActive }) => `${styles.navLink} ${isActive ? styles.active : ''}`}
+            className={({ isActive }) =>
+              `${styles.navLink} ${isActive ? styles.active : ''}`
+            }
             end={item.path === ''}
           >
             <FontAwesomeIcon icon={item.icon} className={styles.icon} />

@@ -1,0 +1,164 @@
+/* Sidebar.module.css */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.title {
+  color: #fd5c28;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.iconsWrapper {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.iconButton {
+  position: relative;
+  cursor: pointer;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #dc3545;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 7px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 30px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 12px;
+  z-index: 2000;
+  font-size: 14px;
+  width: 240px;
+}
+
+.dropdownMenuRight {
+  right: -40px;
+  left: auto !important;
+}
+nav {
+margin-bottom: 20px;
+}
+hr{
+  color: #fd5c28;
+  
+}
+
+.subscriberList {
+  max-height: 40vh; /* or any fixed height you want */
+  overflow-y: auto;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  margin-top: 20px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  color: #555;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.navLinkActive {
+  color: #fd5c28;
+  font-weight: 700;
+  background-color: #fde9e2;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.planFilter {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.subscriberList {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.subscriberItem {
+  background-color: #f9f9f9;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: background-color 0.2s;
+}
+
+.subscriberItem:hover {
+  background-color: #ffe5db;
+}
+
+.userImage {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.subscriberNameContainer {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.newMessageDot {
+  color: #dc3545;
+  font-weight: 700;
+  font-size: 18px;
+  margin-left: 6px;
+}

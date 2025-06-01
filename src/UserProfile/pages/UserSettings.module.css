@@ -1,48 +1,111 @@
 .settingsContainer {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .title {
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .formGroup {
-    margin-bottom: 15px;
-  }
-  
-  .formControl {
-    padding: 10px;
-    font-size: 16px;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .submitBtn {
-    padding: 12px;
-    background-color: #28a745;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  
-  .submitBtn:disabled {
-    background-color: #ccc;
-  }
-  
-  .errorText {
-    color: red;
-    font-size: 12px;
-  }
-  
+  background-color: #ffffff;
+  padding: 2.5rem;
+  max-width: 700px;
+  margin: 3rem auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Poppins', sans-serif;
+  color: #333333;
+}
+.formControl {
+  width: 100%; 
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+  box-sizing: border-box;
+}
+
+.inputWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  flex: 1;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: #ff5b22;
+  color: #fff;
+  text-align: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  position: absolute;
+  top: -35px;
+  left: 0;
+  z-index: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.inputWrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff5b22;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.formControl {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  font-size: 1rem;
+  transition: border 0.3s ease;
+}
+
+.formControl:focus {
+  border-color: #ff5b22;
+  outline: none;
+  background-color: #fff;
+}
+
+.errorText {
+  color: #e53935;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+
+.submitBtn {
+  padding: 0.9rem 1.2rem;
+  background-color: #ff5b22;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submitBtn:hover {
+  background-color: #e65100;
+}

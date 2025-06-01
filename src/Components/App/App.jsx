@@ -155,6 +155,9 @@ const routes = createBrowserRouter([
       { index: true, element: <CoachStats /> },
       { path: 'expired', element: <ExpiredSubscribers /> },
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
+      {path:'exercise', element:<Exercises/>},
+      {path:'products', element:<Products/>},
+
       {
         path: '/coach/expired/:id',
         element: <ExpiredSubscriberDetails />
