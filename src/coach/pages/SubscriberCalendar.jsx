@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+import Select from 'react-select';
+import { Toast } from 'primereact/toast';
 
 const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
 const SubscriberCalendar = ({ userId, userName }) => {
   const coachId = localStorage.getItem('id');
-
+  const toast = useRef(null);
   const [assignments, setAssignments] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [exercises, setExercises] = useState([]);
+  const [filteredExercises, setFilteredExercises] = useState([]);
   const [calendarDays, setCalendarDays] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [formData, setFormData] = useState({
-    exerciseId: '',
+    selectedCategoryId: null,
+    selectedExercises: [],    // react-select: array of {value,label}
     notes: '',
     calories: '',
     protein: '',
@@ -33,18 +38,56 @@ const SubscriberCalendar = ({ userId, userName }) => {
     nutritionNotes: ''
   });
   const [currentWeek, setCurrentWeek] = useState(0);
-  const totalDays = 90; // 3 months, ممكن تعدلها حسب الحاجة
+  const totalDays = 90; // 3 months, adjust as needed
 
+  const [subscriptionStartDate, setSubscriptionStartDate] = useState(null);
+  const [missingPastDays, setMissingPastDays] = useState([]);
+  const [missingTomorrow, setMissingTomorrow] = useState(null);
+
+  // Format date to dd-MM-yyyy as required by backend
+  const formatDateForBackend = (isoDateString) => {
+    const d = new Date(isoDateString);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  // Fetch subscription startDate
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchSubscriptionStart = async () => {
+      try {
+        const subRes = await fetch(`${API_BASE}/Subscribes/GetSubscribeByUserId/${userId}`);
+        if (!subRes.ok) throw new Error('Failed to fetch subscription');
+        const subs = await subRes.json();
+        if (Array.isArray(subs) && subs.length > 0) {
+          setSubscriptionStartDate(new Date(subs[0].startDate));
+        } else {
+          setSubscriptionStartDate(null);
+        }
+      } catch (error) {
+        console.error('Subscription fetch error:', error);
+        setSubscriptionStartDate(null);
+      }
+    };
+
+    fetchSubscriptionStart();
+  }, [userId]);
+
+  // Fetch assignments, nutrition plans, exercises, categories
   useEffect(() => {
     if (!userId) return;
 
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [assignmentsRes, nutritionRes, exercisesRes] = await Promise.all([
+        const [assignmentsRes, nutritionRes, exercisesRes, categoriesRes] = await Promise.all([
           fetch(`${API_BASE}/Assignments/GetAllUserAssignments/${userId}`),
           fetch(`${API_BASE}/NutritionPlans/GetAllUserNutritionplans/${userId}`),
-          fetch(`${API_BASE}/Exercises/GetAllExercises`)
+          fetch(`${API_BASE}/Exercises/GetAllExercises`),
+          fetch(`${API_BASE}/Categories/GetAllCategories`)
         ]);
 
         if (assignmentsRes.ok) {
@@ -72,8 +115,12 @@ const SubscriberCalendar = ({ userId, userName }) => {
           throw new Error('Failed to fetch exercises');
         }
 
-        // توليد الأيام
-        generateCalendar(totalDays);
+        if (categoriesRes.ok) {
+          const data = await categoriesRes.json();
+          setCategories(data);
+        } else {
+          throw new Error('Failed to fetch categories');
+        }
       } catch (err) {
         console.error('API error:', err.message);
       } finally {
@@ -84,11 +131,18 @@ const SubscriberCalendar = ({ userId, userName }) => {
     fetchData();
   }, [userId]);
 
-  const generateCalendar = (days) => {
-    const today = new Date();
+  // Generate calendar when subscriptionStartDate changes
+  useEffect(() => {
+    if (subscriptionStartDate) {
+      generateCalendar(totalDays, subscriptionStartDate);
+    }
+  }, [subscriptionStartDate]);
+
+  // Generate calendar days from startDate
+  const generateCalendar = (days, startDate) => {
     const list = [];
     for (let i = 0; i < days; i++) {
-      const d = new Date(today);
+      const d = new Date(startDate);
       d.setDate(d.getDate() + i);
       const formatted = d.toISOString().split('T')[0]; // YYYY-MM-DD
       list.push({ date: formatted });
@@ -96,15 +150,70 @@ const SubscriberCalendar = ({ userId, userName }) => {
     setCalendarDays(list);
   };
 
+  // Check missing plans for past days and tomorrow
+  useEffect(() => {
+    if (calendarDays.length === 0) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const missingPast = [];
+    let missingTmrw = null;
+
+    calendarDays.forEach(dayObj => {
+      const dayDate = new Date(dayObj.date);
+      dayDate.setHours(0, 0, 0, 0);
+
+      const hasAssignment = assignments.some(a => a.day === dayObj.date);
+      const hasNutrition = nutritionPlans.some(n => n.day === dayObj.date);
+
+      if (dayDate < today) {
+        if (!hasAssignment || !hasNutrition) {
+          missingPast.push(dayObj.date);
+        }
+      } else if (dayDate.getTime() === tomorrow.getTime()) {
+        if (!hasAssignment || !hasNutrition) {
+          missingTmrw = dayObj.date;
+        }
+      }
+    });
+
+    setMissingPastDays(missingPast);
+    setMissingTomorrow(missingTmrw);
+  }, [calendarDays, assignments, nutritionPlans]);
+
+  // When category changes, filter exercises for that category
+  useEffect(() => {
+    if (formData.selectedCategoryId) {
+      const filtered = exercises.filter(ex => ex.category_ID === Number(formData.selectedCategoryId));
+      setFilteredExercises(filtered.map(ex => ({
+        label: ex.exercise_Name,
+        value: ex.exercise_ID,
+        image_url: ex.image_url
+      })));
+      setFormData(prev => ({ ...prev, selectedExercises: [] }));
+    } else {
+      setFilteredExercises([]);
+      setFormData(prev => ({ ...prev, selectedExercises: [] }));
+    }
+  }, [formData.selectedCategoryId, exercises]);
+
   const openModal = (day) => {
     setSelectedDate(day);
-    setModalOpen(true);
 
     const existingAssignment = Array.isArray(assignments) ? assignments.find(a => a.day === day) : undefined;
     const existingNutrition = Array.isArray(nutritionPlans) ? nutritionPlans.find(n => n.day === day) : undefined;
 
+    let preSelectedExercises = [];
+    if (existingAssignment) {
+      preSelectedExercises = existingAssignment.exercise_ID ? [{ value: existingAssignment.exercise_ID, label: '' }] : [];
+    }
+
     setFormData({
-      exerciseId: existingAssignment ? existingAssignment.exercise_ID.toString() : '',
+      selectedCategoryId: existingAssignment ? existingAssignment.category_ID : null,
+      selectedExercises: preSelectedExercises,
       notes: existingAssignment ? existingAssignment.notes : '',
       calories: existingNutrition ? existingNutrition.calories_Needs : '',
       protein: existingNutrition ? existingNutrition.protein_Needs : '',
@@ -131,14 +240,19 @@ const SubscriberCalendar = ({ userId, userName }) => {
           },
       nutritionNotes: existingNutrition ? existingNutrition.notes : ''
     });
+
+    setModalOpen(true);
   };
 
-  const handleSubmit = async () => {
+  // Submit form data with fixed payloads and date format
+ const handleSubmit = async () => {
     try {
-      await axios.post(`${API_BASE}/NutritionPlans/AddNutritionPlanForUser`, {
+      const dayFormatted = formatDateForBackend(selectedDate);
+
+      const res= await axios.post(`${API_BASE}/NutritionPlans/AddNutritionPlanForUser`, {
         Coach_ID: coachId,
         User_ID: userId,
-        day: selectedDate,
+        day: dayFormatted,
         Calories_Needs: +formData.calories,
         Protein_Needs: +formData.protein,
         Carbs_Needs: +formData.carbs,
@@ -152,34 +266,36 @@ const SubscriberCalendar = ({ userId, userName }) => {
         vitamins: formData.meals.vitamins,
         notes: formData.nutritionNotes
       });
+      console.log("naituration",res);
+      
+      const exerciseIds = formData.selectedExercises.map(ex => ex.value);
 
-      await axios.post(`${API_BASE}/Assignments/AddNewAssignmentForUser`, {
+      const assignmentRes = await axios.post(`${API_BASE}/Assignments/AddNewAssignmentForUser`, {
         coachId,
         userId,
-        exerciseId: formData.exerciseId ? parseInt(formData.exerciseId) : null,
-        day: selectedDate,
+        exerciseIds,  // Assuming backend supports array of exerciseIds
+        day: dayFormatted,
         notes: formData.notes
       });
 
-      alert('Submitted successfully!');
+      console.log('Assignments response:', assignmentRes.data);
+
+      toast.current.show({ severity: 'success', summary: 'Success', detail: 'Submitted successfully!', life: 3000 });
       setModalOpen(false);
 
-      // ممكن هنا تعيد تحميل البيانات لو حابب
     } catch (err) {
-      console.error(err);
-      alert('Failed to submit.');
+      console.error('Submission error:', err);
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to submit.', life: 3000 });
     }
   };
 
-  // حساب عدد الأسابيع
-  const weeksCount = Math.ceil(calendarDays.length / 7);
 
-  // الأيام المعروضة في الأسبوع الحالي
+  const weeksCount = Math.ceil(calendarDays.length / 7);
   const daysToShow = calendarDays.slice(currentWeek * 7, (currentWeek + 1) * 7);
 
   const renderDayBox = (dayObj) => {
-    const hasAssignment = Array.isArray(assignments) ? assignments.find(a => a.day === dayObj.date) : undefined;
-    const hasNutrition = Array.isArray(nutritionPlans) ? nutritionPlans.find(n => n.day === dayObj.date) : undefined;
+    const hasAssignment = assignments.find(a => a.day === dayObj.date);
+    const hasNutrition = nutritionPlans.find(n => n.day === dayObj.date);
     const workoutName = hasAssignment?.exercise?.exercise_Name || null;
 
     const date = new Date(dayObj.date);
@@ -190,9 +306,10 @@ const SubscriberCalendar = ({ userId, userName }) => {
         key={dayObj.date}
         className="col-md-3 text-center g-3"
       >
+        <Toast ref={toast} />
         <div
           className="card p-3 shadow-sm d-flex justify-content-between"
-          style={{ width: '90%',height:'200px', minWidth: 220, cursor: 'pointer' }}
+          style={{ width: '90%', height: '200px', minWidth: 220, cursor: 'pointer' }}
           onClick={() => openModal(dayObj.date)}
         >
           <strong>{weekday}</strong>
@@ -217,40 +334,50 @@ const SubscriberCalendar = ({ userId, userName }) => {
 
   return (
     <div className="container py-4">
+      {/* Missing plans alerts */}
+      {missingPastDays.length > 0 && (
+        <div className="alert alert-danger mb-3" role="alert">
+          ⚠️ You have <strong>{missingPastDays.length}</strong> past day(s) missing plans: {missingPastDays.join(', ')}. Please update them!
+        </div>
+      )}
+      {missingTomorrow && (
+        <div className="alert alert-warning mb-3" role="alert">
+          ⚠️ Tomorrow ({missingTomorrow}) is missing plans. Please prepare it in advance!
+        </div>
+      )}
+
       <h2 className="mb-4">{userId ? `Plan for User ${userName}` : 'Subscriber Plan'}</h2>
 
       <div className="row">
         {daysToShow.map(renderDayBox)}
       </div>
 
-    
-<div className="text-center mt-3">
-  <div className="mb-2" style={{ fontWeight: 'bold' }}>
-    Week {currentWeek + 1} of {weeksCount}
-  </div>
-  <div className="d-flex justify-content-center gap-3">
-    <Button
-      variant="warning"
-      disabled={currentWeek === 0}
-      onClick={() => setCurrentWeek(prev => Math.max(prev - 1, 0))}
-      style={{ width: 50 }}
-      aria-label="Previous Week"
-    >
-      &lt;
-    </Button>
+      <div className="text-center mt-3">
+        <div className="mb-2" style={{ fontWeight: 'bold' }}>
+          Week {currentWeek + 1} of {weeksCount}
+        </div>
+        <div className="d-flex justify-content-center gap-3">
+          <Button
+            variant="warning"
+            disabled={currentWeek === 0}
+            onClick={() => setCurrentWeek(prev => Math.max(prev - 1, 0))}
+            style={{ width: 50 }}
+            aria-label="Previous Week"
+          >
+            &lt;
+          </Button>
 
-    <Button
-      variant="warning"
-      disabled={currentWeek === weeksCount - 1}
-      onClick={() => setCurrentWeek(prev => Math.min(prev + 1, weeksCount - 1))}
-      style={{ width: 50 }}
-      aria-label="Next Week"
-    >
-      &gt;
-    </Button>
-  </div>
-</div>
-
+          <Button
+            variant="warning"
+            disabled={currentWeek === weeksCount - 1}
+            onClick={() => setCurrentWeek(prev => Math.min(prev + 1, weeksCount - 1))}
+            style={{ width: 50 }}
+            aria-label="Next Week"
+          >
+            &gt;
+          </Button>
+        </div>
+      </div>
 
       {/* Modal */}
       <Modal show={modalOpen} onHide={() => setModalOpen(false)} size="lg">
@@ -260,19 +387,45 @@ const SubscriberCalendar = ({ userId, userName }) => {
         <Modal.Body>
           <Form>
             <h6>🏋️ Assignment</h6>
+
+            {/* Category select */}
             <Form.Group className="mb-3">
-              <Form.Label>Exercise</Form.Label>
+              <Form.Label>Category</Form.Label>
               <Form.Select
-                value={formData.exerciseId}
-                onChange={e => setFormData({ ...formData, exerciseId: e.target.value })}
+                value={formData.selectedCategoryId || ''}
+                onChange={e => setFormData({ ...formData, selectedCategoryId: e.target.value })}
               >
-                <option value="">Select Exercise</option>
-                {exercises.map(ex => (
-                  <option key={ex.exercise_ID} value={ex.exercise_ID}>
-                    {ex.exercise_Name}
+                <option value="">Select Category</option>
+                {categories.map(cat => (
+                  <option key={cat.category_ID} value={cat.category_ID}>
+                    {cat.category_Name}
                   </option>
                 ))}
               </Form.Select>
+            </Form.Group>
+
+            {/* Exercises MultiSelect with react-select */}
+            <Form.Group className="mb-3">
+              <Form.Label>Exercises</Form.Label>
+              <Select
+                isMulti
+                options={filteredExercises}
+                value={formData.selectedExercises}
+                onChange={(selected) => setFormData({ ...formData, selectedExercises: selected || [] })}
+                placeholder="Select exercises"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                formatOptionLabel={option => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <img
+                      src={`http://gymmatehealth.runasp.net/images/Exercise/${option.image_url}`}
+                      alt={option.label}
+                      style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                    />
+                    <span>{option.label}</span>
+                  </div>
+                )}
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
