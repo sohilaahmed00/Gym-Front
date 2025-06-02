@@ -18,7 +18,7 @@ const PricingPlans = () => {
   };
 
   return (
-    <section className={styles.pricingSection}>
+    <section className={`pricing_plan ${styles.pricingSection}`}>
       {/* ... */}
       <div className={styles.planGrid}>
 
