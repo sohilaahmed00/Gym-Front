@@ -49,14 +49,14 @@ const services = [
 
 const Services = () => {
   return (
-    <section className={styles.servicesSection}>
+    <section className={`services_section ${styles.servicesSection}`}>
       <div className={styles.servicesContent}>
         <h2>Premium Fitness Services</h2>
         <p className={styles.servicesSubtitle}>
           Tailored Workouts, Expert Guidance, and Comprehensive Programs to Meet All Your Fitness Needs
         </p>
         
-        <div className={styles.servicesGrid}>
+        <div className={` ${styles.servicesGrid}`}>
           {services.map((service, index) => (
             <div key={index} className={styles.serviceCard}>
               <div className={styles.serviceImageContainer}>

@@ -5,7 +5,7 @@ import heroImage from '../../images/Home.png';
 
 const HeroSection = () => {
   return (
-    <section className={styles.heroSection}>
+    <section className={`hero_section ${styles.heroSection} `}>
       <div className={styles.heroContent}>
         <h1>
           TRANSFORM<br />

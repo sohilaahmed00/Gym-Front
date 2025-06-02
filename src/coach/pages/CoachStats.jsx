@@ -114,7 +114,7 @@ const CoachStats = () => {
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.welcome}>Welcome, Coach {coachName}</h3>
+      <h3 className={styles.welcome}>Welcome, {coachName}</h3>
 
       <div className={styles.statsRow}>
         <div
