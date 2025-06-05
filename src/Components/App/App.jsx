@@ -42,8 +42,6 @@ import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSe
 import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
 import ExerciseCategories from '../../admin/ExerciseCategories';
-import AdminExercises from '../../admin/AdminExercises';
-
 
 
 import Login from '../Auth/login/Login';
@@ -60,6 +58,7 @@ import SubscribePage from '../subscribe/SubscribePage';
 import DietPlan from '../../UserProfile/pages/DietPlan';
 import ServiceDetails from '../../pages/ServiceDetails/ServiceDetails';
 import ChatBot from '../../UserProfile/pages/ChatBot';
+import AdminExercises from '../../admin/AdminExercises';
 import IntroTour from '../IntroJs/IntroTour';
 
 function Placeholder({ title }) {
@@ -109,7 +108,9 @@ const routes = createBrowserRouter([
           { path: 'orders', element: <Placeholder title="Orders" /> },
           { path: 'reports', element: <Placeholder title="Reports" /> },
           { path: 'exercise-categories', element: <ExerciseCategories /> },
-          { path: 'exercises/:categoryId', element: <AdminExercises /> },
+          // { path: 'exercises/:categoryId', element: <ADExercises /> },
+          { path: 'exercises', element: <AdminExercises /> },
+
           {
             path: 'settings',
             element: <AdminSettings />,

@@ -38,6 +38,11 @@ export default function Navbar() {
     }
   }, [location.pathname]);
 
+  //hide navbar for admin page
+  // if (location.pathname.startsWith('/admin')) {
+  //   return null;
+  // }
+
   const guestLinks = [
     { name: 'Home', icon: <i className="fa fa-home me-1"></i>, path: '/' },
     { name: 'Calories', icon: <i className="fa fa-calculator me-1"></i>, path: '/calories-calculator' },

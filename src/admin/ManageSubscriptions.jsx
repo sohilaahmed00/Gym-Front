@@ -258,6 +258,8 @@ export default function ManageSubscriptions() {
                     if (filterType && subscription.subscriptionType !== filterType) return false;
                     // لا تعرض pending دائماً
                     if (subscription.status === 'Pending') return false;
+                    // فلتر الموافقة
+                    if (!subscription.isApproved) return false;
                     // فلتر البحث بالاسم
                     if (searchText.trim()) {
                       if (searchBy === 'user') {

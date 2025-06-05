@@ -10,6 +10,7 @@ const sidebarItems = [
   { icon: 'fas fa-clock', label: 'Pending Subscriptions', path: '/admin/pending-subscriptions' },
   { icon: 'fas fa-user-clock', label: 'Pending Coaches', path: '/admin/pending-coaches' },
   { icon: 'fas fa-dumbbell', label: 'Exercise Categories', path: '/admin/exercise-categories' },
+  { icon: 'fas fa-running', label: 'Manage Exercises', path: '/admin/exercises' },
   { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
 ];
 

@@ -49,7 +49,7 @@ const DIFFICULTY_LEVELS = [
   { value: "متقدم", color: "danger" }
 ];
 
-const AdminExercises = () => {
+const ADExercises = () => {
   // استخراج معرف القسم من الرابط
   const { categoryId } = useParams();
   const navigate = useNavigate();
@@ -79,6 +79,12 @@ const AdminExercises = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedVideoName, setSelectedVideoName] = useState('');
+
+  // New Exercise Image and GIF state
+  const [newExerciseImage, setNewExerciseImage] = useState(null);
+  const [newExerciseGif, setNewExerciseGif] = useState(null);
+  const [editExerciseImage, setEditExerciseImage] = useState(null);
+  const [editExerciseGif, setEditExerciseGif] = useState(null);
 
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
@@ -125,44 +131,34 @@ const AdminExercises = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      setError(null); // إعادة تعيين حالة الخطأ
+      setError(null);
 
       // جلب معلومات القسم
-      const categoryResponse = await axios.get(API_ENDPOINTS.GET_CATEGORY(categoryId));
+      const categoryResponse = await axios.get(`${API_BASE_URL}/Categories/GetCategory/${categoryId}`);
       const categoryData = categoryResponse.data;
       
       // إضافة وصف للقسم إذا لم يكن موجودا
-      if (!categoryData.categoryDescription) {
-        categoryData.categoryDescription = getCategoryDescription(categoryData.category_Name);
+      if (!categoryData.description) {
+        categoryData.description = 'لا يوجد وصف متاح لهذا القسم';
       }
       
       setCategory(categoryData);
       
-      try {
-        // جلب جميع التمارين
-        const exercisesResponse = await axios.get(API_ENDPOINTS.GET_ALL_EXERCISES);
-        console.log('تمارين API:', exercisesResponse.data); // للتأكد من البيانات المستلمة
-        
-        if (Array.isArray(exercisesResponse.data)) {
-          // تصفية التمارين حسب القسم
-          const filteredExercises = exercisesResponse.data.filter(ex => 
-            ex.category_ID === parseInt(categoryId)
-          );
-          console.log('التمارين المصفاة:', filteredExercises); // للتأكد من التصفية
-          setExercises(filteredExercises);
-        } else {
-          console.error('البيانات المستلمة ليست مصفوفة:', exercisesResponse.data);
-          setError('تنسيق البيانات غير صحيح');
-        }
-      } catch (exercisesError) {
-        console.error('خطأ في جلب التمارين:', exercisesError);
-        setError('فشل في جلب التمارين');
-      }
+      // جلب جميع التمارين
+      const exercisesResponse = await axios.get(`${API_BASE_URL}/Exercises/GetExercisesByCategory/${categoryId}`);
+      console.log('تمارين API:', exercisesResponse.data);
       
-      setLoading(false);
-    } catch (err) {
-      console.error('خطأ في جلب البيانات:', err);
-      setError('فشل في جلب البيانات');
+      if (Array.isArray(exercisesResponse.data)) {
+        setExercises(exercisesResponse.data);
+      } else {
+        console.error('البيانات المستلمة ليست مصفوفة:', exercisesResponse.data);
+        setExercises([]);
+      }
+    } catch (error) {
+      console.error('خطأ في جلب البيانات:', error);
+      setError('حدث خطأ أثناء جلب البيانات');
+      showAlert('حدث خطأ أثناء جلب البيانات', 'danger');
+    } finally {
       setLoading(false);
     }
   };
@@ -232,16 +228,21 @@ const AdminExercises = () => {
   // Submit new exercise
   const handleSubmitNewExercise = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-      
-      const response = await axios.post(API_ENDPOINTS.ADD_EXERCISE, newExercise);
-      
+      const formData = new FormData();
+      Object.entries(newExercise).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (newExerciseImage) {
+        formData.append('image', newExerciseImage);
+      }
+      if (newExerciseGif) {
+        formData.append('gif', newExerciseGif);
+      }
+      const response = await axios.post(API_ENDPOINTS.ADD_EXERCISE, formData);
       if (response.status === 201 || response.status === 200) {
-        // إعادة تحميل البيانات من الخادم
         await fetchData();
-        
         setIsAddingExercise(false);
         showAlert('تم إضافة التمرين بنجاح', 'success');
       } else {
@@ -277,18 +278,21 @@ const AdminExercises = () => {
   // Submit updated exercise
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-      
-      const response = await axios.put(API_ENDPOINTS.UPDATE_EXERCISE, editingExercise);
-      
+      const formData = new FormData();
+      Object.entries(editingExercise).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (editExerciseImage) {
+        formData.append('image', editExerciseImage);
+      }
+      if (editExerciseGif) {
+        formData.append('gif', editExerciseGif);
+      }
+      const response = await axios.put(API_ENDPOINTS.UPDATE_EXERCISE, formData);
       if (response.status === 200) {
-        // تحديث التمرين في القائمة المحلية
-        setExercises(exercises.map(ex => 
-          ex.exercise_ID === editingExercise.exercise_ID ? editingExercise : ex
-        ));
-        
+        await fetchData();
         setEditingExercise(null);
         showAlert('تم تحديث التمرين بنجاح', 'success');
       } else {
@@ -324,6 +328,8 @@ const AdminExercises = () => {
   const handleGoBack = () => {
     navigate('/admin/exercise-categories');
   };
+
+  const isCardView = true; // لتفعيل عرض الكاردات مع أزرار التعديل والحذف
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
@@ -366,7 +372,7 @@ const AdminExercises = () => {
             <h3 className="fw-bold mb-0">
               تمارين قسم: {category.category_Name}
             </h3>
-            <p className="text-muted mb-0 small">{category.categoryDescription}</p>
+            <p className="text-muted mb-0 small">{category.description}</p>
           </div>
         )}
       </div>
@@ -426,28 +432,25 @@ const AdminExercises = () => {
               
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">رابط الصورة</label>
+                  <label className="form-label">صورة التمرين</label>
                   <input 
-                    type="text" 
+                    type="file" 
                     className="form-control" 
-                    name="image_url" 
-                    value={newExercise.image_url} 
-                    onChange={handleAddExerciseInputChange}
-                    placeholder="أدخل اسم ملف الصورة"
+                    accept="image/*"
+                    onChange={e => setNewExerciseImage(e.target.files[0])}
+                    required
                   />
-                  <small className="text-muted">مثال: exercise-image.jpg</small>
+                  <small className="text-muted">اختر صورة التمرين</small>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">رابط الجيف</label>
+                  <label className="form-label">ملف GIF (اختياري)</label>
                   <input 
-                    type="text" 
+                    type="file" 
                     className="form-control" 
-                    name="image_gif" 
-                    value={newExercise.image_gif} 
-                    onChange={handleAddExerciseInputChange}
-                    placeholder="أدخل اسم ملف الجيف"
+                    accept="image/gif"
+                    onChange={e => setNewExerciseGif(e.target.files[0])}
                   />
-                  <small className="text-muted">مثال: exercise-gif.gif</small>
+                  <small className="text-muted">اختر ملف GIF إذا توفر</small>
                 </div>
               </div>
               
@@ -534,28 +537,24 @@ const AdminExercises = () => {
               
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">رابط الصورة</label>
+                  <label className="form-label">صورة التمرين</label>
                   <input 
-                    type="text" 
+                    type="file" 
                     className="form-control" 
-                    name="image_url" 
-                    value={editingExercise.image_url || ''} 
-                    onChange={handleInputChange}
-                    placeholder="أدخل اسم ملف الصورة"
+                    accept="image/*"
+                    onChange={e => setEditExerciseImage(e.target.files[0])}
                   />
-                  <small className="text-muted">مثال: exercise-image.jpg</small>
+                  <small className="text-muted">اختر صورة جديدة إذا أردت تغيير الصورة الحالية</small>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">رابط الجيف</label>
+                  <label className="form-label">ملف GIF (اختياري)</label>
                   <input 
-                    type="text" 
+                    type="file" 
                     className="form-control" 
-                    name="image_gif" 
-                    value={editingExercise.image_gif || ''} 
-                    onChange={handleInputChange}
-                    placeholder="أدخل اسم ملف الجيف"
+                    accept="image/gif"
+                    onChange={e => setEditExerciseGif(e.target.files[0])}
                   />
-                  <small className="text-muted">مثال: exercise-gif.gif</small>
+                  <small className="text-muted">اختر ملف GIF جديد إذا أردت تغيير الجيف الحالي</small>
                 </div>
               </div>
               
@@ -625,161 +624,208 @@ const AdminExercises = () => {
             </div>
 
             {/* Table Section */}
-            <div className="table-responsive">
-              <table className="table align-middle mb-0">
-                <thead className="bg-light">
-                  <tr>
-                    <th className="border-0 text-start">التمرين</th>
-                    <th className="border-0">الوصف</th>
-                    <th className="border-0">العضلات المستهدفة</th>
-                    <th className="border-0">المستوى</th>
-                    <th className="border-0">المدة</th>
-                    <th className="border-0">السعرات</th>
-                    <th className="border-0">الوسائط</th>
-                    <th className="border-0">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredExercises.map((exercise) => (
-                    <tr key={exercise.exercise_ID} className="exercise-row">
-                      <td className="text-start">
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 10,
-                        }}>
-                          {exercise.image_url ? (
-                            <div 
-                              style={{
-                                width: 60,
-                                height: 60,
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                cursor: 'pointer',
-                                border: '1px solid #dee2e6',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: '#f8f9fa'
-                              }}
-                              onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
-                              title="انقر لتكبير الصورة"
-                            >
-                              <img 
-                                src={getImageUrl(exercise.image_url)} 
-                                alt={exercise.exercise_Name}
-                                onError={(e) => {
-                                  console.log('خطأ في تحميل الصورة:', exercise.image_url);
-                                  e.target.onerror = null;
-                                  e.target.src = "https://via.placeholder.com/60?text=صورة";
-                                }}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover'
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 60,
-                              height: 60,
-                              borderRadius: '8px',
-                              background: '#0d6efd22',
-                              color: '#0d6efd',
-                              fontSize: 20,
-                            }}>
-                              <i className="fas fa-dumbbell"></i>
-                            </span>
-                          )}
-                          <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
-                        </span>
-                      </td>
-                      <td>
-                        <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {exercise.description}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge bg-light text-dark">
-                          {exercise.target_Muscle || "غير محدد"}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
-                          {exercise.difficulty_Level === 1 ? 'مبتدئ' : 
-                           exercise.difficulty_Level === 2 ? 'متوسط' : 
-                           exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge bg-info">
-                          {exercise.duration} دقيقة
-                        </span>
-                      </td>
-                      <td>
-                        <span className="badge bg-warning">
-                          {exercise.calories_Burned} سعرة
-                        </span>
-                      </td>
-                      <td>
-                        <div className="d-flex gap-2">
-                          {exercise.image_url && (
-                            <button 
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
-                              title="عرض الصورة"
-                            >
-                              <i className="fas fa-image"></i>
-                            </button>
-                          )}
-                          {exercise.image_gif && (
-                            <button 
-                              className="btn btn-sm btn-outline-success"
-                              onClick={() => handleShowGif(getImageUrl(exercise.image_gif), exercise.exercise_Name)}
-                              title="عرض الجيف"
-                            >
-                              <i className="fas fa-film"></i>
-                            </button>
-                          )}
+            {isCardView ? (
+              <div className="row">
+                {filteredExercises.map((exercise) => (
+                  <div className="col-md-4 col-lg-3 mb-4" key={exercise.exercise_ID}>
+                    <div className="card h-100 shadow-sm">
+                      {exercise.image_url && (
+                        <img
+                          src={getImageUrl(exercise.image_url)}
+                          alt={exercise.exercise_Name}
+                          className="card-img-top"
+                          style={{ height: 200, objectFit: 'cover', cursor: 'pointer' }}
+                          onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
+                        />
+                      )}
+                      <div className="card-body d-flex flex-column justify-content-between" style={{ minHeight: 220 }}>
+                        <div>
+                          <h5 className="card-title">{exercise.exercise_Name}</h5>
+                          <p className="card-text mb-1"><b>Target:</b> {exercise.target_Muscle || 'غير محدد'}</p>
+                          <p className="card-text mb-1"><b>Duration:</b> {exercise.duration} ثانية</p>
+                          <p className="card-text mb-2"><b>Calories:</b> {exercise.calories_Burned} سعرة</p>
                         </div>
-                      </td>
-                      <td>
-                        <div className="btn-group">
+                        <div className="mt-3 d-flex gap-2">
                           <button 
-                            className="btn btn-sm btn-outline-primary"
+                            className="btn btn-sm btn-primary w-50" 
                             onClick={() => handleEditClick(exercise)}
+                            style={{ backgroundColor: '#ff7a00', borderColor: '#ff7a00' }}
                           >
-                            <i className="fas fa-edit me-1"></i>
-                            تعديل
+                            <i className="fas fa-edit me-1"></i> تعديل
                           </button>
                           <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteExercise(exercise.exercise_ID)}
+                            className="btn btn-sm btn-danger w-50" 
+                            onClick={() => handleDeleteExercise(exercise.exercise_ID)} 
                             disabled={deletingId === exercise.exercise_ID}
                           >
                             {deletingId === exercise.exercise_ID ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                جارٍ الحذف...
-                              </>
-                            ) : (
-                              <>
-                                <i className="fas fa-trash me-1"></i>
-                                حذف
-                              </>
-                            )}
+                              <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            ) : <i className="fas fa-trash me-1"></i>}
+                            حذف
                           </button>
                         </div>
-                      </td>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
+                  <thead className="bg-light">
+                    <tr>
+                      <th className="border-0 text-start">التمرين</th>
+                      <th className="border-0">الوصف</th>
+                      <th className="border-0">العضلات المستهدفة</th>
+                      <th className="border-0">المستوى</th>
+                      <th className="border-0">المدة</th>
+                      <th className="border-0">السعرات</th>
+                      <th className="border-0">الوسائط</th>
+                      <th className="border-0">الإجراءات</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filteredExercises.map((exercise) => (
+                      <tr key={exercise.exercise_ID} className="exercise-row">
+                        <td className="text-start">
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 10,
+                          }}>
+                            {exercise.image_url ? (
+                              <div 
+                                style={{
+                                  width: 60,
+                                  height: 60,
+                                  borderRadius: '8px',
+                                  overflow: 'hidden',
+                                  cursor: 'pointer',
+                                  border: '1px solid #dee2e6',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: '#f8f9fa'
+                                }}
+                                onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
+                                title="انقر لتكبير الصورة"
+                              >
+                                <img 
+                                  src={getImageUrl(exercise.image_url)} 
+                                  alt={exercise.exercise_Name}
+                                  onError={(e) => {
+                                    console.log('خطأ في تحميل الصورة:', exercise.image_url);
+                                    e.target.onerror = null;
+                                    e.target.src = "https://via.placeholder.com/60?text=صورة";
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 60,
+                                height: 60,
+                                borderRadius: '8px',
+                                background: '#0d6efd22',
+                                color: '#0d6efd',
+                                fontSize: 20,
+                              }}>
+                                <i className="fas fa-dumbbell"></i>
+                              </span>
+                            )}
+                            <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
+                          </span>
+                        </td>
+                        <td>
+                          <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {exercise.description}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge bg-light text-dark">
+                            {exercise.target_Muscle || "غير محدد"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
+                            {exercise.difficulty_Level === 1 ? 'مبتدئ' : 
+                             exercise.difficulty_Level === 2 ? 'متوسط' : 
+                             exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge bg-info">
+                            {exercise.duration} دقيقة
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge bg-warning">
+                            {exercise.calories_Burned} سعرة
+                          </span>
+                        </td>
+                        <td>
+                          <div className="d-flex gap-2">
+                            {exercise.image_url && (
+                              <button 
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={() => handleShowImage(getImageUrl(exercise.image_url), exercise.exercise_Name)}
+                                title="عرض الصورة"
+                              >
+                                <i className="fas fa-image"></i>
+                              </button>
+                            )}
+                            {exercise.image_gif && (
+                              <button 
+                                className="btn btn-sm btn-outline-success"
+                                onClick={() => handleShowGif(getImageUrl(exercise.image_gif), exercise.exercise_Name)}
+                                title="عرض الجيف"
+                              >
+                                <i className="fas fa-film"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="btn-group">
+                            <button 
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => handleEditClick(exercise)}
+                            >
+                              <i className="fas fa-edit me-1"></i>
+                              تعديل
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleDeleteExercise(exercise.exercise_ID)}
+                              disabled={deletingId === exercise.exercise_ID}
+                            >
+                              {deletingId === exercise.exercise_ID ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                  جارٍ الحذف...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fas fa-trash me-1"></i>
+                                  حذف
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {filteredExercises.length === 0 && (
               <div className="text-center py-5">
@@ -919,9 +965,13 @@ const AdminExercises = () => {
         .text-primary {
           color: #ff7a00 !important;
         }
+        .card .btn-outline-primary, .card .btn-outline-danger {
+          font-size: 15px;
+          padding: 6px 0;
+        }
       `}</style>
     </div>
   );
 };
 
-export default Exercises; 
+export default ADExercises; 

@@ -10,8 +10,8 @@ const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الص
 const API_ENDPOINTS = {
   GET_ALL_CATEGORIES: `${API_BASE_URL}/Categories/GetAllCategories`,
   ADD_CATEGORY: `${API_BASE_URL}/Categories/AddNewCategory`,
-  UPDATE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Updatecategory/${id}`,
-  DELETE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Deletecategory/${id}`
+  UPDATE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Updatecategory${id}`,
+  DELETE_CATEGORY: (id) => `${API_BASE_URL}/Categories/Deletecategory${id}`
 };
 
 // قالب قسم جديد فارغ
@@ -42,6 +42,10 @@ const ExerciseCategories = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
+
+  // New category image state
+  const [newCategoryImage, setNewCategoryImage] = useState(null);
+  const [editCategoryImage, setEditCategoryImage] = useState(null);
 
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
@@ -168,22 +172,16 @@ const ExerciseCategories = () => {
   // Submit new category
   const handleSubmitNewCategory = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-      
-      // تجهيز البيانات بالتنسيق المطلوب
-      const payload = {
-        CategoryName: newCategory.category_Name,
-        CategoryImage: newCategory.imageUrl
-      };
-      
-      const response = await axios.post(API_ENDPOINTS.ADD_CATEGORY, payload);
-      
+      const formData = new FormData();
+      formData.append('CategoryName', newCategory.category_Name);
+      if (newCategoryImage) {
+        formData.append('CategoryImage', newCategoryImage);
+      }
+      const response = await axios.post(API_ENDPOINTS.ADD_CATEGORY, formData);
       if (response.status === 201 || response.status === 200) {
-        // إعادة تحميل البيانات من الخادم
         await fetchCategories();
-        
         setIsAddingCategory(false);
         showAlert('Category added successfully', 'success');
       } else {
@@ -219,18 +217,13 @@ const ExerciseCategories = () => {
   // Submit updated category
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-      
-      const response = await axios.put(API_ENDPOINTS.UPDATE_CATEGORY(editingCategory.category_ID), editingCategory);
-      
+      const formData = new FormData();
+      formData.append('CategoryName', editingCategory.category_Name);
+      const response = await axios.put(API_ENDPOINTS.UPDATE_CATEGORY(editingCategory.category_ID), formData);
       if (response.status === 200) {
-        // تحديث القسم في القائمة المحلية
-        setCategories(categories.map(cat => 
-          cat.category_ID === editingCategory.category_ID ? editingCategory : cat
-        ));
-        
+        await fetchCategories();
         setEditingCategory(null);
         showAlert('Category updated successfully', 'success');
       } else {
@@ -250,8 +243,8 @@ const ExerciseCategories = () => {
   );
 
   // Navigate to exercises page
-  const handleViewExercises = (categoryId) => {
-    navigate(`/admin/exercises/${categoryId}`);
+  const handleViewExercises = () => {
+    navigate('/admin/exercises');
   };
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
@@ -307,16 +300,15 @@ const ExerciseCategories = () => {
               </div>
               
               <div className="mb-3">
-                <label className="form-label">Image URL</label>
+                <label className="form-label">Category Image</label>
                 <input 
-                  type="text" 
+                  type="file" 
                   className="form-control" 
-                  name="imageUrl" 
-                  value={newCategory.imageUrl} 
-                  onChange={handleAddCategoryInputChange}
-                  placeholder="Enter image filename"
+                  accept="image/*"
+                  onChange={e => setNewCategoryImage(e.target.files[0])}
+                  required
                 />
-                <small className="text-muted">Example: category-image.jpg</small>
+                <small className="text-muted">اختر صورة التصنيف</small>
               </div>
               
               <div className="d-flex justify-content-end">
@@ -359,19 +351,6 @@ const ExerciseCategories = () => {
                   onChange={handleInputChange}
                   required 
                 />
-              </div>
-              
-              <div className="mb-3">
-                <label className="form-label">Image URL</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  name="imageUrl" 
-                  value={editingCategory.imageUrl || ''} 
-                  onChange={handleInputChange}
-                  placeholder="Enter image filename"
-                />
-                <small className="text-muted">Example: category-image.jpg</small>
               </div>
               
               <div className="d-flex justify-content-end">
@@ -420,10 +399,12 @@ const ExerciseCategories = () => {
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
               {filteredCategories.map((category) => (
                 <div className="col" key={category.category_ID}>
-                  <div className="card h-100 border-0 shadow-sm">
+                  <div 
+                    className="card h-100 border-0 shadow-sm cursor-pointer"
+                    onClick={handleViewExercises}
+                  >
                     <div 
                       className="position-relative cursor-pointer"
-                      onClick={() => handleViewExercises(category.category_ID)}
                     >
                       <div className="card-img-top d-flex align-items-center justify-content-center bg-light" style={{ height: '120px' }}>
                         {category.imageUrl ? (
@@ -455,7 +436,6 @@ const ExerciseCategories = () => {
                     
                     <div 
                       className="card-body cursor-pointer" 
-                      onClick={() => handleViewExercises(category.category_ID)}
                     >
                       <h5 className="card-title fw-bold mb-2">{category.category_Name}</h5>
                     </div>
