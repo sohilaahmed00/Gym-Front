@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
+const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net/images/Exercise/';
 
 const API_ENDPOINTS = {
-  GET_CATEGORY: (id) => `${API_BASE_URL}/Categories/GetCategory/${id}`,
-  GET_EXERCISES_BY_CATEGORY: (id) => `${API_BASE_URL}/Exercises/GetByCategoryId/${id}`,
+  GET_ALL_EXERCISES: `${API_BASE_URL}/Exercises/GetAllExercises`,
+  GET_ALL_CATEGORIES: `${API_BASE_URL}/Categories/GetAllCategories`,
   ADD_EXERCISE: `${API_BASE_URL}/Exercises/AddExercise`,
   UPDATE_EXERCISE: `${API_BASE_URL}/Exercises/UpdateExercise`,
-  DELETE_EXERCISE: (id) => `${API_BASE_URL}/Exercises/DeleteExercise/${id}`
+  DELETE_EXERCISE: (id) => `${API_BASE_URL}/Exercises/DeleteExercise${id}`
 };
 
 const EMPTY_EXERCISE = {
@@ -23,36 +23,39 @@ const EMPTY_EXERCISE = {
   image_gif: "",
   duration: 30,
   target_Muscle: "",
-  difficulty_Level: "متوسط",
+  difficulty_Level: "",
   calories_Burned: 0,
   category_ID: 0,
   category: null
 };
 
 const DIFFICULTY_LEVELS = [
-  { value: "مبتدئ", color: "success" },
-  { value: "متوسط", color: "warning" },
-  { value: "متقدم", color: "danger" }
+  { value: 1, label: "Beginner", color: "success" },
+  { value: 2, label: "Intermediate", color: "warning" },
+  { value: 3, label: "Advanced", color: "danger" }
 ];
 
-const Exercises = () => {
-  const { categoryId } = useParams();
+const AdminExercises = () => {
   const navigate = useNavigate();
   
-  const [category, setCategory] = useState(null);
   const [exercises, setExercises] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [editingExercise, setEditingExercise] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
-  const [newExercise, setNewExercise] = useState({ ...EMPTY_EXERCISE, category_ID: parseInt(categoryId) });
+  const [newExercise, setNewExercise] = useState({ ...EMPTY_EXERCISE });
+  const [newExerciseImage, setNewExerciseImage] = useState(null);
+  const [newExerciseGif, setNewExerciseGif] = useState(null);
+  const [editExerciseImage, setEditExerciseImage] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
+  const [fieldErrors, setFieldErrors] = useState({});
   
-  // Alert helper
   const showAlert = (message, type = 'success') => {
     setAlert({ show: true, message, type });
     setTimeout(() => setAlert({ show: false, message: '', type: '' }), 3000);
@@ -60,68 +63,83 @@ const Exercises = () => {
 
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
-      return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
+    try {
+        return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
+    } catch (err) {
+        console.error('Error loading image:', err);
+        return null;
+    }
   };
 
-  // Fetch category info and exercises by category ID only
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Fetch category info
-      const categoryResponse = await axios.get(API_ENDPOINTS.GET_CATEGORY(categoryId));
-      const categoryData = categoryResponse.data;
-      setCategory(categoryData);
-      
-      // Fetch exercises by category
-      const exercisesResponse = await axios.get(API_ENDPOINTS.GET_EXERCISES_BY_CATEGORY(categoryId));
-      console.log('تمارين القسم:', exercisesResponse.data);
-        
-        if (Array.isArray(exercisesResponse.data)) {
+      const [exercisesResponse, categoriesResponse] = await Promise.all([
+        axios.get(API_ENDPOINTS.GET_ALL_EXERCISES),
+        axios.get(API_ENDPOINTS.GET_ALL_CATEGORIES)
+      ]);
+
+      if (Array.isArray(exercisesResponse.data)) {
         setExercises(exercisesResponse.data);
-        } else {
-        setError('تنسيق بيانات التمارين غير صحيح');
+      } else {
+        setError('Invalid exercise data format');
       }
-      
+
+      if (Array.isArray(categoriesResponse.data)) {
+        setCategories(categoriesResponse.data);
+      }
+
       setLoading(false);
     } catch (err) {
-      console.error('خطأ في جلب البيانات:', err);
-      setError('فشل في جلب البيانات');
+      console.error('Error fetching data:', err);
+      setError('Failed to fetch data');
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [categoryId]);
+  }, []);
 
-  // Delete exercise
   const handleDeleteExercise = async (exerciseId) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا التمرين؟')) return;
+    if (!window.confirm('Are you sure you want to delete this exercise?')) return;
 
-      try {
-        setDeletingId(exerciseId);
-        const response = await axios.delete(API_ENDPOINTS.DELETE_EXERCISE(exerciseId));
-        if (response.status === 200) {
-          setExercises(exercises.filter(ex => ex.exercise_ID !== exerciseId));
-          showAlert('تم حذف التمرين بنجاح', 'success');
-        } else {
-          throw new Error('فشل في حذف التمرين');
-        }
-      } catch (err) {
-        showAlert('حدث خطأ أثناء حذف التمرين', 'danger');
-      } finally {
-        setDeletingId(null);
+    try {
+      setDeletingId(exerciseId);
+      const response = await axios.delete(API_ENDPOINTS.DELETE_EXERCISE(exerciseId));
+      if (response.status === 200) {
+        setExercises(exercises.filter(ex => ex.exercise_ID !== exerciseId));
+        showAlert('Exercise deleted successfully', 'success');
+      } else {
+        throw new Error('Failed to delete exercise');
+      }
+    } catch (err) {
+      showAlert('Error deleting exercise', 'danger');
+    } finally {
+      setDeletingId(null);
     }
   };
 
-  // Add exercise handlers
   const handleStartAddExercise = () => {
     setIsAddingExercise(true);
-    setNewExercise({ ...EMPTY_EXERCISE, category_ID: parseInt(categoryId) });
+    setNewExercise({ ...EMPTY_EXERCISE });
   };
+
   const handleCancelAddExercise = () => setIsAddingExercise(false);
+
+  const validateFields = () => {
+    const errors = {};
+    if (!newExercise.exercise_Name.trim()) errors.exercise_Name = "Exercise name is required.";
+    if (!newExercise.category_ID) errors.category_ID = "Category is required.";
+    if (!newExercise.difficulty_Level) errors.difficulty_Level = "Difficulty level is required.";
+    if (!newExercise.target_Muscle.trim()) errors.target_Muscle = "Target muscle is required.";
+    if (!newExercise.description.trim()) errors.description = "Description is required.";
+    if (!newExerciseImage) errors.image = "Image is required.";
+    if (!newExerciseGif) errors.gif = "GIF is required.";
+    return errors;
+  };
 
   const handleAddExerciseInputChange = (e) => {
     const { name, value } = e.target;
@@ -129,29 +147,60 @@ const Exercises = () => {
       ...prev,
       [name]: value
     }));
+    setFieldErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   const handleSubmitNewExercise = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    const errors = validateFields();
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      setIsSubmitting(true);
-      const response = await axios.post(API_ENDPOINTS.ADD_EXERCISE, newExercise);
+      const formData = new FormData();
+      formData.append('Exercise_Name', newExercise.exercise_Name);
+      formData.append('Description', newExercise.description);
+      formData.append('Duration', Number(newExercise.duration));
+      formData.append('Target_Muscle', newExercise.target_Muscle);
+      formData.append('Difficulty_Level', Number(newExercise.difficulty_Level));
+      formData.append('Calories_Burned', Number(newExercise.calories_Burned));
+      formData.append('Category_ID', Number(newExercise.category_ID));
+      if (newExerciseImage) formData.append('Image_url', newExerciseImage);
+      if (newExerciseGif) formData.append('Image_gif', newExerciseGif);
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0]+ ', ' + pair[1]);
+      }
+
+      const response = await axios.post(
+        `http://gymmatehealth.runasp.net/api/Exercises/AddNewExercise`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
       if (response.status === 200 || response.status === 201) {
         await fetchData();
         setIsAddingExercise(false);
-        showAlert('تم إضافة التمرين بنجاح', 'success');
+        showAlert('Exercise added successfully!', 'success');
       } else {
-        throw new Error('فشل في إضافة التمرين');
+        throw new Error('Failed to add exercise.');
       }
     } catch (err) {
-      showAlert('حدث خطأ أثناء إضافة التمرين', 'danger');
-      console.error(err);
+      console.error(err.message || 'Error adding exercise.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Edit exercise handlers
   const handleEditClick = (exercise) => setEditingExercise({ ...exercise });
   const handleCancelEdit = () => setEditingExercise(null);
 
@@ -167,23 +216,33 @@ const Exercises = () => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const response = await axios.put(API_ENDPOINTS.UPDATE_EXERCISE, editingExercise);
+      const formData = new FormData();
+      formData.append('Exercise_Name', editingExercise.exercise_Name);
+      formData.append('Description', editingExercise.description);
+      formData.append('Duration', editingExercise.duration);
+      formData.append('Target_Muscle', editingExercise.target_Muscle);
+      formData.append('Difficulty_Level', editingExercise.difficulty_Level);
+      formData.append('Calories_Burned', editingExercise.calories_Burned);
+      formData.append('CategoryID', editingExercise.category_ID);
+      if (editExerciseImage) {
+        formData.append('image', editExerciseImage);
+      }
+      const response = await axios.put(`${API_BASE_URL}/Exercises/updateExercise${editingExercise.exercise_ID}`, formData);
       if (response.status === 200) {
-        setExercises(exercises.map(ex => (ex.exercise_ID === editingExercise.exercise_ID ? editingExercise : ex)));
+        await fetchData();
         setEditingExercise(null);
-        showAlert('تم تحديث التمرين بنجاح', 'success');
+        showAlert('Exercise updated successfully', 'success');
       } else {
-        throw new Error('فشل في تحديث التمرين');
+        throw new Error('Failed to update exercise');
       }
     } catch (err) {
-      showAlert('حدث خطأ أثناء تحديث التمرين', 'danger');
+      showAlert('Error updating exercise', 'danger');
       console.error(err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Filtering and searching
   const filteredExercises = exercises.filter(ex => {
     const matchesSearch = 
       ex.exercise_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,8 +250,9 @@ const Exercises = () => {
       (ex.target_Muscle && ex.target_Muscle.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesDifficulty = !difficultyFilter || ex.difficulty_Level === difficultyFilter;
+    const matchesCategory = !categoryFilter || ex.category_ID === parseInt(categoryFilter);
     
-    return matchesSearch && matchesDifficulty;
+    return matchesSearch && matchesDifficulty && matchesCategory;
   });
 
   const getDifficultyBadge = (difficulty) => {
@@ -200,14 +260,16 @@ const Exercises = () => {
     return difficultyLevel ? difficultyLevel.color : 'secondary';
   };
 
-  const handleGoBack = () => navigate('/admin/exercise-categories');
+  const getCategoryName = (categoryId) => {
+    const category = categories.find(cat => cat.category_ID === categoryId);
+    return category ? category.category_Name : 'Not specified';
+  };
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
   return (
     <div className="container-fluid py-4">
-      {/* Alert */}
       {alert.show && (
         <div className={`alert alert-${alert.type} alert-dismissible fade show mt-2 mb-3`} role="alert">
           <div className="d-flex align-items-center">
@@ -224,367 +286,234 @@ const Exercises = () => {
             type="button" 
             className="btn-close" 
             onClick={() => setAlert({ ...alert, show: false })}
-            aria-label="إغلاق"
+            aria-label="Close"
           ></button>
         </div>
       )}
 
-      {/* Back & Category */}
-      <div className="d-flex align-items-center mb-4">
-        <button 
-          className="btn btn-sm btn-outline-secondary me-3" 
-          onClick={handleGoBack}
-        >
-          <i className="fas fa-arrow-right me-1"></i>
-          العودة للأقسام
-        </button>
-        {category && (
-          <div>
-            <h3 className="fw-bold mb-0">
-              تمارين قسم: {category.category_Name}
-            </h3>
-            <p className="text-muted mb-0 small">{category.categoryDescription}</p>
-          </div>
-        )}
-      </div>
-      
-      {/* Add or Edit Form */}
-      {isAddingExercise ? (
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-body p-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">إضافة تمرين جديد</h4>
-              <button className="btn btn-outline-secondary" onClick={handleCancelAddExercise}>
-                <i className="fas fa-times me-2"></i>إلغاء
-              </button>
-            </div>
-            <form onSubmit={handleSubmitNewExercise}>
-              <InputFields exercise={newExercise} onChange={handleAddExerciseInputChange} isSubmitting={isSubmitting} difficultyLevels={DIFFICULTY_LEVELS} />
-            </form>
-          </div>
-        </div>
-      ) : editingExercise ? (
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-body p-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">تعديل التمرين</h4>
-              <button className="btn btn-outline-secondary" onClick={handleCancelEdit}>
-                <i className="fas fa-times me-2"></i>إلغاء
-              </button>
-            </div>
-            <form onSubmit={handleSubmitEdit}>
-              <InputFields exercise={editingExercise} onChange={handleInputChange} isSubmitting={isSubmitting} difficultyLevels={DIFFICULTY_LEVELS} />
+      {isAddingExercise || editingExercise ? (
+        <div className="d-flex justify-content-center">
+          <div className="card shadow-sm border-0 p-3" style={{ maxWidth: 500, width: '100%' }}>
+            <h5 className="fw-bold mb-3 text-center" style={{ fontSize: 20 }}>{isAddingExercise ? 'Add New Exercise' : 'Edit Exercise'}</h5>
+            <form onSubmit={isAddingExercise ? handleSubmitNewExercise : handleSubmitEdit}>
+              <div className="mb-2">
+                <label className="form-label">Exercise Name</label>
+                <input type="text" className="form-control form-control-sm" name="exercise_Name" placeholder="Exercise Name" value={(isAddingExercise ? newExercise.exercise_Name : editingExercise.exercise_Name) || ''} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} required />
+                {fieldErrors.exercise_Name && <div className="text-danger small">{fieldErrors.exercise_Name}</div>}
+              </div>
+              <div className="mb-2">
+                <label className="form-label">Category</label>
+                <select className="form-select form-select-sm" name="category_ID" value={(isAddingExercise ? newExercise.category_ID : editingExercise.category_ID) || ''} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} required>
+                  <option value="">Select Category</option>
+                  {categories.map(cat => <option key={cat.category_ID} value={cat.category_ID}>{cat.category_Name}</option>)}
+                </select>
+                {fieldErrors.category_ID && <div className="text-danger small">{fieldErrors.category_ID}</div>}
+              </div>
+              <div className="mb-2">
+                <label className="form-label">Difficulty Level</label>
+                <select
+                  className="form-select form-select-sm"
+                  name="difficulty_Level"
+                  value={isAddingExercise ? newExercise.difficulty_Level : editingExercise.difficulty_Level}
+                  onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange}
+                  required
+                >
+                  <option value="">Select Difficulty</option>
+                  {DIFFICULTY_LEVELS.map(level => (
+                    <option key={level.value} value={level.value}>{level.label}</option>
+                  ))}
+                </select>
+                {fieldErrors.difficulty_Level && <div className="text-danger small">{fieldErrors.difficulty_Level}</div>}
+              </div>
+              <div className="mb-2">
+                <label className="form-label">Target Muscle</label>
+                <input type="text" className="form-control form-control-sm" name="target_Muscle" placeholder="e.g. lats" value={(isAddingExercise ? newExercise.target_Muscle : editingExercise.target_Muscle) || ''} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} />
+                {fieldErrors.target_Muscle && <div className="text-danger small">{fieldErrors.target_Muscle}</div>}
+              </div>
+              <div className="row g-2 mb-2">
+                <div className="col-6">
+                  <label className="form-label">Duration (min)</label>
+                  <input type="number" className="form-control form-control-sm" name="duration" placeholder="Duration" value={(isAddingExercise ? newExercise.duration : editingExercise.duration) || 30} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} min="1" />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Calories</label>
+                  <input type="number" className="form-control form-control-sm" name="calories_Burned" placeholder="Calories" value={(isAddingExercise ? newExercise.calories_Burned : editingExercise.calories_Burned) || 0} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} min="0" />
+                </div>
+              </div>
+              <div className="mb-2">
+                <label className="form-label">Description</label>
+                <textarea className="form-control form-control-sm" name="description" placeholder="Description" value={(isAddingExercise ? newExercise.description : editingExercise.description) || ''} onChange={isAddingExercise ? handleAddExerciseInputChange : handleInputChange} rows={2} />
+                {fieldErrors.description && <div className="text-danger small">{fieldErrors.description}</div>}
+              </div>
+              {isAddingExercise && (
+                <>
+                  <div className="mb-2">
+                    <label className="form-label">Exercise Image</label>
+                    <input type="file" className="form-control form-control-sm" accept="image/*" onChange={e => setNewExerciseImage(e.target.files[0])} />
+                    {fieldErrors.image && <div className="text-danger small">{fieldErrors.image}</div>}
+                    <small className="text-muted">{newExerciseImage?.name && ` - ${newExerciseImage?.name}`}</small>
+                  </div>
+                  <div className="mb-2">
+                    <label className="form-label">Exercise GIF</label>
+                    <input type="file" className="form-control form-control-sm" accept="image/gif" onChange={e => setNewExerciseGif(e.target.files[0])} />
+                    {fieldErrors.gif && <div className="text-danger small">{fieldErrors.gif}</div>}
+                    <small className="text-muted">{newExerciseGif?.name && ` - ${newExerciseGif?.name}`}</small>
+                  </div>
+                </>
+              )}
+              <div className="d-flex justify-content-end">
+                <button type="submit" className="btn btn-sm btn-primary px-4" disabled={isSubmitting}>
+                  {isSubmitting ? <span className="spinner-border spinner-border-sm"></span> : 'Save'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
       ) : (
         <>
-          {/* Exercises List Header */}
-        <div className="card border-0 shadow-sm">
-          <div className="card-body p-4">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">قائمة التمارين</h4>
-              <button className="btn btn-primary" onClick={handleStartAddExercise}>
-                  <i className="fas fa-plus me-2"></i>إضافة تمرين جديد
-              </button>
-            </div>
-
-              {/* Filters */}
-            <div className="row g-3 mb-4">
-              <div className="col-md-6">
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="بحث عن تمارين..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="col-md-6">
-                <select 
-                  className="form-select"
-                  value={difficultyFilter}
-                  onChange={(e) => setDifficultyFilter(e.target.value)}
+          <div className="card border-0 shadow-sm">
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h4 className="fw-bold mb-0">Exercise List</h4>
+                <button 
+                  className="btn btn-primary"
+                  style={{ backgroundColor: '#ff7a00', borderColor: '#ff7a00' }}
+                  onClick={handleStartAddExercise}
                 >
-                  <option value="">جميع المستويات</option>
-                  {DIFFICULTY_LEVELS.map(level => (
-                    <option key={level.value} value={level.value}>{level.value}</option>
-                  ))}
-                </select>
+                  <i className="fas fa-plus me-2"></i>
+                  Add New Exercise
+                </button>
               </div>
-            </div>
 
-              {/* Exercises Table */}
-            <div className="table-responsive">
-              <table className="table align-middle mb-0">
-                <thead className="bg-light">
-                  <tr>
-                    <th className="border-0 text-start">التمرين</th>
-                    <th className="border-0">الوصف</th>
-                    <th className="border-0">العضلات المستهدفة</th>
-                    <th className="border-0">المستوى</th>
-                    <th className="border-0">المدة</th>
-                    <th className="border-0">السعرات</th>
-                    <th className="border-0">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                    {filteredExercises.map(exercise => (
-                    <tr key={exercise.exercise_ID} className="exercise-row">
-                      <td className="text-start">
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 10,
-                        }}>
-                          {exercise.image_url ? (
-                            <div 
-                              style={{
-                                width: 60,
-                                height: 60,
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                border: '1px solid #dee2e6',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: '#f8f9fa'
-                              }}
-                            >
-                              <img 
-                                src={getImageUrl(exercise.image_url)} 
-                                alt={exercise.exercise_Name}
-                                  onError={e => {
-                                  e.target.onerror = null;
-                                  e.target.src = "https://via.placeholder.com/60?text=صورة";
-                                }}
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              />
-                            </div>
-                          ) : (
-                            <span style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 60,
-                              height: 60,
-                              borderRadius: '8px',
-                              background: '#0d6efd22',
-                              color: '#0d6efd',
-                              fontSize: 20,
-                            }}>
-                              <i className="fas fa-dumbbell"></i>
-                            </span>
-                          )}
-                          <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
-                        </span>
-                      </td>
-                      <td>
-                          <span className="text-muted" style={{
-                            fontSize: '0.9rem',
-                            maxWidth: '200px',
-                            display: 'block',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                          {exercise.description}
-                        </span>
-                      </td>
-                      <td>
-                          <span className="badge bg-light text-dark">{exercise.target_Muscle || "غير محدد"}</span>
-                      </td>
-                      <td>
-                        <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>
-                          {exercise.difficulty_Level === 1 ? 'مبتدئ' : 
-                           exercise.difficulty_Level === 2 ? 'متوسط' : 
-                           exercise.difficulty_Level === 3 ? 'متقدم' : 'غير محدد'}
-                        </span>
-                      </td>
-                        <td><span className="badge bg-info">{exercise.duration} دقيقة</span></td>
-                        <td><span className="badge bg-warning">{exercise.calories_Burned} سعرة</span></td>
-                      <td>
-                        <div className="btn-group">
-                            <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditClick(exercise)}>
-                              <i className="fas fa-edit me-1"></i>تعديل
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteExercise(exercise.exercise_ID)}
-                            disabled={deletingId === exercise.exercise_ID}
-                          >
-                            {deletingId === exercise.exercise_ID ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                جارٍ الحذف...
-                              </>
-                            ) : (
-                              <>
-                                  <i className="fas fa-trash me-1"></i>حذف
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </td>
+              <div className="row g-3 mb-4">
+                <div className="col-md-4">
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    placeholder="Search exercises..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <select 
+                    className="form-select"
+                    value={difficultyFilter}
+                    onChange={(e) => setDifficultyFilter(e.target.value)}
+                  >
+                    <option value="">All Levels</option>
+                    {DIFFICULTY_LEVELS.map(level => (
+                      <option key={level.value} value={level.value}>{level.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-4">
+                  <select 
+                    className="form-select"
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(category => (
+                      <option key={category.category_ID} value={category.category_ID}>
+                        {category.category_Name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
+                  <thead className="bg-light">
+                    <tr>
+                      <th className="border-0 text-start">Exercise</th>
+                      <th className="border-0">Category</th>
+                      <th className="border-0">Description</th>
+                      <th className="border-0">Target Muscle</th>
+                      <th className="border-0">Level</th>
+                      <th className="border-0">Duration</th>
+                      <th className="border-0">Calories</th>
+                      <th className="border-0">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {filteredExercises.length === 0 && (
-              <div className="text-center py-5">
-                <i className="fas fa-dumbbell text-muted mb-3" style={{ fontSize: '3rem' }}></i>
-                <h5 className="text-muted">لا توجد تمارين للعرض</h5>
-                <p className="text-muted">قم بإضافة تمارين جديدة لهذا القسم</p>
+                  </thead>
+                  <tbody>
+                    {filteredExercises.map(exercise => (
+                      <tr key={exercise.exercise_ID} className="exercise-row">
+                        <td className="text-start">
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                            {exercise.image_url ? (
+                              <div style={{ width: 60, height: 60, borderRadius: '8px', overflow: 'hidden', border: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8f9fa' }}>
+                                <img 
+                                  src={exercise.image_gif ? `${API_BASE_IMAGE_URL}${exercise.image_gif}` : `${API_BASE_IMAGE_URL}${exercise.image_url}`}
+                                  alt={exercise.exercise_Name}
+                                  onError={e => { e.target.onerror = null; e.target.src = "https://placehold.co/60x60?text=Image"; }}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              </div>
+                            ) : (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 60, height: 60, borderRadius: '8px', background: '#0d6efd22', color: '#0d6efd', fontSize: 20 }}>
+                                <i className="fas fa-dumbbell"></i>
+                              </span>
+                            )}
+                            <span style={{ fontWeight: 600, fontSize: 16 }}>{exercise.exercise_Name}</span>
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge bg-secondary">{getCategoryName(exercise.category_ID)}</span>
+                        </td>
+                        <td>
+                          <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exercise.description}</span>
+                        </td>
+                        <td>
+                          <span className="badge bg-light text-dark">{exercise.target_Muscle || "Not specified"}</span>
+                        </td>
+                        <td>
+                          <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>{exercise.difficulty_Level}</span>
+                        </td>
+                        <td><span className="badge bg-info">{exercise.duration} min</span></td>
+                        <td><span className="badge bg-warning">{exercise.calories_Burned} cal</span></td>
+                        <td>
+                          <div className="btn-group">
+                            <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditClick(exercise)}>
+                              <i className="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <button 
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => handleDeleteExercise(exercise.exercise_ID)}
+                              disabled={deletingId === exercise.exercise_ID}
+                            >
+                              {deletingId === exercise.exercise_ID ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                  Deleting...
+                                </>
+                              ) : (
+                                <>
+                                  <i className="fas fa-trash me-1"></i>Delete
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )}
+              {filteredExercises.length === 0 && (
+                <div className="text-center py-5">
+                  <i className="fas fa-dumbbell text-muted mb-3" style={{ fontSize: '3rem' }}></i>
+                  <h5 className="text-muted">No exercises found</h5>
+                  <p className="text-muted">Add new exercises to get started</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         </>
       )}
-
-      <style>{`
-        .exercise-row:hover { 
-          background: #f8f9fa; 
-          transition: all 0.2s ease;
-        }
-        .badge {
-          font-weight: 500;
-          padding: 6px 10px;
-        }
-        .table th {
-          font-size: 13px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .form-select, .form-control {
-          border-radius: 8px;
-          border: 1px solid #dee2e6;
-          padding: 0.5rem 1rem;
-          font-size: 14px;
-        }
-        .form-select:focus, .form-control:focus {
-          border-color: #ff7a00;
-          box-shadow: 0 0 0 0.2rem rgba(255, 122, 0, 0.25);
-        }
-        .btn-primary, .bg-primary {
-          background-color: #ff7a00 !important;
-          border-color: #ff7a00 !important;
-        }
-        .btn-outline-primary {
-          color: #ff7a00 !important;
-          border-color: #ff7a00 !important;
-        }
-        .btn-outline-primary:hover {
-          background-color: #ff7a00 !important;
-          color: white !important;
-        }
-        .text-primary {
-          color: #ff7a00 !important;
-        }
-      `}</style>
     </div>
   );
 };
 
-// Component to render Add/Edit input fields to avoid duplication
-const InputFields = ({ exercise, onChange, isSubmitting, difficultyLevels }) => (
-  <>
-    <div className="row mb-3">
-      <div className="col-md-6">
-        <label className="form-label">اسم التمرين</label>
-        <input
-          type="text"
-          className="form-control"
-          name="exercise_Name"
-          value={exercise.exercise_Name || ''}
-          onChange={onChange}
-          required
-        />
-      </div>
-      <div className="col-md-6">
-        <label className="form-label">مستوى الصعوبة</label>
-        <select
-          className="form-select"
-          name="difficulty_Level"
-          value={exercise.difficulty_Level || 'متوسط'}
-          onChange={onChange}
-          required
-        >
-          {difficultyLevels.map(level => (
-            <option key={level.value} value={level.value}>{level.value}</option>
-          ))}
-        </select>
-      </div>
-    </div>
-
-    <div className="mb-3">
-      <label className="form-label">العضلات المستهدفة</label>
-      <input
-        type="text"
-        className="form-control"
-        name="target_Muscle"
-        value={exercise.target_Muscle || ''}
-        onChange={onChange}
-        placeholder="مثال: عضلات الصدر، عضلات البطن..."
-      />
-    </div>
-
-    <div className="row mb-3">
-      <div className="col-md-6">
-        <label className="form-label">رابط الصورة</label>
-        <input
-          type="text"
-          className="form-control"
-          name="image_url"
-          value={exercise.image_url || ''}
-          onChange={onChange}
-          placeholder="أدخل اسم ملف الصورة"
-        />
-        <small className="text-muted">مثال: exercise-image.jpg</small>
-      </div>
-      <div className="col-md-6">
-        <label className="form-label">رابط الجيف</label>
-        <input
-          type="text"
-          className="form-control"
-          name="image_gif"
-          value={exercise.image_gif || ''}
-          onChange={onChange}
-          placeholder="أدخل اسم ملف الجيف"
-        />
-        <small className="text-muted">مثال: exercise-gif.gif</small>
-      </div>
-    </div>
-
-    <div className="mb-3">
-      <label className="form-label">وصف التمرين</label>
-      <textarea
-        className="form-control"
-        name="description"
-        value={exercise.description || ''}
-        onChange={onChange}
-        rows="4"
-      />
-    </div>
-
-    <div className="d-flex justify-content-end">
-      <button
-        type="submit"
-        className="btn btn-primary"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <>
-            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            جارٍ المعالجة...
-          </>
-        ) : 'حفظ'}
-      </button>
-    </div>
-  </>
-);
-
-export default Exercises;
+export default AdminExercises;

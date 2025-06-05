@@ -33,6 +33,8 @@ export default function ManageProducts() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [newProduct, setNewProduct] = useState({ ...EMPTY_PRODUCT });
+  const [newProductImage, setNewProductImage] = useState(null);
+  const [editProductImage, setEditProductImage] = useState(null);
   
   // Alert State
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
@@ -153,22 +155,22 @@ export default function ManageProducts() {
   // Submit new product
   const handleSubmitNewProduct = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-      
+      const formData = new FormData();
+      Object.entries(newProduct).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (newProductImage) {
+        formData.append('image', newProductImage);
+      }
       const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newProduct)
+        body: formData
       });
-      
       if (!response.ok) {
         throw new Error('Failed to add product');
       }
-      
       await fetchProducts();
       setIsAddingProduct(false);
       showAlert('Product added successfully', 'success');
@@ -215,45 +217,26 @@ export default function ManageProducts() {
   // Submit updated product
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    
     try {
       setIsSubmitting(true);
-
       const formData = new FormData();
-      formData.append('Product_Name', editingProduct.product_Name);
-      formData.append('Description', editingProduct.description);
-      formData.append('Price', editingProduct.price.toString());
-      formData.append('Discount', editingProduct.discount.toString());
-      formData.append('Stock_Quantity', editingProduct.stock_Quantity.toString());
-      // product_ID يُرسل في الرابط، لا حاجة لإضافته هنا مرة أخرى
-
-      // طباعة محتويات formData للتحقق
-      console.log("Data to be sent (FormData):");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
+      Object.entries(editingProduct).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      if (editProductImage) {
+        formData.append('image', editProductImage);
       }
-
       const response = await fetch(API_ENDPOINTS.UPDATE_PRODUCT(editingProduct.product_ID), {
-        method: 'PUT',
-        // لا نُحدد Content-Type هنا، المتصفح سيقوم بذلك مع FormData
+        method: 'POST',
         body: formData
       });
-      
       if (!response.ok) {
-        const errorData = await response.text(); // محاولة قراءة جسم الخطأ كنص
-        console.error('Update failed response status:', response.status, 'Error data:', errorData);
-        throw new Error(`Failed to update product. Status: ${response.status}. Details: ${errorData}`);
+        throw new Error('Failed to update product');
       }
-      
-      // تحديث المنتج في القائمة المحلية
-      setProducts(products.map(product => 
-        product.product_ID === editingProduct.product_ID ? { ...editingProduct } : product
-      ));
-      
+      await fetchProducts();
       setEditingProduct(null);
       showAlert('Product updated successfully', 'success');
     } catch (err) {
-      console.error('Error during submit edit:', err); // طباعة الخطأ الكامل في الكونسول
       showAlert(err.message, 'danger');
     } finally {
       setIsSubmitting(false);
@@ -354,16 +337,15 @@ export default function ManageProducts() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Image URL</label>
+                <label className="form-label">Product Image</label>
                 <input 
-                  type="text" 
+                  type="file" 
                   className="form-control" 
-                  name="image_URL" 
-                  value={newProduct.image_URL} 
-                  onChange={handleAddProductInputChange}
-                  placeholder="أدخل اسم ملف الصورة"
+                  accept="image/*"
+                  onChange={e => setNewProductImage(e.target.files[0])}
+                  required
                 />
-                <small className="text-muted">Example: product-image.jpg</small>
+                <small className="text-muted">اختر صورة المنتج</small>
               </div>
               
               <div className="mb-3">
@@ -461,16 +443,14 @@ export default function ManageProducts() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Image URL</label>
+                <label className="form-label">Product Image</label>
                 <input 
-                  type="text" 
+                  type="file" 
                   className="form-control" 
-                  name="image_URL" 
-                  value={editingProduct.image_URL || ''} 
-                  onChange={handleInputChange}
-                  placeholder="أدخل اسم ملف الصورة"
+                  accept="image/*"
+                  onChange={e => setEditProductImage(e.target.files[0])}
                 />
-                <small className="text-muted">Example: product-image.jpg</small>
+                <small className="text-muted">اختر صورة جديدة إذا أردت تغيير الصورة الحالية</small>
               </div>
               
               <div className="mb-3">
@@ -507,7 +487,11 @@ export default function ManageProducts() {
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h4 className="fw-bold mb-0">Manage Products</h4>
-              <button className="btn btn-primary" onClick={handleStartAddProduct}>
+              <button 
+                className="btn btn-primary"
+                style={{ backgroundColor: '#ff7a00', borderColor: '#ff7a00' }}
+                onClick={handleStartAddProduct}
+              >
                 <i className="fas fa-plus me-2"></i>
                 Add New Product
               </button>

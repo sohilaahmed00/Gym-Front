@@ -37,10 +37,6 @@ export default function ManageCoaches() {
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4 className="fw-bold mb-0">Manage Coaches</h4>
-            <button className="btn btn-primary">
-              <i className="fas fa-plus me-2"></i>
-              Add New Coach
-            </button>
           </div>
 
           {/* Filters Section */}
