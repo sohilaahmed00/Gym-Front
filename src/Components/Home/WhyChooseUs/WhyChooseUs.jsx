@@ -6,14 +6,14 @@ import gym3 from '../../images/Rectangle 32.png';
 
 const WhyChooseUs = () => {
   return (
-    <section className={styles.section2}>
+    <div className={`why_choose_us ${styles.section2}`}>
       <div className={styles.section2Content}>
         <h2>Why Choose Us</h2>
         <p className={styles.section2Subtitle}>
           Discover the Benefits That Set Us Apart and Propel Your Fitness Journey Forward.
         </p>
         
-        <div className={styles.featuresGrid}>
+        <div className={` ${styles.featuresGrid}`}>
           <div className={styles.featuresLeft}>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>👨‍🏫</span>
@@ -59,7 +59,7 @@ const WhyChooseUs = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

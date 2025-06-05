@@ -59,6 +59,8 @@ import DietPlan from '../../UserProfile/pages/DietPlan';
 import ServiceDetails from '../../pages/ServiceDetails/ServiceDetails';
 import ChatBot from '../../UserProfile/pages/ChatBot';
 import AdminExercises from '../../admin/AdminExercises';
+import IntroTour from '../IntroJs/IntroTour';
+
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
 }
@@ -155,6 +157,9 @@ const routes = createBrowserRouter([
       { index: true, element: <CoachStats /> },
       { path: 'expired', element: <ExpiredSubscribers /> },
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
+      {path:'exercise', element:<Exercises/>},
+      {path:'products', element:<Products/>},
+
       {
         path: '/coach/expired/:id',
         element: <ExpiredSubscriberDetails />
@@ -187,6 +192,7 @@ const routes = createBrowserRouter([
 function App() {
   return (
     <CartProvider>
+       <IntroTour />
       <RouterProvider router={routes} />
     </CartProvider>
   );

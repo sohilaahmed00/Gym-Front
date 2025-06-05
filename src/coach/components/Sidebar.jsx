@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { FaHome, FaDumbbell, FaShoppingCart, FaUsers, FaCog, FaBell, FaCommentDots } from 'react-icons/fa';
+import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const coachId = localStorage.getItem('id');
-  console.log(coachId);
   
   const [subscribers, setSubscribers] = useState([]);
   const [search, setSearch] = useState('');
@@ -14,23 +15,27 @@ const Sidebar = () => {
   const [notifCount, setNotifCount] = useState(3);
   const [msgCount, setMsgCount] = useState(5);
 
+  const plans = ['All', '3_Months', '6_Months', '12_Months'];
+
   useEffect(() => {
     const fetchSubscribers = async () => {
       try {
         const response = await fetch(`http://gymmatehealth.runasp.net/api/Subscribes/coach/${coachId}`);
         if (!response.ok) throw new Error('Failed to fetch subscribers');
         const data = await response.json();
-  
+
         const transformed = data.map((item) => ({
-          id: item.userId,
-          name: item.userName,
-          email: item.userEmail,
-          plan: 'Standard',
-          status: 'active',
+          id: item.user_ID || item.userId,
+          name: item.user?.applicationUser?.fullName || item.userName,
+          email: item.user?.applicationUser?.email || item.userEmail,
+          plan: item.subscriptionType || 'Unknown',
+          status: item.status || 'active',
           hasNewMessage: false,
+          image: item.user?.applicationUser?.image ? 
+                 `http://gymmatehealth.runasp.net/images/User/${item.user.applicationUser.image}` : null,
           ...item,
         }));
-  
+
         setSubscribers(transformed);
       } catch (err) {
         console.error('Error fetching subscribers:', err);
@@ -39,16 +44,14 @@ const Sidebar = () => {
   
     if (coachId) fetchSubscribers();
   }, [coachId]);
-  
 
+  // Filter active subscribers by plan and search
   const activeSubscribers = subscribers.filter((s) => s.status === 'active');
 
   const filtered = activeSubscribers.filter((sub) =>
     (planFilter === 'All' || sub.plan === planFilter) &&
     sub.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  const plans = ['All', ...new Set(activeSubscribers.map((s) => s.plan))];
 
   const handleNotificationClick = (type) => {
     setShowNotif(false);
@@ -71,46 +74,18 @@ const Sidebar = () => {
   };
 
   return (
-    <div
-      style={{
-        width: '250px',
-        height: '100vh',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        backgroundColor: '#fff',
-        borderRight: '1px solid #ddd',
-        padding: '20px',
-        overflowY: 'auto',
-        boxShadow: '2px 0 5px rgba(0,0,0,0.05)',
-        zIndex: 1000,
-      }}
-    >
-      <h4 className="text-center mb-3 fw-bold" style={{ color: '#fd5c28', fontFamily: 'Poppins, sans-serif' }}>
-        Coach Panel
-      </h4>
+    <aside className={styles.sidebar}>
+      <h3 className={styles.title}>Coach Panel</h3>
 
-      {/* Icons */}
-      <div className="d-flex justify-content-around mb-4 position-relative">
-        {/* 🔔 Notification */}
-        <div className="position-relative">
-          <i
-            className="bi bi-bell-fill fs-5"
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              setShowNotif(!showNotif);
-              setShowMsgs(false);
-            }}
-          ></i>
-          {notifCount > 0 && (
-            <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">{notifCount}</span>
-          )}
-
+      {/* Icons - Notifications & Messages */}
+      <div className={styles.iconsWrapper}>
+        <div className={styles.iconButton}>
+          <FaBell size={24} onClick={() => { setShowNotif(!showNotif); setShowMsgs(false); }} />
+          {notifCount > 0 && <span className={styles.badge}>{notifCount}</span>}
           {showNotif && (
-            <div className="position-absolute bg-white shadow-sm rounded p-2"
-              style={{ width: '220px', top: '30px', left: '-20px', zIndex: 2000 }}>
-              <small className="fw-bold">You have {notifCount} new alerts</small>
-              <ul className="list-unstyled mt-2 mb-0">
+            <div className={styles.dropdownMenu}>
+              <strong>You have {notifCount} new alerts</strong>
+              <ul style={{ paddingLeft: 15, marginTop: 10 }}>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('feedback')}>💡 New feedback added</li>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('userPlan')}>🔥 User finished a plan</li>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('expired')}>📦 Plan expired for Sarah</li>
@@ -119,25 +94,13 @@ const Sidebar = () => {
           )}
         </div>
 
-        {/* 💬 Messages */}
-        <div className="position-relative">
-          <i
-            className="bi bi-chat-dots-fill fs-5"
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              setShowMsgs(!showMsgs);
-              setShowNotif(false);
-            }}
-          ></i>
-          {msgCount > 0 && (
-            <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">{msgCount}</span>
-          )}
-
+        <div className={styles.iconButton}>
+          <FaCommentDots size={24} onClick={() => { setShowMsgs(!showMsgs); setShowNotif(false); }} />
+          {msgCount > 0 && <span className={styles.badge}>{msgCount}</span>}
           {showMsgs && (
-            <div className="position-absolute bg-white shadow-sm rounded p-2"
-              style={{ width: '240px', top: '30px', right: '-10px', zIndex: 2000 }}>
-              <small className="fw-bold">Recent Messages</small>
-              <ul className="list-unstyled mt-2 mb-0">
+            <div className={`${styles.dropdownMenu} ${styles.dropdownMenuRight}`}>
+              <strong>Recent Messages</strong>
+              <ul style={{ paddingLeft: 15, marginTop: 10 }}>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Ahmed Mostafa')}>📩 Ahmed: Need help on push ups</li>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Mohamed Ali')}>📩 Mohamed: Thank you coach!</li>
                 <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Sohila Ahmed')}>📩 Sohila: Subscription ended</li>
@@ -147,69 +110,91 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Dashboard Nav */}
-      <NavLink
-        to="/coach"
-        className="d-block mb-4 text-decoration-none fw-medium"
-        style={({ isActive }) => ({
-          color: isActive ? '#0d6efd' : '#333',
-        })}
-      >
-        <i className="bi bi-bar-chart-fill me-2"></i> Dashboard
-      </NavLink>
-
-      {/* Search */}
-      <input
-        className="form-control mb-2"
-        placeholder="🔍 Search by name"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* Filter */}
-      <select
-        className="form-select mb-3"
-        value={planFilter}
-        onChange={(e) => setPlanFilter(e.target.value)}
-      >
-        {plans.map((plan) => (
-          <option key={plan} value={plan}>{plan}</option>
-        ))}
-      </select>
-
-      {/* Subscriber List */}
-      <h6 className="fw-bold mb-2">Subscribers</h6>
-      <div style={{ maxHeight: '55vh', overflowY: 'auto' }}>
-        {filtered.length === 0 ? (
-          <p className="text-muted">No subscribers found.</p>
-        ) : (
-          filtered.map((sub) => (
-            <div
-              key={sub.id}
-              className="p-2 rounded mb-2 d-flex justify-content-between align-items-center shadow-sm"
-              style={{
-                backgroundColor: '#f8f9fa',
-                cursor: 'pointer',
-                transition: '0.2s'
-              }}
-              onClick={() => navigate(`/coach/subscriber/${sub.id}`, { state: { subscriber: sub } })}
-              >
-              <span>{sub.name}</span>
-              {sub.hasNewMessage && <span className="text-danger fs-6">●</span>}
-            </div>
-          ))
-        )}
+      {/* Nav Links */}
+      <nav >
         <NavLink
-          to="/coach/setting"
-          className="d-block mb-4 text-decoration-none fw-medium"
-          style={({ isActive }) => ({
-            color: isActive ? '#0d6efd' : '#333',
-          })}
+          to="/coach"
+          end
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}
         >
-          <i className="bi bi-bar-setting me-2"></i>⚙️ Setting
+          <FaUsers /> Dashboard
         </NavLink>
-      </div>
-    </div>
+
+        <NavLink
+          to="/coach/exercise"
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}
+        >
+          <FaDumbbell /> Exercises
+        </NavLink>
+
+        <NavLink
+          to="/coach/products"
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}
+        >
+          <FaShoppingCart /> Products
+        </NavLink>
+
+        <NavLink
+          to="/"
+          className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}
+        >
+          <FaHome /> Back Home
+        </NavLink>
+      </nav>
+<hr />
+     {/* Search and Plan Filter + Subscribers container */}
+<div style={{ flexShrink: 0 }}>
+  <input
+    type="text"
+    placeholder="🔍 Search by name"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className={styles.searchInput}
+  />
+
+  <select
+    value={planFilter}
+    onChange={(e) => setPlanFilter(e.target.value)}
+    className={styles.planFilter}
+  >
+    {plans.map(plan => (
+      <option key={plan} value={plan}>{plan === '12_Months' ? '1 Year' : plan.replace('_', ' ')}</option>
+    ))}
+  </select>
+
+  <h6 style={{ marginTop: 20, fontWeight: '700', color: '#333' }}>Subscribers</h6>
+  <div className={styles.subscriberList}>
+    {filtered.length === 0 ? (
+      <p style={{ color: '#666', fontSize: 14, padding: '10px 0' }}>No subscribers found.</p>
+    ) : (
+      filtered.map((sub) => (
+        <div
+          key={sub.id}
+          onClick={() => navigate(`/coach/subscriber/${sub.id}`, { state: { subscriber: sub } })}
+          className={styles.subscriberItem}
+          title={sub.email}
+        >
+          <div className={styles.subscriberNameContainer}>
+            {sub.image ? (
+              <img src={`http://gymmatehealth.runasp.net/images/profiles/${sub.image}`} alt={sub.name} className={styles.userImage} />
+            ) : (
+              <div
+                className={styles.userImage}
+                style={{ backgroundColor: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}
+              >
+                {sub.name.charAt(0)}
+              </div>
+            )}
+            <span>{sub.name}</span>
+          </div>
+          {sub.hasNewMessage && <span className={styles.newMessageDot}>●</span>}
+        </div>
+      ))
+    )}
+  </div>
+</div>
+
+    </aside>
   );
 };
 
