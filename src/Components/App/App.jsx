@@ -42,7 +42,7 @@ import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSe
 import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
 import ExerciseCategories from '../../admin/ExerciseCategories';
-import ADExercises from '../../admin/ADExercises';
+
 
 import Login from '../Auth/login/Login';
 import ConfirmMail from '../Auth/confirm-mail/ConfirmMail';
