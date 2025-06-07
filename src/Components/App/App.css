@@ -10,6 +10,27 @@ body, html {
   margin: 0;
   padding: 0;
 }
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #6d564e; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #fd5c28; 
+  border-radius: 20px;
+  border: 2px solid #fd5c28; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #e74c1d;
+}
+
 
 .App {
   width: 100vw;
@@ -52,4 +73,70 @@ body, html {
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.introjs-tooltip {
+  background-color: #ffffff !important;
+  border: 2px solid #fd5c28 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  padding: 22px !important;
+  max-width: 360px !important;
+  font-family: 'Poppins', 'Segoe UI', sans-serif !important;
+}
+
+.introjs-tooltiptext {
+  font-size: 16px !important;
+  color: #333 !important;
+  margin-bottom: 16px !important;
+  text-align: center !important;
+  line-height: 1.6 !important;
+}
+
+.introjs-button {
+  background-color: #fd5c28 !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  margin: 0 5px !important;
+  transition: background 0.3s ease !important;
+}
+.introjs-button:hover {
+  background-color: #e65010 !important;
+}
+.introjs-button.introjs-disabled {
+  background-color: #ddd !important;
+  color: #aaa !important;
+  cursor: not-allowed !important;
+}
+
+.introjs-skipbutton {
+  color: #fd5c28 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+
+.introjs-bullets li a {
+  background-color: #ccc !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+}
+.introjs-bullets li a.active {
+  background-color: #fd5c28 !important;
+}
+
+.introjs-progress {
+  background-color: #fd5c28 !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  color: #e65010 !important;
+}
+
+
+.introjs-arrow {
+  border-color: #fd5c28 !important;
 }

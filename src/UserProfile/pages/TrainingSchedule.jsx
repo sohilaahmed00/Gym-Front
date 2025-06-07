@@ -23,10 +23,24 @@ const TrainingSchedule = () => {
           axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`)
         ]);
 
-        setAssignments(assignmentsRes.data.sort((a, b) => new Date(a.day) - new Date(b.day)));
-        setNutritionPlans(nutritionRes.data);
+        // Check if assignmentsRes.data is an array or has a "message" property (no data)
+        if (Array.isArray(assignmentsRes.data)) {
+          setAssignments(assignmentsRes.data.sort((a, b) => new Date(a.day) - new Date(b.day)));
+        } else if (assignmentsRes.data?.message) {
+          setAssignments([]); // no assignments
+          toast.current.show({ severity: 'info', summary: 'No Assignments', detail: assignmentsRes.data.message, life: 4000 });
+        }
+
+        // Same for nutrition plans
+        if (Array.isArray(nutritionRes.data)) {
+          setNutritionPlans(nutritionRes.data);
+        } else if (nutritionRes.data?.message) {
+          setNutritionPlans([]); // no nutrition plans
+          toast.current.show({ severity: 'info', summary: 'No Nutrition Plans', detail: nutritionRes.data.message, life: 4000 });
+        }
       } catch (error) {
         console.error('Error loading data:', error);
+        toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load training data', life: 4000 });
       }
     };
 
@@ -52,6 +66,7 @@ const TrainingSchedule = () => {
       });
     } catch (error) {
       console.error('Failed to mark as done:', error);
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to mark assignment as done', life: 3000 });
     }
   };
 
@@ -72,39 +87,42 @@ const TrainingSchedule = () => {
       <Toast ref={toast} />
       <h3 className="mb-3" style={{ color: '#fd5c28' }}>📅 Your Training Schedule</h3>
 
-      <div className="d-flex flex-wrap gap-3">
-        {assignments.map(assignment => {
-          const dateObj = new Date(assignment.day);
-          const label = `${dateObj.toLocaleDateString()} (${dateObj.toLocaleDateString('en-US', { weekday: 'long' })})`;
-            console.log(assignments);
-            
-          return (
-            <div key={assignment.assignment_ID} className="d-flex flex-column gap-3 justify-content-between p-2 text-center shadow-sm" style={{ width: '180px' }}>
-              <strong>{label}</strong>
+      {assignments.length === 0 ? (
+        <p className="text-muted">No training assignments available.</p>
+      ) : (
+        <div className="d-flex flex-wrap gap-3">
+          {assignments.map(assignment => {
+            const dateObj = new Date(assignment.day);
+            const label = `${dateObj.toLocaleDateString()} (${dateObj.toLocaleDateString('en-US', { weekday: 'long' })})`;
+
+            return (
+              <div key={assignment.assignment_ID} className="d-flex flex-column gap-3 justify-content-between p-2 text-center shadow-sm" style={{ width: '180px' }}>
+                <strong>{label}</strong>
                 <div className="d-flex flex-column justify-content-center">
                   <Button
-                      label="✅ Mark as Done"
-                      disabled={assignment.isCompleted}
-                      onClick={() => handleMarkDone(selectedDay)}
-                      style={{
-                        backgroundColor: '#28a745',
-                        color: '#fff',
-                        border: 'none',
-                        padding: '5px 8px',
-                        borderRadius: '6px',
-                      }}
-                    />
-              <Button
-                label="View Plan"
-                className="btn btn-sm mt-2"
-                style={{ backgroundColor: '#fd5c28', color: '#fff', border: 'none' }}
-                onClick={() => handleOpenModal(assignment)}
-              />
+                    label="✅ Mark as Done"
+                    disabled={assignment.isCompleted}
+                    onClick={() => handleMarkDone(assignment)}
+                    style={{
+                      backgroundColor: '#28a745',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '5px 8px',
+                      borderRadius: '6px',
+                    }}
+                  />
+                  <Button
+                    label="View Plan"
+                    className="btn btn-sm mt-2"
+                    style={{ backgroundColor: '#fd5c28', color: '#fff', border: 'none' }}
+                    onClick={() => handleOpenModal(assignment)}
+                  />
                 </div>
-            </div>
-          );
-        })}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {showModal && selectedDay && (
         <>
@@ -112,7 +130,7 @@ const TrainingSchedule = () => {
             <div className={styles.modalContent}>
               <h4 className={styles.modalTitle}>📆 Plan for {selectedDay.day}</h4>
 
-              {/* Exercise */}
+              {/* Exercise Section */}
               <section className={styles.sectionBox}>
                 <h5>🏋️ Exercise Details</h5>
                 <p>
@@ -138,25 +156,27 @@ const TrainingSchedule = () => {
                 )}
               </section>
 
-              {/* Nutrition */}
-              {selectedDay.nutrition && (
+              {/* Nutrition Section */}
+              {selectedDay.nutrition ? (
                 <section className={styles.sectionBox}>
                   <h5>🥗 Nutrition Plan</h5>
-                 <ul className={styles.nutritionGrid}>
-                  <li><strong>Calories:</strong> {selectedDay.nutrition.calories_Needs}</li>
-                  <li><strong>Protein:</strong> {selectedDay.nutrition.protein_Needs}g</li>
-                  <li><strong>Carbs:</strong> {selectedDay.nutrition.carbs_Needs}g</li>
-                  <li><strong>Fats:</strong> {selectedDay.nutrition.fats_Needs}g</li>
-                  <li><strong>1st Meal:</strong> {selectedDay.nutrition.firstMeal}</li>
-                  <li><strong>2nd Meal:</strong> {selectedDay.nutrition.secondMeal}</li>
-                  <li><strong>3rd Meal:</strong> {selectedDay.nutrition.thirdMeal}</li>
-                  <li><strong>4th Meal:</strong> {selectedDay.nutrition.fourthMeal}</li>
-                  <li><strong>5th Meal:</strong> {selectedDay.nutrition.fifthMeal}</li>
-                  <li><strong>Snacks:</strong> {selectedDay.nutrition.snacks}</li>
-                  <li><strong>Vitamins:</strong> {selectedDay.nutrition.vitamins}</li>
-                  <li><strong>Notes:</strong> {selectedDay.nutrition.notes}</li>
-                </ul>
+                  <ul className={styles.nutritionGrid}>
+                    <li><strong>Calories:</strong> {selectedDay.nutrition.calories_Needs}</li>
+                    <li><strong>Protein:</strong> {selectedDay.nutrition.protein_Needs}g</li>
+                    <li><strong>Carbs:</strong> {selectedDay.nutrition.carbs_Needs}g</li>
+                    <li><strong>Fats:</strong> {selectedDay.nutrition.fats_Needs}g</li>
+                    <li><strong>1st Meal:</strong> {selectedDay.nutrition.firstMeal}</li>
+                    <li><strong>2nd Meal:</strong> {selectedDay.nutrition.secondMeal}</li>
+                    <li><strong>3rd Meal:</strong> {selectedDay.nutrition.thirdMeal}</li>
+                    <li><strong>4th Meal:</strong> {selectedDay.nutrition.fourthMeal}</li>
+                    <li><strong>5th Meal:</strong> {selectedDay.nutrition.fifthMeal}</li>
+                    <li><strong>Snacks:</strong> {selectedDay.nutrition.snacks}</li>
+                    <li><strong>Vitamins:</strong> {selectedDay.nutrition.vitamins}</li>
+                    <li><strong>Notes:</strong> {selectedDay.nutrition.notes}</li>
+                  </ul>
                 </section>
+              ) : (
+                <p>No nutrition plan available for this day.</p>
               )}
 
               <div className="mb-3">
@@ -164,7 +184,7 @@ const TrainingSchedule = () => {
                   <div className="text-center mb-3">
                     <Button
                       label="✅ Mark this Day as Done"
-                       disabled={selectedDay.isCompleted}
+                      disabled={selectedDay.isCompleted}
                       onClick={() => handleMarkDone(selectedDay)}
                       style={{
                         backgroundColor: '#28a745',

@@ -1,10 +1,9 @@
 import React from 'react';
-import userData from '../data/userData.json';
 import { Button } from 'primereact/button';
 
 const DietPlan = () => {
-  const plan = userData.dietPlan || "Not specified";
-  const attachments = userData.attachments || [];
+  const plan = mealSchedule || "Not specified";
+  const attachments =  [];
 
   const mealSchedule = {
     Monday: {
