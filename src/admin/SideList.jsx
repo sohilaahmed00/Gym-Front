@@ -8,10 +8,11 @@ const sidebarItems = [
   { icon: 'fas fa-box-open', label: 'Products', path: '/admin/products' },
   { icon: 'fas fa-id-card', label: 'Subscriptions', path: '/admin/subscriptions' },
   { icon: 'fas fa-clock', label: 'Pending Subscriptions', path: '/admin/pending-subscriptions' },
+  { icon: 'fas fa-times-circle', label: 'Rejected Subscriptions', path: '/admin/rejected-subscriptions' },
   { icon: 'fas fa-user-clock', label: 'Pending Coaches', path: '/admin/pending-coaches' },
   { icon: 'fas fa-dumbbell', label: 'Exercise Categories', path: '/admin/exercise-categories' },
   { icon: 'fas fa-running', label: 'Manage Exercises', path: '/admin/exercises' },
-  { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
+  // { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
 ];
 
 const settingsDropdown = [
@@ -39,7 +40,7 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
     >
       <div className="d-flex align-items-center gap-2 p-4 border-bottom" style={{ marginTop: '0px', width: '100%' }}>
         {/* <i className="fas fa-snowflake text-primary fs-4"></i> */}
-        <span className="fw-bold fs-5" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}> Admin Panel </span>
+        <span className="fw-bold fs-3" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}> Admin Panel </span>
       </div>
       <nav className="nav flex-column p-2" style={{ width: '100%' }}>
         {sidebarItems.map((item, idx) => {
@@ -85,13 +86,13 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
           let badge = null;
           if (item.label === 'Pending Subscriptions') {
             badge = (
-              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: '#ff7a00 !important' }}>
+              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem', backgroundColor: '#ff7a00 !important', minWidth: '28px', textAlign: 'center', display: 'inline-block' }}>
                 {pendingSubscriptionsCount}
               </span>
             );
           } else if (item.label === 'Pending Coaches') {
             badge = (
-              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: '#ff7a00 !important' }}>
+              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem', backgroundColor: '#ff7a00 !important', minWidth: '28px', textAlign: 'center', display: 'inline-block' }}>
                 {pendingCoachesCount}
               </span>
             );

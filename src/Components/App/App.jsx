@@ -38,10 +38,15 @@ import ManageUsers from '../../admin/ManageUsers';
 import AdminLayout from '../../admin/AdminLayout';
 import ManageProducts from '../../admin/ManageProducts';
 import PendingSubscriptions from '../../admin/PendingSubscriptions';
+import RejectedSubscriptions from '../../admin/RejectedSubscriptions';
 import AdminSettings, { AccountSettings, SiteSettings, PaymentSettings, SystemSettings, ContentSettings } from '../../admin/AdminSettings';
 import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
 import ExerciseCategories from '../../admin/ExerciseCategories';
+import AdminExercises from '../../admin/AdminExercises';
+
+
+
 
 
 import Login from '../Auth/login/Login';
@@ -52,15 +57,19 @@ import ForgotPassword from '../Auth/forget-password/ForgetPassword';
 import EnterOtp from '../Auth/NewPassword-OTP/OTP-Page';
 import ResetPassword from '../Auth/reset-password/ResetPassword';
 
+
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import UserSettings from '../../UserProfile/pages/UserSettings';
 import SubscribePage from '../subscribe/SubscribePage';
 import DietPlan from '../../UserProfile/pages/DietPlan';
 import ServiceDetails from '../../pages/ServiceDetails/ServiceDetails';
 import ChatBot from '../../UserProfile/pages/ChatBot';
+<<<<<<< HEAD
+=======
 import AdminExercises from '../../admin/AdminExercises';
 import IntroTour from '../IntroJs/IntroTour';
 
+>>>>>>> e8764ba6b06336f20320cc4426b4c704cc9c3752
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
 }
@@ -124,6 +133,7 @@ const routes = createBrowserRouter([
             ]
           },
           { path: 'pending-subscriptions', element: <PendingSubscriptions /> },
+          { path: 'rejected-subscriptions', element: <RejectedSubscriptions /> },
           { path: 'pending-coaches', element: <PendingCoaches /> },
         ]
       },

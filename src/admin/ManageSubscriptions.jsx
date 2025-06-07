@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // API variables
@@ -25,6 +26,23 @@ const statusLabels = {
   'Rejected': 'Rejected'
 };
 
+// Payment Proof Modal Component
+const PaymentProofModal = ({ show, handleClose, imageUrl }) => (
+  <Modal show={show} onHide={handleClose}>
+    <Modal.Header closeButton>
+      <Modal.Title>Payment Proof</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <img src={imageUrl} alt="Payment Proof" style={{ width: '100%' }} />
+    </Modal.Body>
+    <Modal.Footer>
+      <Button variant="secondary" onClick={handleClose}>
+        Close
+      </Button>
+    </Modal.Footer>
+  </Modal>
+);
+
 export default function ManageSubscriptions() {
   // Subscriptions state
   const [subscriptions, setSubscriptions] = useState([]);
@@ -42,6 +60,10 @@ export default function ManageSubscriptions() {
   const [filterStatus, setFilterStatus] = useState('');
   const [searchText, setSearchText] = useState('');
   const [searchBy, setSearchBy] = useState('user'); // 'user' or 'coach'
+  
+  // Payment Proof Modal State
+  const [showModal, setShowModal] = useState(false);
+  const [currentImage, setCurrentImage] = useState('');
 
   // Show Alert Function
   const showAlert = (message, type = 'success') => {
@@ -51,6 +73,14 @@ export default function ManageSubscriptions() {
       setAlert({ show: false, message: '', type: '' });
     }, 3000);
   };
+
+  // Payment Proof Modal Functions
+  const handleShow = (imageUrl) => {
+    setCurrentImage(imageUrl);
+    setShowModal(true);
+  };
+
+  const handleClose = () => setShowModal(false);
 
   // Fetch user data by ID
   const fetchUserData = async (userId) => {
@@ -246,7 +276,7 @@ export default function ManageSubscriptions() {
                   <th className="border-0">Status</th>
                   <th className="border-0">Approved</th>
                   <th className="border-0">Payment Proof</th>
-                  <th className="border-0">Actions</th>
+                  {/* <th className="border-0">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -334,22 +364,22 @@ export default function ManageSubscriptions() {
                       </td>
                       <td>
                         {subscription.paymentProof ? (
-                          <a href={`${API_BASE_URL.replace('/api', '')}/Images/${subscription.paymentProof}`} 
-                             target="_blank" 
-                             rel="noopener noreferrer" 
-                             className="btn btn-sm btn-outline-info">
+                          <button 
+                            className="btn btn-sm btn-outline-info"
+                            onClick={() => handleShow(`http://gymmatehealth.runasp.net/Images/PaymentProofs/${subscription.paymentProof}`)}
+                          >
                             <i className="fas fa-image me-1"></i>
                             View
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-muted">-</span>
                         )}
                       </td>
                       <td>
-                        <button className="btn btn-sm btn-warning text-white d-flex align-items-center p-1 px-2" style={{ fontWeight: 600, fontSize: 13, borderRadius: 6, height: 22, width: 65, gap: '3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {/* <button className="btn btn-sm btn-warning text-white d-flex align-items-center p-1 px-2" style={{ fontWeight: 600, fontSize: 13, borderRadius: 6, height: 22, width: 65, gap: '3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                           <i className="fas fa-ban" style={{ fontSize: 13 }}></i>
                           <span style={{ lineHeight: 1 }}>Suspend</span>
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -413,6 +443,7 @@ export default function ManageSubscriptions() {
           }
         }
       `}</style>
+      <PaymentProofModal show={showModal} handleClose={handleClose} imageUrl={currentImage} />
     </div>
   );
 } 

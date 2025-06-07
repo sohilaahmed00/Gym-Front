@@ -4,8 +4,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 export default function ManageCoaches() {
   // Coaches state
   const [coaches, setCoaches] = useState([]);
+  const [filteredCoaches, setFilteredCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    specialization: '',
+    experience: '',
+    status: '',
+    searchTerm: ''
+  });
 
   // Fetch coaches data from API
   useEffect(() => {
@@ -18,6 +27,7 @@ export default function ManageCoaches() {
         }
         const data = await response.json();
         setCoaches(data);
+        setFilteredCoaches(data);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -27,6 +37,62 @@ export default function ManageCoaches() {
 
     fetchCoaches();
   }, []);
+
+  // Filter effect
+  useEffect(() => {
+    let result = [...coaches];
+
+    // Apply specialization filter
+    if (filters.specialization) {
+      result = result.filter(coach => 
+        coach.specialization?.toLowerCase() === filters.specialization.toLowerCase()
+      );
+    }
+
+    // Apply experience filter
+    if (filters.experience) {
+      result = result.filter(coach => {
+        const experience = coach.experience_Years;
+        switch (filters.experience) {
+          case '1-3':
+            return experience >= 1 && experience <= 3;
+          case '4-6':
+            return experience >= 4 && experience <= 6;
+          case '7+':
+            return experience >= 7;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply status filter
+    if (filters.status !== '') {
+      const statusBool = filters.status === 'true';
+      result = result.filter(coach => coach.isConfirmedByAdmin === statusBool);
+    }
+
+    // Apply search filter
+    if (filters.searchTerm) {
+      result = result.filter(coach =>
+        coach.fullName?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        coach.specialization?.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredCoaches(result);
+  }, [coaches, filters]);
+
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
+
+  // Get unique specializations from actual data
+  const availableSpecializations = [...new Set(coaches.map(coach => coach.specialization).filter(Boolean))];
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
   if (error) return <div className="alert alert-danger m-3">{error}</div>;
@@ -42,16 +108,23 @@ export default function ManageCoaches() {
           {/* Filters Section */}
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <select className="form-select">
+              <select 
+                className="form-select"
+                value={filters.specialization}
+                onChange={(e) => handleFilterChange('specialization', e.target.value)}
+              >
                 <option value="">All Specializations</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Strength & Conditioning">Strength & Conditioning</option>
-                <option value="Yoga">Yoga</option>
-                <option value="CrossFit">CrossFit</option>
+                {availableSpecializations.map(spec => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
               </select>
             </div>
             <div className="col-md-3">
-              <select className="form-select">
+              <select 
+                className="form-select"
+                value={filters.experience}
+                onChange={(e) => handleFilterChange('experience', e.target.value)}
+              >
                 <option value="">Experience Level</option>
                 <option value="1-3">1-3 Years</option>
                 <option value="4-6">4-6 Years</option>
@@ -59,15 +132,32 @@ export default function ManageCoaches() {
               </select>
             </div>
             <div className="col-md-3">
-              <select className="form-select">
+              <select 
+                className="form-select"
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+              >
                 <option value="">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="true">Approved</option>
+                <option value="false">Not Approved</option>
               </select>
             </div>
             <div className="col-md-3">
-              <input type="text" className="form-control" placeholder="Search coaches..." />
+              <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Search coaches..."
+                value={filters.searchTerm}
+                onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+              />
             </div>
+          </div>
+
+          {/* Results Summary */}
+          <div className="mb-3">
+            <small className="text-muted">
+              Showing {filteredCoaches.length} of {coaches.length} coaches
+            </small>
           </div>
 
           {/* Table Section */}
@@ -84,7 +174,7 @@ export default function ManageCoaches() {
                 </tr>
               </thead>
               <tbody>
-                {coaches.map((coach) => (
+                {filteredCoaches.map((coach) => (
                   <tr key={coach.userId} className="coach-row">
                     <td className="text-start">
                       <span style={{
@@ -168,6 +258,9 @@ export default function ManageCoaches() {
         .badge {
           font-weight: 500;
           padding: 6px 10px;
+          min-width: 90px;
+          text-align: center;
+          display: inline-block;
         }
         .table th {
           font-size: 13px;
