@@ -24,9 +24,9 @@ const PaymentProofModal = ({ show, handleClose, imageUrl }) => (
   </Modal>
 );
 
-const PendingSubscriptions = () => {
-  // Pending subscriptions state
-  const [pendingSubscriptions, setPendingSubscriptions] = useState([]);
+const RejectedSubscriptions = () => {
+  // Rejected subscriptions state
+  const [rejectedSubscriptions, setRejectedSubscriptions] = useState([]);
   const [filteredSubscriptions, setFilteredSubscriptions] = useState([]);
   const [users, setUsers] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,11 +49,12 @@ const PendingSubscriptions = () => {
     }
   };
 
-  // Fetch subscriptions from real API
-  const fetchPendingSubscriptions = async () => {
+  // Fetch rejected subscriptions from API
+  const fetchRejectedSubscriptions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/pending');
+      // TODO: استبدال هذا الـ endpoint بالـ API الصحيح للاشتراكات المرفوضة
+      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/rejected');
       const subscriptions = response.data.map(subscription => ({
         ...subscription,
         id: subscription.subscribe_ID,
@@ -63,7 +64,7 @@ const PendingSubscriptions = () => {
         amount: getAmountForPlan(subscription.subscriptionType),
         fitnessGoal: subscription.user?.fitness_Goal || 'Not specified'
       }));
-      setPendingSubscriptions(subscriptions);
+      setRejectedSubscriptions(subscriptions);
       setFilteredSubscriptions(subscriptions);
 
       // Collect all user_IDs
@@ -76,7 +77,8 @@ const PendingSubscriptions = () => {
       });
       setUsers(usersObj);
     } catch (error) {
-      console.error('Error fetching pending subscriptions:', error);
+      console.error('Error fetching rejected subscriptions:', error);
+      setAlert({ show: true, type: 'danger', message: 'Error fetching rejected subscriptions' });
     } finally {
       setLoading(false);
     }
@@ -98,12 +100,12 @@ const PendingSubscriptions = () => {
 
   // Initial data fetch
   useEffect(() => {
-    fetchPendingSubscriptions();
+    fetchRejectedSubscriptions();
   }, []);
 
   // Handle search and filters
   useEffect(() => {
-    let result = [...pendingSubscriptions];
+    let result = [...rejectedSubscriptions];
     if (filters.plan) {
       result = result.filter(subscription => subscription.plan === filters.plan);
     }
@@ -118,35 +120,13 @@ const PendingSubscriptions = () => {
       );
     }
     setFilteredSubscriptions(result);
-  }, [searchTerm, filters, pendingSubscriptions, users]);
+  }, [searchTerm, filters, rejectedSubscriptions, users]);
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
       ...prev,
       [filterType]: value
     }));
-  };
-
-  const handleApprove = async (id) => {
-    try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Subscribes/approve/${id}`);
-      fetchPendingSubscriptions();
-      setAlert({ show: true, type: 'success', message: 'Subscription approved successfully' });
-    } catch (error) {
-      console.error(`Error approving subscription ${id}:`, error);
-      setAlert({ show: true, type: 'danger', message: 'Error approving subscription' });
-    }
-  };
-
-  const handleReject = async (id) => {
-    try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Subscribes/reject/${id}`);
-      fetchPendingSubscriptions();
-      setAlert({ show: true, type: 'success', message: 'Subscription rejected successfully' });
-    } catch (error) {
-      console.error(`Error rejecting subscription ${id}:`, error);
-      setAlert({ show: true, type: 'danger', message: 'Error rejecting subscription' });
-    }
   };
 
   const handleShow = (imageUrl) => {
@@ -156,7 +136,7 @@ const PendingSubscriptions = () => {
 
   const handleClose = () => setShowModal(false);
 
-  const availablePlans = [...new Set(pendingSubscriptions.map(sub => sub.plan))];
+  const availablePlans = [...new Set(rejectedSubscriptions.map(sub => sub.plan))];
 
   return (
     <div className="container-fluid py-4">
@@ -185,7 +165,7 @@ const PendingSubscriptions = () => {
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0">Manage Pending Subscriptions</h4>
+            <h4 className="fw-bold mb-0">Rejected Subscriptions</h4>
           </div>
           
           {/* Filters Section */}
@@ -198,7 +178,9 @@ const PendingSubscriptions = () => {
               >
                 <option value="">All Plans</option>
                 {availablePlans.map(plan => (
-                  <option key={plan} value={plan}>{plan === '12_Months' ? '1 Year' : plan.replace('_', ' ')}</option>
+                  <option key={plan} value={plan}>
+                    {plan === '12_Months' ? '1 Year' : plan.replace('_', ' ')}
+                  </option>
                 ))}
               </select>
             </div>
@@ -224,7 +206,7 @@ const PendingSubscriptions = () => {
           {loading && <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>}
           {!loading && filteredSubscriptions.length === 0 ? (
             <div className="alert alert-info" role="alert">
-              No pending subscriptions.
+              No rejected subscriptions.
             </div>
           ) : !loading && (
             <div className="table-responsive">
@@ -239,7 +221,7 @@ const PendingSubscriptions = () => {
                     <th>Goal</th>
                     <th>Amount</th>
                     <th>Payment Proof</th>
-                    <th>Actions</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -300,11 +282,6 @@ const PendingSubscriptions = () => {
                       </td>
                       <td>{sub.amount.toFixed(2)} EGP</td>
                       <td>
-                        {console.log('Subscription data:', sub)}
-                        {console.log('PaymentProof:', sub.paymentProof)}
-                        {console.log('Trying URL 1:', `http://gymmatehealth.runasp.net/api/Images/PaymentProofs/${sub.paymentProof}`)}
-                        {console.log('Trying URL 2:', `http://gymmatehealth.runasp.net/Images/PaymentProofs/${sub.paymentProof}`)}
-                        {console.log('Trying URL 3:', `http://gymmatehealth.runasp.net/images/PaymentProofs/${sub.paymentProof}`)}
                         {sub.paymentProof ? (
                           <img
                             src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${sub.paymentProof}`}
@@ -324,22 +301,10 @@ const PendingSubscriptions = () => {
                         )}
                       </td>
                       <td>
-                        <div className="btn-group">
-                          <button 
-                            className="btn btn-sm btn-outline-success"
-                            onClick={() => handleApprove(sub.id)}
-                          >
-                            <i className="fas fa-check me-1"></i>
-                            Approve
-                          </button>
-                          <button 
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleReject(sub.id)}
-                          >
-                            <i className="fas fa-times me-1"></i>
-                            Reject
-                          </button>
-                        </div>
+                        <span className="badge bg-danger">
+                          <i className="fas fa-times me-1"></i>
+                          Rejected
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -398,4 +363,4 @@ const PendingSubscriptions = () => {
   );
 };
 
-export default PendingSubscriptions;
+export default RejectedSubscriptions; 

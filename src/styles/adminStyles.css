@@ -132,6 +132,7 @@
 .admin-page .form-label {
   font-weight: 500;
   color: var(--text-color);
+  text-align: left !important;
 }
 
 /* ==== الجداول ==== */

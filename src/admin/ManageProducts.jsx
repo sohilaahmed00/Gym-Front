@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 
-// تعريف متغيرات API
+// API configuration
 const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
+const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // Main image path
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
   DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
-  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProdcut${id}`,
+  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProduct/${id}`,
   ADD_PRODUCT: `${API_BASE_URL}/Products/AddNewProduct`
 };
 
-// قالب منتج جديد فارغ
+// Empty new product template
 const EMPTY_PRODUCT = {
   product_ID: 0,
   product_Name: "",
@@ -26,6 +26,7 @@ const EMPTY_PRODUCT = {
 export default function ManageProducts() {
   // Products state
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
@@ -35,6 +36,14 @@ export default function ManageProducts() {
   const [newProduct, setNewProduct] = useState({ ...EMPTY_PRODUCT });
   const [newProductImage, setNewProductImage] = useState(null);
   const [editProductImage, setEditProductImage] = useState(null);
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    category: '',
+    priceRange: '',
+    stockStatus: '',
+    searchTerm: ''
+  });
   
   // Alert State
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
@@ -52,7 +61,7 @@ export default function ManageProducts() {
     }, 3000);
   };
 
-  // عرض الصورة في النافذة المنبثقة
+  // Show image in modal
   const handleShowImage = (productId, productName) => {
     if (!productId) return;
     
@@ -84,6 +93,7 @@ export default function ManageProducts() {
       const data = await response.json();
       console.log('Products data received:', data);
       setProducts(data);
+      setFilteredProducts(data);
       setLoading(false);
     } catch (err) {
       setError(err.message);
@@ -94,6 +104,75 @@ export default function ManageProducts() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Filter effect
+  useEffect(() => {
+    let result = [...products];
+
+    // Apply category filter
+    if (filters.category) {
+      result = result.filter(product => {
+        const productName = product.product_Name?.toLowerCase() || '';
+        if (filters.category === 'supplements') {
+          return productName.includes('protein') || productName.includes('creatine') || 
+                 productName.includes('supplement') || productName.includes('whey') ||
+                 productName.includes('bcaa') || productName.includes('vitamin');
+        } else if (filters.category === 'equipment') {
+          return productName.includes('equipment') || productName.includes('weights') || 
+                 productName.includes('dumbbell') || productName.includes('barbell') ||
+                 productName.includes('machine') || productName.includes('bench');
+        }
+        return true;
+      });
+    }
+
+    // Apply price filter
+    if (filters.priceRange) {
+      result = result.filter(product => {
+        const price = product.price || 0;
+        switch (filters.priceRange) {
+          case 'low':
+            return price < 300;
+          case 'medium':
+            return price >= 300 && price <= 500;
+          case 'high':
+            return price > 500;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply stock filter
+    if (filters.stockStatus) {
+      result = result.filter(product => {
+        if (filters.stockStatus === 'in-stock') {
+          return product.stock_Quantity > 0;
+        } else if (filters.stockStatus === 'out-stock') {
+          return product.stock_Quantity === 0;
+        }
+        return true;
+      });
+    }
+
+    // Apply search filter
+    if (filters.searchTerm) {
+      result = result.filter(product =>
+        product.product_Name?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredProducts(result);
+  }, [products, filters]);
+
+  // Handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
 
   // Delete product function
   const handleDeleteProduct = async (productId) => {
@@ -147,7 +226,7 @@ export default function ManageProducts() {
     } else {
       setNewProduct({
         ...newProduct,
-        [name]: value
+        [name]: value || ""
       });
     }
   };
@@ -157,19 +236,54 @@ export default function ManageProducts() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
+      
+      // Console log data before sending
+      console.log('Product data to submit:', newProduct);
+      console.log('Selected image:', newProductImage);
+      
       const formData = new FormData();
+      
+      // Map the field names to match API expectations
+      const fieldMapping = {
+        'product_Name': 'Product_Name',
+        'description': 'Description',
+        'price': 'Price',
+        'discount': 'Discount',
+        'stock_Quantity': 'Stock_Quantity'
+      };
+      
       Object.entries(newProduct).forEach(([key, value]) => {
-        formData.append(key, value);
+        // Skip product_ID and image_URL as they're not needed for new products
+        if (key === 'product_ID' || key === 'image_URL') return;
+        
+        const apiFieldName = fieldMapping[key] || key;
+        console.log(`Adding to FormData: ${apiFieldName} = ${value}`);
+        formData.append(apiFieldName, value);
       });
+      
       if (newProductImage) {
-        formData.append('image', newProductImage);
+        console.log('Adding image to FormData:', newProductImage.name);
+        formData.append('ProductImage', newProductImage);
       }
+      
+      // Print all FormData entries
+      console.log('FormData entries:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+      
       const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
         method: 'POST',
         body: formData
       });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
       if (!response.ok) {
-        throw new Error('Failed to add product');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to add product: ${response.status} - ${errorText}`);
       }
       await fetchProducts();
       setIsAddingProduct(false);
@@ -219,19 +333,91 @@ export default function ManageProducts() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const formData = new FormData();
-      Object.entries(editingProduct).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-      if (editProductImage) {
-        formData.append('image', editProductImage);
+      
+      console.log('Editing product data:', editingProduct);
+      
+              // If no new image selected, try different approach
+      if (!editProductImage) {
+        console.log('Trying update without image using JSON...');
+        const updateData = {
+          Product_ID: editingProduct.product_ID,
+          Product_Name: editingProduct.product_Name,
+          Description: editingProduct.description,
+          Price: editingProduct.price,
+          Discount: editingProduct.discount,
+          Stock_Quantity: editingProduct.stock_Quantity,
+          Image_URL: editingProduct.image_URL
+        };
+        
+        const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData)
+        });
+        
+        console.log('JSON Update response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('JSON Update error response:', errorText);
+          throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
+        }
+        
+        await fetchProducts();
+        setEditingProduct(null);
+        showAlert('Product updated successfully', 'success');
+        return;
       }
-      const response = await fetch(API_ENDPOINTS.UPDATE_PRODUCT(editingProduct.product_ID), {
+      
+      const formData = new FormData();
+      
+      // Map the field names to match API expectations
+      const fieldMapping = {
+        'product_Name': 'Product_Name',
+        'description': 'Description',
+        'price': 'Price',
+        'discount': 'Discount',
+        'stock_Quantity': 'Stock_Quantity',
+        'product_ID': 'Product_ID',
+        'image_URL': 'Image_URL'
+      };
+      
+      Object.entries(editingProduct).forEach(([key, value]) => {
+        // Include all fields now, image_URL will be handled properly
+        const apiFieldName = fieldMapping[key] || key;
+        console.log(`Adding to FormData for edit: ${apiFieldName} = ${value}`);
+        formData.append(apiFieldName, value);
+      });
+      
+      // Make sure Product_ID is included for updates
+      if (!formData.has('Product_ID')) {
+        formData.append('Product_ID', editingProduct.product_ID);
+        console.log('Added Product_ID for update:', editingProduct.product_ID);
+      }
+      
+      if (editProductImage) {
+        console.log('Adding edit image to FormData:', editProductImage.name);
+        formData.append('ProductImage', editProductImage);
+      } else {
+        console.log('No new image selected, creating empty file');
+        // Create empty file to bypass ProductImage requirement
+        const emptyFile = new File([''], 'existing-image.jpg', { type: 'image/jpeg' });
+        formData.append('ProductImage', emptyFile);
+      }
+      
+      const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
         method: 'POST',
         body: formData
       });
+      
+      console.log('Update response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to update product');
+        const errorText = await response.text();
+        console.error('Update error response:', errorText);
+        throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
       }
       await fetchProducts();
       setEditingProduct(null);
@@ -265,7 +451,7 @@ export default function ManageProducts() {
             type="button" 
             className="btn-close" 
             onClick={() => setAlert({ ...alert, show: false })}
-            aria-label="إغلاق"
+            aria-label="Close"
           ></button>
         </div>
       )}
@@ -275,7 +461,7 @@ export default function ManageProducts() {
         <div className="card border-0 shadow-sm mb-4">
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">Add New Product</h4>
+              <h4 className="fw-bold mb-0 text-start">Add New Product</h4>
               <button className="btn btn-outline-secondary" onClick={handleCancelAddProduct}>
                 <i className="fas fa-times me-2"></i>
                 Cancel
@@ -290,7 +476,7 @@ export default function ManageProducts() {
                     type="text" 
                     className="form-control" 
                     name="product_Name" 
-                    value={newProduct.product_Name} 
+                    value={newProduct.product_Name || ""} 
                     onChange={handleAddProductInputChange}
                     required 
                   />
@@ -301,7 +487,7 @@ export default function ManageProducts() {
                     type="number" 
                     className="form-control" 
                     name="price" 
-                    value={newProduct.price} 
+                    value={newProduct.price || 0} 
                     onChange={handleAddProductInputChange}
                     min="0" 
                     required 
@@ -328,7 +514,7 @@ export default function ManageProducts() {
                     type="number" 
                     className="form-control" 
                     name="stock_Quantity" 
-                    value={newProduct.stock_Quantity} 
+                    value={newProduct.stock_Quantity || 0} 
                     onChange={handleAddProductInputChange}
                     min="0" 
                     required 
@@ -345,7 +531,7 @@ export default function ManageProducts() {
                   onChange={e => setNewProductImage(e.target.files[0])}
                   required
                 />
-                <small className="text-muted">اختر صورة المنتج</small>
+                <small className="text-muted">Choose product image</small>
               </div>
               
               <div className="mb-3">
@@ -353,7 +539,7 @@ export default function ManageProducts() {
                 <textarea 
                   className="form-control" 
                   name="description" 
-                  value={newProduct.description} 
+                  value={newProduct.description || ""} 
                   onChange={handleAddProductInputChange}
                   rows="3"
                 ></textarea>
@@ -381,7 +567,7 @@ export default function ManageProducts() {
         <div className="card border-0 shadow-sm mb-4">
           <div className="card-body p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h4 className="fw-bold mb-0">Edit Product</h4>
+              <h4 className="fw-bold mb-0 text-start">Edit Product</h4>
               <button className="btn btn-outline-secondary" onClick={handleCancelEdit}>
                 <i className="fas fa-times me-2"></i>
                 Cancel
@@ -450,7 +636,7 @@ export default function ManageProducts() {
                   accept="image/*"
                   onChange={e => setEditProductImage(e.target.files[0])}
                 />
-                <small className="text-muted">اختر صورة جديدة إذا أردت تغيير الصورة الحالية</small>
+                <small className="text-muted">Choose new image if you want to change the current image</small>
               </div>
               
               <div className="mb-3">
@@ -500,14 +686,22 @@ export default function ManageProducts() {
             {/* Filters Section */}
             <div className="row g-3 mb-4">
               <div className="col-md-3">
-                <select className="form-select">
+                <select 
+                  className="form-select"
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                >
                   <option value="">All Categories</option>
                   <option value="supplements">Supplements</option>
                   <option value="equipment">Equipment</option>
                 </select>
               </div>
               <div className="col-md-3">
-                <select className="form-select">
+                <select 
+                  className="form-select"
+                  value={filters.priceRange}
+                  onChange={(e) => handleFilterChange('priceRange', e.target.value)}
+                >
                   <option value="">By Price</option>
                   <option value="low">Less than 300 EGP</option>
                   <option value="medium">300 - 500 EGP</option>
@@ -515,20 +709,44 @@ export default function ManageProducts() {
                 </select>
               </div>
               <div className="col-md-3">
-                <select className="form-select">
+                <select 
+                  className="form-select"
+                  value={filters.stockStatus}
+                  onChange={(e) => handleFilterChange('stockStatus', e.target.value)}
+                >
                   <option value="">By Stock</option>
                   <option value="in-stock">Available</option>
                   <option value="out-stock">Out of Stock</option>
                 </select>
               </div>
               <div className="col-md-3">
-                <input type="text" className="form-control" placeholder="Search products..." />
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="Search products..."
+                  value={filters.searchTerm}
+                  onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+                />
               </div>
             </div>
 
+            {/* Results Summary */}
+            <div className="mb-3">
+              <small className="text-muted">
+                Showing {filteredProducts.length} of {products.length} products
+              </small>
+            </div>
+
             {/* Table Section */}
-            <div className="table-responsive">
-              <table className="table align-middle mb-0">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center p-5">
+                <i className="fas fa-search fs-1 text-muted mb-3"></i>
+                <h5 className="text-muted">No products found</h5>
+                <p className="text-muted">Try adjusting your filters or search terms</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table align-middle mb-0">
                 <thead className="bg-light">
                   <tr>
                     <th className="border-0 text-start">Product</th>
@@ -540,7 +758,7 @@ export default function ManageProducts() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
+                  {filteredProducts.map((product) => (
                     <tr key={product.product_ID} className="product-row">
                       <td className="text-start">
                         <div style={{
@@ -661,6 +879,7 @@ export default function ManageProducts() {
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         </div>
       )}
@@ -713,6 +932,9 @@ export default function ManageProducts() {
         .form-select:focus, .form-control:focus {
           border-color: #0d6efd;
           box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        .form-label {
+          text-align: left !important;
         }
         .alert {
           border-radius: 8px;

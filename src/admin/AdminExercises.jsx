@@ -466,13 +466,13 @@ const AdminExercises = () => {
                           <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exercise.description}</span>
                         </td>
                         <td>
-                          <span className="badge bg-light text-dark">{exercise.target_Muscle || "Not specified"}</span>
+                          <span className="badge bg-light text-dark" style={{ minWidth: '100px', textAlign: 'center' }}>{exercise.target_Muscle || "Not specified"}</span>
                         </td>
                         <td>
-                          <span className={`badge bg-${getDifficultyBadge(exercise.difficulty_Level)}`}>{exercise.difficulty_Level}</span>
+                          <span className="badge bg-success">{exercise.difficulty_Level}</span>
                         </td>
-                        <td><span className="badge bg-info">{exercise.duration} min</span></td>
-                        <td><span className="badge bg-warning">{exercise.calories_Burned} cal</span></td>
+                        <td><span className="badge bg-warning">{exercise.duration} min</span></td>
+                        <td><span className="badge bg-success">{exercise.calories_Burned} cal</span></td>
                         <td>
                           <div className="btn-group">
                             <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditClick(exercise)}>

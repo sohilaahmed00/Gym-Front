@@ -227,10 +227,8 @@ console.log(users);
                       </span>
                     </td>
                     <td>
-                      <span className={`badge user-type-badge ${
-                        user?.userType === 0 ? 'bg-danger' : 'bg-info'
-                      }`}>
-                        {user?.userType === 0 ? 'Admin' : 'User'}
+                      <span className="badge user-type-badge bg-info">
+                        User
                       </span>
                     </td>
                     <td>{user?.email}</td>
