@@ -30,6 +30,7 @@ import CoachSettings from '../../coach/pages/CoachSetting';
 import Payment from '../Payment/Payment';
 import PricingPlans from '../Home/PricingPlans/PricingPlans';
 import ExerciseDetails from '../ExerciseDetails/ExerciseDetails';
+import PaymentPage from '../PaymentPage/PaymentPage';
 
 // Admin
 import Admin from '../../admin/Admin';
@@ -102,7 +103,7 @@ const routes = createBrowserRouter([
       { path: "/enter-otp" , element: <EnterOtp />},
       { path: "/reset-password" , element: <ResetPassword />},
       { path: 'login', element: <Login />},
-      { path: 'payment', element: <Payment />},
+      { path: 'payment', element: <PaymentPage />},
 
       {
         path: 'admin',

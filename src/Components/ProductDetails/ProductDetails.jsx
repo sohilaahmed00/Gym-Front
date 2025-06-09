@@ -69,7 +69,7 @@ const ProductDetails = () => {
         {/* التفاصيل */}
         <div className="col-md-6 text-start">
           <h4>{product.product_Name}</h4>
-          <h3 className="text-danger mb-3">${product.price?.toFixed(2)}</h3>
+          <h3 className="text-danger mb-3">EGP {product.price?.toFixed(2)}</h3>
           <p className="text-muted">{product.description}</p>
 
           {/* الكمية + الزر */}

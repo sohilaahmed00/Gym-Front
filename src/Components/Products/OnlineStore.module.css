@@ -1,15 +1,15 @@
 .card {
     border-radius: 10px;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
   
   .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   }
   
   .card-img-top {
-    height: 200px;
     object-fit: contain;
     border-radius: 10px;
   }
@@ -22,11 +22,13 @@
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
+    text-align: left;
   }
   
   .text-muted {
     color: #777;
     font-size: 14px;
+    text-align: left;
   }
   
   .text-danger {
@@ -35,6 +37,7 @@
   
   .priceSection {
     margin-bottom: 10px;
+    text-align: left;
   }
   
   .discountedPrice {
@@ -51,6 +54,7 @@
   
   .stockInfo {
     margin-bottom: 15px;
+    text-align: center;
   }
   
   .stockBadge {
@@ -96,7 +100,7 @@
   }
   
   .addToCartBtn:disabled {
-    background-color: #ddd;
+    background-color: #e4dcdc;
     cursor: not-allowed;
   }
   
@@ -136,6 +140,6 @@
   .disabledBtn {
     background-color: #ddd;
     cursor: not-allowed;
-    color: #555; /* Make text color darker for better visibility */
+    color: #555;
   }
   

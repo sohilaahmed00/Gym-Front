@@ -5,9 +5,9 @@ import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 const planPrices = {
-  '3_Months': 300,
-  '6_Months': 600,
-  '1_Year': 900,
+  '3_Months': 600,
+  '6_Months': 1200,
+  '1_Year': 1800,
 };
 
 const planNames = {
