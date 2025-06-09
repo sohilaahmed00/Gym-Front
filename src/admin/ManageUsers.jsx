@@ -114,11 +114,8 @@ export default function ManageUsers() {
   // تحديث قائمة المستخدمين عند تغيير الفلاتر
   const filteredUsers = users.filter(user => {
     const matchesGender = !genderFilter || user.gender === genderFilter;
-    const matchesUserType = !userTypeFilter ||
-      (userTypeFilter === 'admin' && user.userType === 0) ||
-      (userTypeFilter === 'user' && user.userType !== 0);
     const matchesSearch = !searchTerm || (user.fullName && user.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesGender && matchesUserType && matchesSearch;
+    return matchesGender && matchesSearch;
   });
 
   if (loading) return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"></div></div>;
@@ -156,13 +153,6 @@ console.log(users);
           
           {/* Filters Section */}
           <div className="row g-3 mb-4">
-            <div className="col-md-3">
-              <select className="form-select" value={userTypeFilter} onChange={e => setUserTypeFilter(e.target.value)}>
-                <option value="">All Users</option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-              </select>
-            </div>
             <div className="col-md-3">
               <select className="form-select" value={genderFilter} onChange={e => setGenderFilter(e.target.value)}>
                 <option value="">Gender</option>

@@ -10,6 +10,9 @@ import ManageSubscriptions from './ManageSubscriptions'
 import PendingSubscriptions from './PendingSubscriptions'
 import PendingCoaches from './PendingCoaches'
 import ExerciseCategories from './ExerciseCategories'
+import AdminChart from './AdminChart'
+import Statistics from './Statistics'
+// import UserTypePieChart from './UserTypePieChart'
 
 function Admin() {
   const navigate = useNavigate();
@@ -44,6 +47,10 @@ function Admin() {
   ]);
   const [recentCoaches, setRecentCoaches] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [newSubscriptions, setNewSubscriptions] = useState(0);
+  const [newUsers, setNewUsers] = useState(0);
+  const [mostPopularPlan, setMostPopularPlan] = useState('');
 
   useEffect(() => {
     const stored = localStorage.getItem('recentActivities');
@@ -81,11 +88,10 @@ function Admin() {
   useEffect(() => {
     async function fetchPendingCounts() {
       try {
-        // جلب المدربين المعلقين
-        const coachesRes = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        // جلب المدربين المعلقين من API الكوتشات المعلقة مباشرة
+        const coachesRes = await fetch('http://gymmatehealth.runasp.net/api/Coaches/AllUnapprovedCoaches');
         const coaches = await coachesRes.json();
-        // عدل حسب اسم الحقل والقيمة الفعلية للحالة المعلقة
-        const pendingCoaches = coaches.filter(coach => coach.status === 'pending' || coach.status === 0);
+        setPendingCoachesCount(coaches.length);
 
         // جلب الاشتراكات المعلقة
         const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
@@ -93,7 +99,6 @@ function Admin() {
         // عدل حسب اسم الحقل والقيمة الفعلية للحالة المعلقة
         const pendingSubs = subs.filter(sub => sub.status === 'pending' || sub.status === 0);
 
-        setPendingCoachesCount(pendingCoaches.length);
         setPendingSubscriptionsCount(pendingSubs.length);
       } catch {
         setPendingCoachesCount(0);
@@ -129,6 +134,94 @@ function Admin() {
       }
     };
     fetchStats();
+  }, []);
+
+  // Helper function to get amount based on plan type
+  const getAmountForPlan = (planType) => {
+    switch(planType) {
+      case '3_Months':
+        return 600.00;
+      case '6_Months':
+        return 1200.00;
+      case '12_Months':
+      case '1_Year':
+      case '1 Year':
+        return 1800.00;
+      default:
+        return 0.00;
+    }
+  };
+
+  useEffect(() => {
+    async function fetchRevenueAndStats() {
+      try {
+        // Get all subscriptions
+        const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const subs = await subsRes.json();
+        let revenue = 0;
+        let newSubs = 0;
+        let planCounts = {};
+        if (Array.isArray(subs)) {
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+          subs.forEach(sub => {
+            // احسب المبلغ بناءً على نوع الخطة
+            revenue += getAmountForPlan(sub.subscriptionType);
+            // احسب الاشتراكات الجديدة هذا الشهر
+            if (sub.startDate) {
+              const date = new Date(sub.startDate);
+              if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                newSubs++;
+              }
+            }
+            // عد الخطط
+            if (sub.subscriptionType) {
+              planCounts[sub.subscriptionType] = (planCounts[sub.subscriptionType] || 0) + 1;
+            }
+          });
+        }
+        // استخراج أكثر خطة مستخدمة
+        let maxPlan = '';
+        let maxCount = 0;
+        for (const plan in planCounts) {
+          if (planCounts[plan] > maxCount) {
+            maxPlan = plan;
+            maxCount = planCounts[plan];
+          }
+        }
+        // ترجمة اسم الخطة
+        const planLabels = {
+          '3_Months': '3 Months',
+          '6_Months': '6 Months',
+          '12_Months': '1 Year',
+          '1_Year': '1 Year',
+          '1 Year': '1 Year'
+        };
+        setMostPopularPlan(planLabels[maxPlan] || maxPlan || 'N/A');
+        setTotalRevenue(revenue);
+        setNewSubscriptions(newSubs);
+        // Get all users for new users this month
+        const usersRes = await fetch('http://gymmatehealth.runasp.net/api/Users/GetAllUsers');
+        const users = await usersRes.json();
+        let newUsersCount = 0;
+        if (Array.isArray(users)) {
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+          users.forEach(user => {
+            if (user.createdAt) {
+              const date = new Date(user.createdAt);
+              if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+                newUsersCount++;
+              }
+            }
+          });
+        }
+        setNewUsers(newUsersCount);
+      } catch {}
+    }
+    fetchRevenueAndStats();
   }, []);
 
   return (
@@ -211,6 +304,17 @@ function Admin() {
             </div>
           </div>
         </div>
+
+        {/* Chart Section */}
+        <div className="row mb-4">
+          <div className="col-lg-6 col-md-8 col-12 ms-auto">
+            <AdminChart />
+          </div>
+          <div className="col-lg-6 col-md-4 col-12 me-auto">
+            <Statistics />
+          </div>
+        </div>
+
         {/* Activities and chart row */}
         <div className="row g-3 mb-4">
           <div className="col-lg-6">
@@ -267,7 +371,6 @@ function Admin() {
           </div>
         </div>
       </div>
-      {/* Simple CSS */}
       <style>{`
         .hover-bg-light:hover { background: #f1f3f6; }
       `}</style>
@@ -277,4 +380,4 @@ function Admin() {
   )
 }
 
-export default Admin
+export default Admin;

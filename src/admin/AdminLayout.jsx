@@ -21,7 +21,7 @@ export default function AdminLayout() {
     // جلب عدد الاشتراكات المعلقة
     const fetchPendingSubscriptions = async () => {
       try {
-        const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/pending');
+        const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/GetAllpendingsubscriptions');
         setPendingSubscriptionsCount(Array.isArray(response.data) ? response.data.length : 0);
       } catch {
         setPendingSubscriptionsCount(0);

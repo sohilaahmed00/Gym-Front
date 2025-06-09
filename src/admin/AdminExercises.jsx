@@ -249,7 +249,7 @@ const AdminExercises = () => {
       (ex.description && ex.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (ex.target_Muscle && ex.target_Muscle.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesDifficulty = !difficultyFilter || ex.difficulty_Level === difficultyFilter;
+    const matchesDifficulty = !difficultyFilter || ex.difficulty_Level === parseInt(difficultyFilter);
     const matchesCategory = !categoryFilter || ex.category_ID === parseInt(categoryFilter);
     
     return matchesSearch && matchesDifficulty && matchesCategory;
@@ -429,7 +429,7 @@ const AdminExercises = () => {
                     <tr>
                       <th className="border-0 text-start">Exercise</th>
                       <th className="border-0">Category</th>
-                      <th className="border-0">Description</th>
+                      <th className="border-0" style={{minWidth: '120px', maxWidth: '160px'}}>Description</th>
                       <th className="border-0">Target Muscle</th>
                       <th className="border-0">Level</th>
                       <th className="border-0">Duration</th>
@@ -463,13 +463,13 @@ const AdminExercises = () => {
                           <span className="badge bg-secondary">{getCategoryName(exercise.category_ID)}</span>
                         </td>
                         <td>
-                          <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '200px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exercise.description}</span>
+                          <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '140px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exercise.description}</span>
                         </td>
                         <td>
                           <span className="badge bg-light text-dark" style={{ minWidth: '100px', textAlign: 'center' }}>{exercise.target_Muscle || "Not specified"}</span>
                         </td>
                         <td>
-                          <span className="badge bg-success">{exercise.difficulty_Level}</span>
+                          <span className="badge bg-success">{DIFFICULTY_LEVELS.find(l => l.value === exercise.difficulty_Level)?.label}</span>
                         </td>
                         <td><span className="badge bg-warning">{exercise.duration} min</span></td>
                         <td><span className="badge bg-success">{exercise.calories_Burned} cal</span></td>

@@ -45,10 +45,7 @@ import PendingCoaches from '../../admin/PendingCoaches';
 import ManageSubscriptions from '../../admin/ManageSubscriptions';
 import ExerciseCategories from '../../admin/ExerciseCategories';
 import AdminExercises from '../../admin/AdminExercises';
-
-
-
-
+import ManageOrders from '../../admin/ManageOrders';
 
 import Login from '../Auth/login/Login';
 import ConfirmMail from '../Auth/confirm-mail/ConfirmMail';
@@ -57,7 +54,6 @@ import Register from '../Auth/Register/Register';
 import ForgotPassword from '../Auth/forget-password/ForgetPassword';
 import EnterOtp from '../Auth/NewPassword-OTP/OTP-Page';
 import ResetPassword from '../Auth/reset-password/ResetPassword';
-
 
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import UserSettings from '../../UserProfile/pages/UserSettings';
@@ -68,7 +64,6 @@ import ChatBot from '../../UserProfile/pages/ChatBot';
 
 // import AdminExercises from '../../admin/AdminExercises';
 import IntroTour from '../IntroJs/IntroTour';
-
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -114,6 +109,7 @@ const routes = createBrowserRouter([
           { path: 'clients', element: <ManageUsers /> },
           { path: 'products', element:<ManageProducts /> },
           { path: 'subscriptions', element: <ManageSubscriptions /> },
+          { path: 'manage-orders', element: <ManageOrders /> },
           { path: 'orders', element: <Placeholder title="Orders" /> },
           { path: 'reports', element: <Placeholder title="Reports" /> },
           { path: 'exercise-categories', element: <ExerciseCategories /> },

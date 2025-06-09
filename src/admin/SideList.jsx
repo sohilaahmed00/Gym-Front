@@ -12,6 +12,7 @@ const sidebarItems = [
   { icon: 'fas fa-user-clock', label: 'Pending Coaches', path: '/admin/pending-coaches' },
   { icon: 'fas fa-dumbbell', label: 'Exercise Categories', path: '/admin/exercise-categories' },
   { icon: 'fas fa-running', label: 'Manage Exercises', path: '/admin/exercises' },
+  { icon: 'fas fa-box', label: 'Manage Product Orders', path: '/admin/manage-orders' },
   // { icon: 'fas fa-cog', label: 'Settings', path: '/admin/settings' },
 ];
 
@@ -43,6 +44,28 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
         <span className="fw-bold fs-3" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}> Admin Panel </span>
       </div>
       <nav className="nav flex-column p-2" style={{ width: '100%' }}>
+        <style>{`
+          .nav-link {
+            position: relative;
+            overflow: visible;
+          }
+          .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 6px;
+            height: 2px;
+            background: linear-gradient(to right, #ff6600, #ff3300);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+            border-radius: 2px;
+          }
+          .nav-link:hover:not(.active)::after {
+            transform: scaleX(1);
+          }
+        `}</style>
         {sidebarItems.map((item, idx) => {
           if (item.label === 'Settings') {
             return (

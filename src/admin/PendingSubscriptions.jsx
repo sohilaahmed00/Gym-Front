@@ -53,7 +53,7 @@ const PendingSubscriptions = () => {
   const fetchPendingSubscriptions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/pending');
+      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/GetAllpendingsubscriptions');
       const subscriptions = response.data.map(subscription => ({
         ...subscription,
         id: subscription.subscribe_ID,
@@ -90,6 +90,8 @@ const PendingSubscriptions = () => {
       case '6_Months':
         return 1200.00;
       case '12_Months':
+      case '1_Year':
+      case '1 Year':
         return 1800.00;
       default:
         return 0.00;
