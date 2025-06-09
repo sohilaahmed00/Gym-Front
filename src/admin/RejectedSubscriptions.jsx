@@ -54,7 +54,7 @@ const RejectedSubscriptions = () => {
     setLoading(true);
     try {
       // TODO: استبدال هذا الـ endpoint بالـ API الصحيح للاشتراكات المرفوضة
-      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/rejected');
+      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/GetAllrejectedsubscriptions');
       const subscriptions = response.data.map(subscription => ({
         ...subscription,
         id: subscription.subscribe_ID,
@@ -135,6 +135,16 @@ const RejectedSubscriptions = () => {
   };
 
   const handleClose = () => setShowModal(false);
+
+  const handleApprove = async (id) => {
+    try {
+      await axios.put(`http://gymmatehealth.runasp.net/api/Subscribes/approve/${id}`);
+      fetchRejectedSubscriptions();
+      setAlert({ show: true, type: 'success', message: 'Subscription approved successfully' });
+    } catch (error) {
+      setAlert({ show: true, type: 'danger', message: 'Error approving subscription' });
+    }
+  };
 
   const availablePlans = [...new Set(rejectedSubscriptions.map(sub => sub.plan))];
 
@@ -218,10 +228,10 @@ const RejectedSubscriptions = () => {
                     <th>Plan</th>
                     <th>Start Date</th>
                     <th>End Date</th>
-                    <th>Goal</th>
                     <th>Amount</th>
                     <th>Payment Proof</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -275,11 +285,6 @@ const RejectedSubscriptions = () => {
                       </td>
                       <td>{sub.requestDate}</td>
                       <td>{sub.endDate}</td>
-                      <td>
-                        <span className="badge bg-secondary">
-                          {sub.fitnessGoal}
-                        </span>
-                      </td>
                       <td>{sub.amount.toFixed(2)} EGP</td>
                       <td>
                         {sub.paymentProof ? (
@@ -305,6 +310,15 @@ const RejectedSubscriptions = () => {
                           <i className="fas fa-times me-1"></i>
                           Rejected
                         </span>
+                      </td>
+                      <td>
+                        <button 
+                          className="btn btn-sm btn-outline-success"
+                          onClick={() => handleApprove(sub.id)}
+                        >
+                          <i className="fas fa-check me-1"></i>
+                          Approve
+                        </button>
                       </td>
                     </tr>
                   ))}
