@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faCheck, faSpinner } from '@fortawesome/free-solid-svg-icons';  // Importing spinner icon for loading
+import { faEye, faCheck, faSpinner, faShoppingCart } from '@fortawesome/free-solid-svg-icons';  // Importing spinner icon for loading
 import { useCart } from '../CartContext/CartContext';
 import styles from './OnlineStore.module.css';
 
@@ -65,21 +65,23 @@ export default function OnlineStore() {
 
             return (
               <div className="col-md-4 col-sm-6" key={product.product_ID}>
-                <div className="card border-0 shadow-sm h-100">
-                  <div className="position-relative">
+                <div className="card border-0 shadow-sm h-100 position-relative overflow-hidden rounded-4">
+                  <div className="position-relative d-flex justify-content-center align-items-center bg-light rounded-top-4" style={{ height: '250px' }}>
                     <img
                       src={`http://gymmatehealth.runasp.net/Images/Products/${product.image_URL}`}
                       alt={product.product_Name}
-                      className="card-img-top img-fluid"
-                      style={{ height: '200px', objectFit: 'contain' }}
+                      className="img-fluid"
+                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
                     />
+                    {/* Sale Badge (Static for now) */}
+                    <span className="badge bg-info text-white position-absolute top-0 start-0 m-2 rounded-pill" style={{ fontSize: '0.8rem' }}>Sale</span>
                   </div>
-                  <div className={styles.cardBody}>
+                  <div className="p-3">
                     <h6 className="card-title fw-bold mb-2">{product.product_Name}</h6>
                     <p className="text-muted">{product.description}</p>
                     <div className={styles.priceSection}>
                       {product.discount > 0 && (
-                        <span className="text-decoration-line-through me-3 text-muted small">
+                        <span className="text-decoration-line-through me-2 text-muted small">
                           EGP {(product.price / (1 - product.discount)).toFixed(2)}
                         </span>
                       )}
@@ -93,34 +95,23 @@ export default function OnlineStore() {
                       </span>
                     </div>
                     <div className="mt-auto">
-                      <div className="d-flex gap-2">
-                        <button
-                          className={`${styles.addToCartBtn} ${isInCart(product.product_ID) && styles.disabledBtn}`}
-                          onClick={() => handleAddToCart(product)}
-                          disabled={isInCart(product.product_ID)}
-                        >
-                          {isInCart(product.product_ID) ? (
-                            <>
-                              <FontAwesomeIcon icon={faCheck} className="me-2" />
-                              Added
-                            </>
-                          ) : (
-                            "Add to cart"
-                          )}
-                        </button>
-                        {isInCart(product.product_ID) && (
-                          <Link
-                            to="/cart"
-                            className="btn text-white flex-fill"
-                            style={{
-                              backgroundColor: '#FF5722',
-                              borderColor: '#FF5722',
-                            }}
-                          >
-                            View cart
-                          </Link>
+                      <button
+                        className={`btn ${styles.addToCartBtn} ${isInCart(product.product_ID) ? styles.disabledBtn : ''} w-100`}
+                        onClick={() => handleAddToCart(product)}
+                        disabled={isInCart(product.product_ID)}
+                      >
+                        {isInCart(product.product_ID) ? (
+                          <>
+                            <FontAwesomeIcon icon={faCheck} className="me-2" />
+                            Added
+                          </>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon={faShoppingCart} className="me-2" />
+                            Add
+                          </>
                         )}
-                      </div>
+                      </button>
                       <Link to={`/product/${product.product_ID}`} className="btn btn-outline-orange mt-2 w-100">
                         <FontAwesomeIcon icon={faEye} className="me-2" />
                         Quick View

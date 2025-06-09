@@ -3,19 +3,58 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  // Load cart from localStorage on initial load
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('cart');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-  const [coupon, setCoupon] = useState(null); // ⬅️ أضفنا الكوبون هنا
+  const decodeJWT = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch {
+      return null;
+    }
+  };
 
-  // Save cart to localStorage whenever it changes
+  const getUserIdFromLocalStorage = () => {
+    return localStorage.getItem('id') || null;
+  };
+
+  // State to hold the current user's ID, which will trigger cart reloads
+  const [currentUserId, setCurrentUserId] = useState(getUserIdFromLocalStorage);
+
+  // This function will be called by Login/Logout components to update the user ID
+  const updateUserInCartContext = () => {
+    setCurrentUserId(getUserIdFromLocalStorage());
+  };
+
+  // Load cart from localStorage when currentUserId changes
+  const [cart, setCart] = useState(() => {
+    const userId = getUserIdFromLocalStorage();
+    return userId ? JSON.parse(localStorage.getItem(`cart-${userId}`) || '[]') : [];
+  });
+
+  const [coupon, setCoupon] = useState(null);
+
+  // Effect to load cart when currentUserId changes (on login/logout)
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
+    if (currentUserId) {
+      const savedCart = localStorage.getItem(`cart-${currentUserId}`);
+      setCart(savedCart ? JSON.parse(savedCart) : []);
+    } else {
+      setCart([]); // Clear cart if no user is logged in
+    }
+  }, [currentUserId]);
+
+  // Effect to save cart to localStorage whenever cart or currentUserId changes
+  useEffect(() => {
+    if (currentUserId) {
+      localStorage.setItem(`cart-${currentUserId}`, JSON.stringify(cart));
+    }
+  }, [cart, currentUserId]);
 
   const addToCart = (product) => {
+    if (!currentUserId) {
+      alert('Please login to add items to cart');
+      return;
+    }
+
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.product_ID);
       if (existingItem) {
@@ -33,8 +72,8 @@ export const CartProvider = ({ children }) => {
           quantity: product.quantity,
         };
         if (isNaN(newItem.price) || newItem.quantity <= 0) {
-             console.error("Attempted to add item with invalid price or quantity:", product);
-             return prevCart;
+          console.error("Attempted to add item with invalid price or quantity:", product);
+          return prevCart;
         }
         return [...prevCart, newItem];
       }
@@ -42,12 +81,17 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = () => {
+    if (!currentUserId) return;
+
     setCart([]);
-    setCoupon(null); // ⬅️ نمسح الكوبون كمان عند تفريغ السلة
-    localStorage.removeItem('cart'); // Clear cart from localStorage
+    setCoupon(null);
+    
+    localStorage.removeItem(`cart-${currentUserId}`); // Clear specific user's cart from localStorage
   };
 
   const updateQuantity = (productId, newQuantity) => {
+    if (!currentUserId) return;
+
     if (newQuantity < 1) {
       removeFromCart(productId);
       return;
@@ -60,6 +104,8 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
+    if (!currentUserId) return;
+
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
@@ -67,12 +113,13 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         cart,
-        coupon,         // ⬅️ نبعته هنا
-        setCoupon,      // ⬅️ وده كمان
+        coupon,
+        setCoupon,
         addToCart,
         updateQuantity,
         removeFromCart,
         clearCart,
+        updateUserInCartContext, // Expose this function for Login/Logout components
       }}
     >
       {children}

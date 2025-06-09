@@ -1,26 +1,110 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext/CartContext';
-import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa';
+// import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa'; // Removed these icons as we'll use Font Awesome
+
+const paymentMethods = {
+  '': 'Select a payment method',
+  'instapay': {
+    name: 'InstaPay',
+    details: 'Username: @yourinstapayusername \n Please include your full name in the transaction notes.',
+    iconClass: 'fas fa-money-bill-wave'
+  },
+  'vodafonecash': {
+    name: 'Vodafone Cash',
+    details: 'Phone Number: 01012345678 \n Transfer the exact amount and upload a screenshot of the transaction.',
+    iconClass: 'fas fa-mobile-alt'
+  },
+  'fawry': {
+    name: 'Fawry',
+    details: 'Fawry Code: 98765 \n Use this code at any Fawry machine or app. Upload the receipt image.',
+    iconClass: 'fas fa-barcode'
+  },
+  'banktransfer': {
+    name: 'Bank Transfer',
+    details: 'Bank Name: [Your Bank Name] \n Account Number: 1234567890 \n Account Name: [Your Name] \n Please include your full name as reference and upload the transfer confirmation.',
+    iconClass: 'fas fa-university'
+  },
+};
 
 export default function Checkout() {
   const { cart } = useCart();
-  const [couponCode, setCouponCode] = useState('');
-  const [selectedPayment, setSelectedPayment] = useState('cash');
+  const navigate = useNavigate(); // Add useNavigate hook
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(''); // New state for selected payment method
+  const [paymentProof, setPaymentProof] = useState(null); // New state for payment proof file
+  const [previewUrl, setPreviewUrl] = useState(null); // New state for image preview URL
+  const [firstName, setFirstName] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [apartment, setApartment] = useState('');
+  const [townCity, setTownCity] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const [firstNameError, setFirstNameError] = useState(false);
+  const [streetAddressError, setStreetAddressError] = useState(false);
+  const [townCityError, setTownCityError] = useState(false);
+  const [phoneNumberError, setPhoneNumberError] = useState(false);
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const handlePlaceOrder = () => {
-    alert('Order placed successfully!');
+  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+
+  const handleProceedToPayment = () => {
+    let hasError = false;
+
+    if (!firstName) {
+      setFirstNameError(true);
+      hasError = true;
+    }
+    if (!streetAddress) {
+      setStreetAddressError(true);
+      hasError = true;
+    }
+    if (!townCity) {
+      setTownCityError(true);
+      hasError = true;
+    }
+    if (!phoneNumber) {
+      setPhoneNumberError(true);
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+
+    // Pass cart and totals to the payment page
+    navigate('/payment', { state: { cart, subtotal, total } });
   };
 
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'SAVE10') {
-      alert('Coupon applied: 10% off');
-    } else {
-      alert('Invalid coupon code');
+  const handleChange = (e) => {
+    const { name, value, files, type, checked } = e.target;
+    if (name === 'paymentProof') {
+      const file = files[0];
+      setPaymentProof(file);
+      if (file) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+      } else {
+        setPreviewUrl(null);
+      }
+    } else if (name === 'paymentMethod') {
+      setSelectedPaymentMethod(value);
+    } else if (name === 'firstName') {
+      setFirstName(value);
+      setFirstNameError(false);
+    } else if (name === 'streetAddress') {
+      setStreetAddress(value);
+      setStreetAddressError(false);
+    } else if (name === 'apartment') {
+      setApartment(value);
+    } else if (name === 'townCity') {
+      setTownCity(value);
+      setTownCityError(false);
+    } else if (name === 'phoneNumber') {
+      setPhoneNumber(value);
+      setPhoneNumberError(false);
     }
   };
 
@@ -28,10 +112,7 @@ export default function Checkout() {
     <>
       <div className="container py-5">
         {/* Breadcrumb */}
-        <nav className="mb-4 small text-muted text-start">
-          <Link to="/" className="text-decoration-none text-orange">Account</Link> / My Account / Product / View Cart / <strong>CheckOut</strong>
-        </nav>
-
+        
         <div className="row">
           {/* Billing Details */}
           <div className="col-md-7 mb-4">
@@ -40,37 +121,28 @@ export default function Checkout() {
               <form className="text-start">
                 <div className="mb-3">
                   <label className="form-label fw-medium">First Name*</label>
-                  <input className="form-control" placeholder="Enter your first name" required />
+                  <input className={`form-control ${firstNameError ? 'is-invalid' : ''}`} placeholder="Enter your first name" required name="firstName" value={firstName} onChange={handleChange} />
+                  {firstNameError && <div className="text-danger small mt-1">Please enter your first name.</div>}
                 </div>
-                <div className="mb-3">
-                  <label className="form-label fw-medium">Company Name</label>
-                  <input className="form-control" placeholder="Optional" />
-                </div>
+                
                 <div className="mb-3">
                   <label className="form-label fw-medium">Street Address*</label>
-                  <input className="form-control" placeholder="e.g. 123 Main St" required />
+                  <input className={`form-control ${streetAddressError ? 'is-invalid' : ''}`} placeholder="e.g. 123 Main St" required name="streetAddress" value={streetAddress} onChange={handleChange} />
+                  {streetAddressError && <div className="text-danger small mt-1">Please enter your street address.</div>}
                 </div>
                 <div className="mb-3">
                   <label className="form-label fw-medium">Apartment, floor, etc.</label>
-                  <input className="form-control" placeholder="Optional" />
+                  <input className="form-control" placeholder="Optional" name="apartment" value={apartment} onChange={handleChange} />
                 </div>
                 <div className="mb-3">
                   <label className="form-label fw-medium">Town/City*</label>
-                  <input className="form-control" placeholder="Enter your city" required />
+                  <input className={`form-control ${townCityError ? 'is-invalid' : ''}`} placeholder="Enter your city" required name="townCity" value={townCity} onChange={handleChange} />
+                  {townCityError && <div className="text-danger small mt-1">Please enter your town/city.</div>}
                 </div>
                 <div className="mb-3">
                   <label className="form-label fw-medium">Phone Number*</label>
-                  <input className="form-control" placeholder="e.g. 01012345678" required />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label fw-medium">Email Address*</label>
-                  <input type="email" className="form-control" placeholder="you@example.com" required />
-                </div>
-                <div className="form-check mt-3">
-                  <input type="checkbox" className="form-check-input" id="saveInfo" />
-                  <label htmlFor="saveInfo" className="form-check-label small">
-                    Save this information for faster check-out next time
-                  </label>
+                  <input className={`form-control ${phoneNumberError ? 'is-invalid' : ''}`} placeholder="e.g. 01012345678" required name="phoneNumber" value={phoneNumber} onChange={handleChange} />
+                  {phoneNumberError && <div className="text-danger small mt-1">Please enter your phone number.</div>}
                 </div>
               </form>
             </div>
@@ -82,17 +154,17 @@ export default function Checkout() {
               {cart.map(item => (
                 <div key={item.id} className="d-flex justify-content-between align-items-center mb-3 text-start">
                   <div className="d-flex align-items-center">
-                    <img src={item.image} alt={item.name} width="40" height="40" className="me-2 rounded" />
+                    <img src={`${baseUrl}${item.image}`} alt={item.name} width="40" height="40" className="me-2 rounded" />
                     <span>{item.name}</span>
                   </div>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>EGP {(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
 
               <hr />
               <div className="d-flex justify-content-between mb-2">
                 <span>Subtotal:</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>EGP {subtotal.toFixed(2)}</span>
               </div>
               <div className="d-flex justify-content-between mb-2">
                 <span>Shipping:</span>
@@ -100,53 +172,12 @@ export default function Checkout() {
               </div>
               <div className="d-flex justify-content-between fw-bold mt-2 mb-3">
                 <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>EGP {total.toFixed(2)}</span>
               </div>
 
-              {/* Payment Method */}
-              <div className="mb-3 text-start">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    checked={selectedPayment === 'bank'}
-                    onChange={() => setSelectedPayment('bank')}
-                  />
-                  <label className="form-check-label">
-                    <FaUniversity className="me-2 text-orange" /> Bank Transfer
-                  </label>
-                </div>
-                <div className="form-check mt-2">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    checked={selectedPayment === 'cash'}
-                    onChange={() => setSelectedPayment('cash')}
-                  />
-                  <label className="form-check-label">
-                    <FaMoneyBillWave className="me-2 text-orange" /> Cash on Delivery
-                  </label>
-                </div>
-                <div className="mt-3 small">
-                  <img src="/images/payments.png" alt="Payments" width="100" />
-                </div>
-              </div>
-
-              {/* Coupon */}
-              <div className="input-group mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Coupon Code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button className="btn btn-warning text-white" onClick={applyCoupon}>Apply Coupon</button>
-              </div>
-
-              {/* Place Order */}
-              <button className="btn btn-warning text-white w-100" onClick={handlePlaceOrder}>
-                Place Order
+              {/* Proceed to Payment Button */}
+              <button className="btn btn-warning text-white w-100" onClick={handleProceedToPayment}>
+                Proceed to Payment
               </button>
             </div>
           </div>

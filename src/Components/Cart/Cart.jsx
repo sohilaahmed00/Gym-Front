@@ -8,8 +8,6 @@ import styles from './Cart.module.css';
 export default function Cart() {
   const orangeColor = '#FF5722';
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
-  const [couponCode, setCouponCode] = useState('');
-  const [discount, setDiscount] = useState(0);
   const [localQuantities, setLocalQuantities] = useState({});
 
   const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
@@ -75,28 +73,10 @@ export default function Cart() {
   }, 0);
 
   const shipping = 0;
-  const discountAmount = discount > 0 ? (discount / 100) * subtotal : 0;
-  const total = subtotal - discountAmount + shipping;
-
-  const applyCoupon = () => {
-    if (couponCode.trim().toUpperCase() === 'SAVE10') {
-      setDiscount(10);
-      alert('Coupon applied! You got 10% off.');
-    } else {
-      alert('Invalid coupon code.');
-      setDiscount(0);
-    }
-  };
+  const total = subtotal + shipping;
 
   return (
     <div className="container py-5">
-      <nav aria-label="breadcrumb">
-        <ol className="breadcrumb">
-          <li className="breadcrumb-item"><Link to="/">Home</Link></li>
-          <li className="breadcrumb-item active" aria-current="page">Cart</li>
-        </ol>
-      </nav>
-
       {cart.length === 0 ? (
         <p className="text-center">Your cart is empty.</p>
       ) : (
@@ -189,23 +169,7 @@ export default function Cart() {
 
           <div className="row">
             <div className="col-md-6 mb-4">
-              <div className="input-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Coupon Code"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="btn text-white"
-                  style={{ backgroundColor: orangeColor, borderColor: orangeColor }}
-                  onClick={applyCoupon}
-                >
-                  Apply Coupon
-                </button>
-              </div>
+              {/* This column is empty after removing coupon */}
             </div>
 
             <div className="col-md-6">
@@ -215,12 +179,6 @@ export default function Cart() {
                   <span>Subtotal:</span>
                   <span>EGP {subtotal.toFixed(2)}</span>
                 </div>
-                {discountAmount > 0 && (
-                  <div className="d-flex justify-content-between mb-2 text-success">
-                    <span>Discount ({discount}%):</span>
-                    <span>−EGP {discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="d-flex justify-content-between mb-2">
                   <span>Shipping:</span>
                   <span>{shipping === 0 ? 'Free' : `EGP ${shipping.toFixed(2)}`}</span>
