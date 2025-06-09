@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faCheck, faSpinner, faShoppingCart } from '@fortawesome/free-solid-svg-icons';  // Importing spinner icon for loading
+import { faEye, faCheck, faSpinner, faShoppingCart, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext';
 import styles from './OnlineStore.module.css';
 
 export default function OnlineStore() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);  // State to handle loading state
+  const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    category: '',
+    priceRange: '',
+    searchTerm: ''
+  });
   const { cart, addToCart } = useCart();
 
   useEffect(() => {
@@ -15,11 +21,11 @@ export default function OnlineStore() {
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
-        setLoading(false);  // Set loading to false once products are loaded
+        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching products:', error);
-        setLoading(false);  // Set loading to false in case of an error
+        setLoading(false);
       });
   }, []);
 
@@ -28,102 +34,189 @@ export default function OnlineStore() {
   const handleAddToCart = (product) => {
     if (!isNaN(product.price) && product.price > 0) {
       addToCart({ ...product, quantity: 1 });
-    } else {
-      console.error("Invalid product price:", product);
     }
   };
 
+  const handleFilterChange = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
+
+  const filteredProducts = products.filter(product => {
+    const searchTermLower = filters.searchTerm.toLowerCase().trim();
+    const matchesSearch = product.product_Name.toLowerCase().includes(searchTermLower);
+    
+    let matchesCategory = true;
+    if (filters.category) {
+      const productNameLower = product.product_Name.toLowerCase();
+      if (filters.category === 'supplements') {
+        matchesCategory = productNameLower.includes('protein') || productNameLower.includes('creatine') || 
+                          productNameLower.includes('supplement') || productNameLower.includes('whey') ||
+                          productNameLower.includes('bcaa') || productNameLower.includes('vitamin');
+      } else if (filters.category === 'equipment') {
+        matchesCategory = productNameLower.includes('equipment') || productNameLower.includes('weights') || 
+                          productNameLower.includes('dumbbell') || productNameLower.includes('barbell') ||
+                          productNameLower.includes('machine') || productNameLower.includes('bench');
+      }
+    }
+
+    const matchesPrice = !filters.priceRange || (
+      filters.priceRange === 'low' ? product.price < 300 :
+      filters.priceRange === 'medium' ? product.price >= 300 && product.price <= 500 :
+      filters.priceRange === 'high' ? product.price > 500 : true
+    );
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
+
   return (
-    <div className="container py-5">
-      <h2 className="fw-bold mb-4 text-uppercase text-center" style={{ color: '#FF5722' }}>
-        OUR PRODUCTS
-      </h2>
+    <div className={styles.productsPage}>
+      <div className={styles.heroSection}>
+        <h1>Our Products</h1>
+        <p>Discover our premium selection of fitness equipment and supplements</p>
+      </div>
 
-      
-      {loading ? (
-        <div className={styles.loadingContainer}>
-          <FontAwesomeIcon icon={faSpinner} color='#FF5722' spin size="3x" />
+      <div className={styles.container}>
+        {/* Filters Section */}
+        <div className={styles.filtersSection}>
+          <button 
+            className={styles.filterToggle}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <FontAwesomeIcon icon={faFilter} /> Filters
+          </button>
+
+          {showFilters && (
+            <div className={styles.filters}>
+              <div className={styles.filterGroup}>
+                <label>Category</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                >
+                  <option value="">All Categories</option>
+                  <option value="supplements">Supplements</option>
+                  <option value="equipment">Equipment</option>
+                </select>
+              </div>
+
+              <div className={styles.filterGroup}>
+                <label>Price Range</label>
+                <select
+                  value={filters.priceRange}
+                  onChange={(e) => handleFilterChange('priceRange', e.target.value)}
+                >
+                  <option value="">All Prices</option>
+                  <option value="low">Under 300 EGP</option>
+                  <option value="medium">300 - 500 EGP</option>
+                  <option value="high">Over 500 EGP</option>
+                </select>
+              </div>
+
+              <div className={styles.searchBox}>
+                <label>Search</label>
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={filters.searchTerm}
+                  onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      ) : products.length === 0 ? (
-        <div className={styles.noProductsContainer}>
-          <p>No products available</p>
-        </div>
-      ) : (
-        <div className="row g-4">
-          {products.map((product) => {
-            const stockQuantity = product.stock_Quantity;
-            let stockStatus = 'IN STOCK';
-            let stockClass = 'instock';
 
-            if (stockQuantity === 0) {
-              stockStatus = 'OUT OF STOCK';
-              stockClass = 'outofstock';
-            } else if (stockQuantity <= 5) {
-              stockStatus = 'LOW STOCK';
-              stockClass = 'lowstock';
-            }
+        {/* Products Grid */}
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <FontAwesomeIcon icon={faSpinner} spin size="3x" />
+            <p>Loading products...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className={styles.noProductsContainer}>
+            <p>No products found matching your criteria</p>
+          </div>
+        ) : (
+          <div className={styles.productsGrid}>
+            {filteredProducts.map((product) => {
+              const stockQuantity = product.stock_Quantity;
+              let stockStatus = 'IN STOCK';
+              let stockClass = 'instock';
 
-            return (
-              <div className="col-md-4 col-sm-6" key={product.product_ID}>
-                <div className="card border-0 shadow-sm h-100 position-relative overflow-hidden rounded-4">
-                  <div className="position-relative d-flex justify-content-center align-items-center bg-light rounded-top-4" style={{ height: '250px' }}>
+              if (stockQuantity === 0) {
+                stockStatus = 'OUT OF STOCK';
+                stockClass = 'outofstock';
+              } else if (stockQuantity <= 5) {
+                stockStatus = 'LOW STOCK';
+                stockClass = 'lowstock';
+              }
+
+              return (
+                <div className={styles.productCard} key={product.product_ID}>
+                  <div className={styles.productImage}>
                     <img
                       src={`http://gymmatehealth.runasp.net/Images/Products/${product.image_URL}`}
                       alt={product.product_Name}
-                      className="img-fluid"
-                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
                     />
-                    {/* Sale Badge (Static for now) */}
-                    <span className="badge bg-info text-white position-absolute top-0 start-0 m-2 rounded-pill" style={{ fontSize: '0.8rem' }}>Sale</span>
+                    {product.discount > 0 && (
+                      <span className={styles.discountBadge}>
+                        {Math.round(product.discount * 100)}% OFF
+                      </span>
+                    )}
                   </div>
-                  <div className="p-3">
-                    <h6 className="card-title fw-bold mb-2">{product.product_Name}</h6>
-                    <p className="text-muted">{product.description}</p>
+
+                  <div className={styles.productInfo}>
+                    <h3>{product.product_Name}</h3>
+                    <p>{product.description}</p>
+                    
                     <div className={styles.priceSection}>
                       {product.discount > 0 && (
-                        <span className="text-decoration-line-through me-2 text-muted small">
+                        <span className={styles.originalPrice}>
                           EGP {(product.price / (1 - product.discount)).toFixed(2)}
                         </span>
                       )}
-                      <span className={`fw-bold ${product.discount > 0 ? 'text-danger' : 'text-dark'}`}>
-                        EGP {(product.price).toFixed(2)}
+                      <span className={styles.currentPrice}>
+                        EGP {product.price.toFixed(2)}
                       </span>
                     </div>
+
                     <div className={styles.stockInfo}>
                       <span className={`${styles.stockBadge} ${styles[stockClass]}`}>
                         {stockStatus}
                       </span>
                     </div>
-                    <div className="mt-auto">
+
+                    <div className={styles.actionButtons}>
                       <button
-                        className={`btn ${styles.addToCartBtn} ${isInCart(product.product_ID) ? styles.disabledBtn : ''} w-100`}
+                        className={`${styles.addToCartBtn} ${isInCart(product.product_ID) ? styles.disabledBtn : ''}`}
                         onClick={() => handleAddToCart(product)}
                         disabled={isInCart(product.product_ID)}
                       >
                         {isInCart(product.product_ID) ? (
                           <>
-                            <FontAwesomeIcon icon={faCheck} className="me-2" />
+                            <FontAwesomeIcon icon={faCheck} />
                             Added
                           </>
                         ) : (
                           <>
-                            <FontAwesomeIcon icon={faShoppingCart} className="me-2" />
-                            Add
+                            <FontAwesomeIcon icon={faShoppingCart} />
+                            Add to Cart
                           </>
                         )}
                       </button>
-                      <Link to={`/product/${product.product_ID}`} className="btn btn-outline-orange mt-2 w-100">
-                        <FontAwesomeIcon icon={faEye} className="me-2" />
-                        Quick View
+                      <Link to={`/product/${product.product_ID}`} className={styles.viewDetailsBtn}>
+                        <FontAwesomeIcon icon={faEye} />
+                        View Details
                       </Link>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
