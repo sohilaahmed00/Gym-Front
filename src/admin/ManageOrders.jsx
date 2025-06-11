@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,353 +8,654 @@ export default function ManageOrders() {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
-  // Fake data for testing
-  const fakeOrders = [
-    {
-      orderId: 1,
-      user: { name: 'John Doe' },
-      product: { name: 'Whey Protein', image: '' },
-      quantity: 2,
-      price: 500,
-      status: 'Pending',
-      orderDate: '2025-06-10',
-      paymentProof: '',
-      shippingDetails: {
-        fullName: 'John Doe',
-        address: '123 Main St, Cairo',
-        city: 'Cairo',
-        phone: '01234567890',
-        notes: 'Please deliver in the evening'
-      }
-    },
-    {
-      orderId: 2,
-      user: { name: 'Jane Smith' },
-      product: { name: 'Creatine', image: '' },
-      quantity: 1,
-      price: 300,
-      status: 'Approved',
-      orderDate: '2025-06-11',
-      paymentProof: '',
-      shippingDetails: {
-        fullName: 'Jane Smith',
-        address: '456 Park Ave, Alexandria',
-        city: 'Alexandria',
-        phone: '01123456789',
-        notes: 'Leave at the reception'
-      }
-    },
-    // أوردر متعدد المنتجات
-    {
-      orderId: 3,
-      user: { name: 'Ahmed Ali' },
-      products: [
-        { name: 'Whey Protein', image: '', quantity: 2 },
-        { name: 'Creatine', image: '', quantity: 1 },
-        { name: 'BCAA', image: '', quantity: 3}
-      ],
-      status: 'Pending',
-      orderDate: '2025-06-15',
-      paymentProof: '',
-      shippingDetails: {
-        fullName: 'Ahmed Ali',
-        address: '789 Nile St, Giza',
-        city: 'Giza',
-        phone: '01098765432',
-        notes: 'Call before delivery'
-      }
-    }
-  ];
+  const [orderDetails, setOrderDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('All');
 
   useEffect(() => {
     setLoading(true);
-    axios.get('http://gymmatehealth.runasp.net/api/Orders/GetAll')
-      .then(res => setOrders(res.data.length ? res.data : fakeOrders))
-      .catch(() => setOrders(fakeOrders))
+    axios.get('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders')
+      .then(res => setOrders(res.data))
+      .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);
 
-  // Approve order
+  // موافقة الطلب
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/approve/${id}`);
-      setOrders(prev => prev.map(order => order.orderId === id ? { ...order, status: 'Approved' } : order));
+      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/ApproveOrder/${id}`);
+      setOrders(prev => prev.map(order => order.order_id === id ? { ...order, order_Status: 'Approved' } : order));
       alert('Order approved successfully!');
     } catch {
       alert('Error approving order!');
     }
   };
 
-  // Reject order
+  // رفض الطلب
   const handleReject = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/reject/${id}`);
-      setOrders(prev => prev.map(order => order.orderId === id ? { ...order, status: 'Rejected' } : order));
+      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/RejectOrder/${id}`);
+      setOrders(prev => prev.map(order => order.order_id === id ? { ...order, order_Status: 'Rejected' } : order));
       alert('Order rejected!');
     } catch {
       alert('Error rejecting order!');
     }
   };
 
+  // Fetch order details by id
+  const fetchOrderDetails = useCallback(async (id) => {
+    setDetailsLoading(true);
+    try {
+      const res = await axios.get(`http://gymmatehealth.runasp.net/api/Orders/GetOrderById/${id}`);
+      setOrderDetails(res.data);
+    } catch {
+      setOrderDetails(null);
+    } finally {
+      setDetailsLoading(false);
+    }
+  }, []);
+
   const handleShowDetails = (order) => {
-    setSelectedOrder(order);
     setShowModal(true);
+    fetchOrderDetails(order.order_id);
   };
-  const handleCloseModal = () => setShowModal(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setOrderDetails(null);
+  };
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-4 manage-orders-page">
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="fw-bold mb-0" style={{fontSize: '2rem'}}>Manage Product Orders</h4>
+            <h4 className="fw-bold mb-0 page-title">Manage Orders</h4>
+          </div>
+          <div className="d-flex gap-2 mb-4 filter-buttons">
+            <button
+              className={`btn btn-sm filter-btn ${statusFilter === 'All' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('All')}
+            >All</button>
+            <button
+              className={`btn btn-sm filter-btn ${statusFilter === 'Pending' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('Pending')}
+            >Pending</button>
+            <button
+              className={`btn btn-sm filter-btn ${statusFilter === 'Approved' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('Approved')}
+            >Approved</button>
+            <button
+              className={`btn btn-sm filter-btn ${statusFilter === 'Rejected' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('Rejected')}
+            >Rejected</button>
           </div>
           <div className="table-responsive">
-            <table className="table align-middle">
-              <thead className="bg-light">
+            <table className="table align-middle orders-table">
+              <thead>
                 <tr>
-                  <th>User Name</th>
-                  <th>Product</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  <th>Order Date</th>
-                  <th>Status</th>
+                  <th>Recipient Name</th>
+                  <th className="text-center">Status</th>
+                  <th className="text-center">Details</th>
                   <th>Actions</th>
-                  <th>Order Details</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={8} className="text-center">Loading...</td></tr>
-                ) : orders.map(order => (
-                  <tr key={order.orderId}>
-                    <td>{order.user?.name || "N/A"}</td>
-                    <td>
-                      {Array.isArray(order.products) ? (
-                        <div>
-                          {order.products.map((prod, idx) => (
-                            <span key={idx} style={{ display: 'block', fontWeight: 500 }}>
-                              {prod.name}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <>
-                          {order.product?.image && (
-                            <img src={order.product.image} alt={order.product.name} width="40" style={{ marginRight: 8, borderRadius: 6 }} />
+                  <tr><td colSpan={4} className="text-center loading-cell">Loading...</td></tr>
+                ) : orders.length === 0 ? (
+                  <tr><td colSpan={4} className="text-center no-orders">No orders found</td></tr>
+                ) : orders
+                    .filter(order => statusFilter === 'All' || (statusFilter === 'Approved' ? (order.order_Status === 'Approved' || order.order_Status === 'Accepted') : order.order_Status === statusFilter))
+                    .map(order => (
+                      <tr key={order.order_id} className="order-row">
+                        <td>{order.recipientName}</td>
+                        <td className="text-center">
+                          <span className={`status-badge ${order.order_Status.toLowerCase()}`}>
+                            {order.order_Status}
+                          </span>
+                        </td>
+                        <td className="text-center">
+                          <button
+                            className="btn btn-sm details-btn"
+                            onClick={() => handleShowDetails(order)}
+                          >
+                            <i className="fas fa-info-circle"></i> Details
+                          </button>
+                        </td>
+                        <td>
+                          {order.order_Status === 'Pending' && (
+                            <div className="btn-group action-buttons">
+                              <button className="btn btn-sm approve-btn small-action-btn" onClick={() => handleApprove(order.order_id)}>
+                                <i className="fas fa-check icon-space"></i> Approve
+                              </button>
+                              <button className="btn btn-sm reject-btn small-action-btn" onClick={() => handleReject(order.order_id)}>
+                                <i className="fas fa-times icon-space"></i> Reject
+                              </button>
+                            </div>
                           )}
-                          {order.product?.name}
-                        </>
-                      )}
-                    </td>
-                    <td>
-                      {Array.isArray(order.products)
-                        ? order.products.reduce((acc, prod) => acc + (prod.quantity || 0), 0)
-                        : order.quantity}
-                    </td>
-                    <td>
-                      {Array.isArray(order.products)
-                        ? order.products.reduce((acc, prod) => acc + ((prod.price || 0) * (prod.quantity || 1)), 0) + ' EGP'
-                        : order.price + ' EGP'}
-                    </td>
-                    <td>{order.orderDate}</td>
-                    <td>
-                      <span className={`badge bg-${order.status === 'Approved' ? 'success' : order.status === 'Rejected' ? 'danger' : 'warning text-dark'}`}>
-                        {order.status}
-                      </span>
-                    </td>
-                    <td>
-                      {order.status === 'Pending' && (
-                        <div className="btn-group">
-                          <button className="btn btn-sm btn-outline-success" onClick={() => handleApprove(order.orderId)}>
-                            <i className="fas fa-check me-1"></i> Approve
-                          </button>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleReject(order.orderId)}>
-                            <i className="fas fa-times me-1"></i> Reject
-                          </button>
-                        </div>
-                      )}
-                      {order.status !== 'Pending' && <span className="text-muted">{order.status}</span>}
-                    </td>
-                    <td>
-                      <button className="btn btn-sm btn-info" onClick={() => handleShowDetails(order)}>
-                        <i className="fas fa-info-circle me-1"></i> Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                          {(order.order_Status === 'Approved' || order.order_Status === 'Accepted') && (
+                            <span className="status-text approved">Approved</span>
+                          )}
+                          {order.order_Status === 'Rejected' && (
+                            <span className="status-text rejected">Rejected</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      {/* Order Details Modal */}
-      <Modal show={showModal} onHide={handleCloseModal} centered size="lg">
-        <Modal.Header closeButton className="bg-light">
-          <Modal.Title className="fw-bold">Order Details</Modal.Title>
+
+      <Modal show={showModal} onHide={handleCloseModal} centered size="lg" className="order-details-modal">
+        <Modal.Header closeButton>
+          <Modal.Title>Order Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-4">
-          {selectedOrder && (
-            <div>
+        <Modal.Body>
+          {detailsLoading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : orderDetails ? (
+            <div className="order-details-content">
               <div className="row g-4">
-                <div className="col-md-6">
-                  <div className="card h-100 border-0 shadow-sm">
-                    <div className="card-header bg-white border-bottom">
-                      <h6 className="mb-0 fw-bold">Order Information</h6>
+                <div className="col-12 mb-3">
+                  <div className="card info-card">
+                    <div className="card-header">
+                      <h6>Order Information</h6>
                     </div>
                     <div className="card-body">
-                      <div className="d-flex flex-column gap-3">
-                        <div>
-                          <label className="text-muted small mb-1 d-block">User Name</label>
-                          <div className="fw-medium">{selectedOrder.user?.name}</div>
+                      <div className="row">
+                        <div className="col-md-8">
+                          <div className="info-item">
+                            <label>Recipient Name</label>
+                            <div>{orderDetails.recipientName}</div>
+                          </div>
+                          <div className="info-item">
+                            <label>Address</label>
+                            <div>{orderDetails.address}</div>
+                          </div>
+                          <div className="info-item">
+                            <label>City</label>
+                            <div>{orderDetails.city}</div>
+                          </div>
+                          <div className="info-item">
+                            <label>Phone Number</label>
+                            <div>{orderDetails.phoneNumber}</div>
+                          </div>
+                          <div className="info-item">
+                            <label>Total Price</label>
+                            <div>{orderDetails.totalPrice} EGP</div>
+                          </div>
+                          <div className="info-item">
+                            <label>Order Date</label>
+                            <div>{orderDetails.orderDate?.split('T')[0]}</div>
+                          </div>
                         </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Order Date</label>
-                          <div className="fw-medium">{selectedOrder.orderDate}</div>
-                        </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Status</label>
-                          <div>
-                            <span className={`badge bg-${selectedOrder.status === 'Approved' ? 'success' : selectedOrder.status === 'Rejected' ? 'danger' : 'warning text-dark'} px-3 py-2`}>
-                              {selectedOrder.status}
-                            </span>
+                        <div className="col-md-4">
+                          <div className="payment-proof">
+                            <label>Payment Proof</label>
+                            {orderDetails.paymentProof ? (
+                              <img 
+                                src={`https://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`}
+                                alt="Payment Proof"
+                                className="proof-image"
+                                onError={e => {
+                                  if (!e.target.src.includes('/Images/PaymentProofs/')) {
+                                    e.target.onerror = null;
+                                    e.target.src = `https://gymmatehealth.runasp.net/Images/PaymentProofs/${orderDetails.paymentProof}`;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <div className="no-proof">
+                                <i className="fas fa-receipt"></i>
+                                <span>No payment proof</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-md-6">
-                  <div className="card h-100 border-0 shadow-sm">
-                    <div className="card-header bg-white border-bottom">
-                      <h6 className="mb-0 fw-bold">Shipping Details</h6>
+                <div className="col-12">
+                  <div className="card items-card">
+                    <div className="card-header">
+                      <h6>Order Items</h6>
                     </div>
                     <div className="card-body">
-                      <div className="d-flex flex-column gap-3">
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Full Name</label>
-                          <div className="fw-medium">{selectedOrder.shippingDetails?.fullName}</div>
+                      {orderDetails.items && orderDetails.items.length > 0 ? (
+                        <div className="table-responsive">
+                          <table className="table items-table">
+                            <thead>
+                              <tr>
+                                <th>Product</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Image</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {orderDetails.items.map((item, idx) => (
+                                <tr key={item.orderItemId || idx}>
+                                  <td>{item.productName}</td>
+                                  <td>{item.description}</td>
+                                  <td>{item.price} EGP</td>
+                                  <td>{item.discount * 100}%</td>
+                                  <td>{item.quantity}</td>
+                                  <td>{item.itemTotalPrice} EGP</td>
+                                  <td>
+                                    {item.imageUrl ? (
+                                      <img 
+                                        src={`http://gymmatehealth.runasp.net/Images/Products/${item.imageUrl}`} 
+                                        alt={item.productName} 
+                                        className="product-image"
+                                      />
+                                    ) : (
+                                      <span className="no-image">-</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Address</label>
-                          <div className="fw-medium">{selectedOrder.shippingDetails?.address}</div>
-                        </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">City</label>
-                          <div className="fw-medium">{selectedOrder.shippingDetails?.city}</div>
-                        </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Phone</label>
-                          <div className="fw-medium">{selectedOrder.shippingDetails?.phone}</div>
-                        </div>
-                        <div>
-                          <label className="text-muted small mb-1 d-block">Notes</label>
-                          <div className="fw-medium">{selectedOrder.shippingDetails?.notes || 'No notes'}</div>
-                        </div>
-                      </div>
+                      ) : (
+                        <div className="no-items">No items found for this order</div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="card border-0 shadow-sm mt-4">
-                <div className="card-header bg-white border-bottom">
-                  <h6 className="mb-0 fw-bold">Products</h6>
-                </div>
-                <div className="card-body p-0">
-                  {Array.isArray(selectedOrder.products) ? (
-                    <div className="table-responsive">
-                      <table className="table table-hover align-middle mb-0">
-                        <thead className="bg-light">
-                          <tr>
-                            <th className="border-0">Product</th>
-                            <th className="border-0">Quantity</th>
-                            <th className="border-0">Price</th>
-                            <th className="border-0">Image</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedOrder.products.map((prod, idx) => (
-                            <tr key={idx}>
-                              <td className="fw-medium">{prod.name}</td>
-                              <td>{prod.quantity}</td>
-                              <td>{prod.price} EGP</td>
-                              <td>
-                                {prod.image ? (
-                                  <img src={prod.image} alt={prod.name} width="40" height="40" className="rounded" style={{objectFit: 'cover'}} />
-                                ) : (
-                                  <span className="text-muted">-</span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="p-4">
-                      <div className="d-flex align-items-center gap-3">
-                        {selectedOrder.product?.image && (
-                          <img src={selectedOrder.product.image} alt={selectedOrder.product.name} width="50" height="50" className="rounded" style={{objectFit: 'cover'}} />
-                        )}
-                        <div>
-                          <div className="fw-medium">{selectedOrder.product?.name}</div>
-                          <div className="text-muted small">Quantity: {selectedOrder.quantity} | Price: {selectedOrder.price} EGP</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="card border-0 shadow-sm mt-4">
-                <div className="card-header bg-white border-bottom">
-                  <h6 className="mb-0 fw-bold">Payment Proof</h6>
-                </div>
-                <div className="card-body">
-                  {selectedOrder.paymentProof ? (
-                    <div className="text-center">
-                      <img 
-                        src={selectedOrder.paymentProof} 
-                        alt="Payment Proof" 
-                        className="img-fluid rounded" 
-                        style={{
-                          maxWidth: '100%',
-                          maxHeight: '400px',
-                          objectFit: 'contain',
-                          border: '1px solid #eee'
-                        }} 
-                      />
-                    </div>
-                  ) : (
-                    <div className="text-center text-muted py-4">
-                      <i className="fas fa-receipt fa-2x mb-2"></i>
-                      <div>No payment proof</div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
+          ) : (
+            <div className="error-message">Failed to load order details</div>
           )}
         </Modal.Body>
-        <Modal.Footer className="bg-light">
-          <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            className="close-btn"
+            onClick={handleCloseModal}
+          >
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
+
       <style>{`
-        .table th, .table td {
-          font-size: 15px;
-          padding: 12px 16px;
+        .manage-orders-page {
+          background-color: #f8f9fa;
+          min-height: 100vh;
+          padding: 20px;
         }
-        .table th {
+
+        .page-title {
+          color: #2c3e50;
+          font-size: 2rem;
+          position: relative;
+          padding-left: 15px;
+          margin-bottom: 30px;
+        }
+
+        .page-title::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 70%;
+          background-color: #ff7a00;
+          border-radius: 2px;
+        }
+
+        .filter-buttons {
+          background-color: #fff;
+          padding: 15px;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          margin-bottom: 20px;
+        }
+
+        .filter-btn {
+          padding: 8px 20px;
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          border: 2px solid #e9ecef;
+          background-color: #fff;
+          color: #6c757d;
+          margin: 0 5px;
+        }
+
+        .filter-btn:hover {
+          background-color: #f8f9fa;
+          border-color: #dee2e6;
+        }
+
+        .filter-btn.active {
+          background-color: #ff7a00;
+          border-color: #ff7a00;
+          color: #fff;
+        }
+
+        .orders-table {
+          background-color: #fff;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        .orders-table thead {
+          background-color: #f8f9fa;
+        }
+
+        .orders-table th {
           font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: #495057;
+          padding: 15px;
+          border-bottom: 2px solid #e9ecef;
         }
-        .btn-group .btn {
-          padding: 0.2rem 0.7rem;
-          font-size: 13px;
+
+        .orders-table td {
+          padding: 15px;
+          vertical-align: middle;
+        }
+
+        .order-row {
+          transition: all 0.3s ease;
+        }
+
+        .order-row:hover {
+          background-color: #f8f9fa;
+        }
+
+        .status-badge {
+          display: inline-block;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 500;
+        }
+
+        .status-badge.pending {
+          background-color: #fff3cd;
+          color: #856404;
+        }
+
+        .status-badge.approved {
+          background-color: #d4edda;
+          color: #155724;
+        }
+
+        .status-badge.rejected {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+
+        .details-btn {
+          background-color: #fff;
+          border: 2px solid #6c757d;
+          color: #6c757d;
+          padding: 6px 15px;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .details-btn:hover {
+          background-color: #6c757d;
+          color: #fff;
+        }
+
+        .action-buttons {
+          gap: 8px;
+          display: flex;
+          flex-wrap: nowrap;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .approve-btn, .reject-btn {
+          padding: 2px 10px;
+          border-radius: 6px;
+          font-weight: 500;
+          font-size: 0.92rem;
+          min-width: 70px;
+          height: 32px;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .approve-btn {
+          background-color: #28a745;
+          border-color: #28a745;
+          color: #fff;
+        }
+
+        .reject-btn {
+          background-color: #dc3545;
+          border-color: #dc3545;
+          color: #fff;
+        }
+
+        .approve-btn:hover {
+          background-color: #218838;
+          border-color: #1e7e34;
+        }
+
+        .reject-btn:hover {
+          background-color: #c82333;
+          border-color: #bd2130;
+        }
+
+        .status-text {
+          font-weight: 500;
+          padding: 6px 12px;
+          border-radius: 8px;
+        }
+
+        .status-text.approved {
+          background-color: #d4edda;
+          color: #155724;
+        }
+
+        .status-text.rejected {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+
+        .order-details-modal .modal-content {
+          border-radius: 15px;
+          border: none;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .order-details-modal .modal-header {
+          background-color: #f8f9fa;
+          border-bottom: 1px solid #e9ecef;
+          padding: 20px;
+          border-radius: 15px 15px 0 0;
+        }
+
+        .order-details-modal .modal-title {
+          font-weight: 600;
+          color: #2c3e50;
+          font-size: 1.5rem;
+        }
+
+        .order-details-modal .modal-body {
+          padding: 25px;
+        }
+
+        .info-card, .items-card {
+          border: none;
+          border-radius: 12px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+          margin-bottom: 20px;
+        }
+
+        .info-card .card-header, .items-card .card-header {
+          background-color: #fff;
+          border-bottom: 1px solid #e9ecef;
+          padding: 15px 20px;
+          border-radius: 12px 12px 0 0;
+        }
+
+        .info-card .card-header h6, .items-card .card-header h6 {
+          margin: 0;
+          font-weight: 600;
+          color: #2c3e50;
+          font-size: 1.1rem;
+        }
+
+        .info-item {
+          margin-bottom: 15px;
+          padding: 10px;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+        }
+
+        .info-item label {
+          display: block;
+          color: #6c757d;
+          font-size: 0.9rem;
+          margin-bottom: 5px;
+        }
+
+        .info-item div {
+          color: #2c3e50;
+          font-weight: 500;
+        }
+
+        .payment-proof {
+          text-align: center;
+          padding: 15px;
+          background-color: #f8f9fa;
+          border-radius: 12px;
+        }
+
+        .payment-proof label {
+          display: block;
+          color: #6c757d;
+          margin-bottom: 10px;
+          font-weight: 500;
+        }
+
+        .proof-image {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          border: 2px solid #e9ecef;
+          padding: 5px;
+          background-color: #fff;
+        }
+
+        .no-proof {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          color: #6c757d;
+          border: 2px dashed #e9ecef;
+        }
+
+        .no-proof i {
+          font-size: 2rem;
+          margin-bottom: 10px;
+          display: block;
+          color: #dee2e6;
+        }
+
+        .items-table {
+          margin: 0;
+        }
+
+        .items-table th {
+          background-color: #f8f9fa;
+          font-weight: 600;
+          color: #495057;
+          padding: 12px;
+        }
+
+        .items-table td {
+          padding: 12px;
+          vertical-align: middle;
+        }
+
+        .product-image {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 6px;
+          border: 2px solid #e9ecef;
+        }
+
+        .no-image {
+          color: #6c757d;
+          font-style: italic;
+        }
+
+        .close-btn {
+          background-color: #ff7a00;
+          border-color: #ff7a00;
+          color: #fff;
+          padding: 8px 25px;
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+          background-color: #ff8800;
+          border-color: #ff8800;
+        }
+
+        .loading-cell, .no-orders, .error-message {
+          padding: 30px;
+          text-align: center;
+          color: #6c757d;
+          font-size: 1.1rem;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+        }
+
+        .small-action-btn {
+          padding: 1px 2px !important;
+          font-size: 0.78rem !important;
+          width: fit-content !important;
+          max-width: 100px !important;
+          min-width: 0 !important;
+          display: inline-flex !important;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .icon-space {
+          margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+          .filter-buttons {
+            flex-wrap: wrap;
+          }
+          
+          .filter-btn {
+            flex: 1 1 calc(50% - 8px);
+            margin-bottom: 8px;
+          }
+
+          .action-buttons {
+            flex-direction: column;
+          }
+
+          .approve-btn, .reject-btn {
+            width: 100%;
+          }
         }
       `}</style>
     </div>

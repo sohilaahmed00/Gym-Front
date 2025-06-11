@@ -8,7 +8,7 @@ const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // Main image path
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
   DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
-  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProduct/${id}`,
+  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProduct${id}`,
   ADD_PRODUCT: `${API_BASE_URL}/Products/AddNewProduct`
 };
 
@@ -70,10 +70,9 @@ export default function ManageProducts() {
     setShowImageModal(true);
   };
 
-  // Function to get correct image URL
+  // Product images are served from: http://gymmatehealth.runasp.net/Images/Products/
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
-    
     try {
       return `${API_BASE_IMAGE_URL}/Images/Products/${imageFileName}`;
     } catch (err) {
@@ -349,8 +348,8 @@ export default function ManageProducts() {
           Image_URL: editingProduct.image_URL
         };
         
-        const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
-          method: 'POST',
+        const response = await fetch(`http://gymmatehealth.runasp.net/api/Products/UpdateProduct${editingProduct.product_ID}`, {
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
