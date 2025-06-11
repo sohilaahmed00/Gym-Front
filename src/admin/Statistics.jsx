@@ -4,6 +4,7 @@ const Statistics = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [newSubscriptions, setNewSubscriptions] = useState(0);
   const [mostPopularPlan, setMostPopularPlan] = useState('');
+  const [totalOrdersAmount, setTotalOrdersAmount] = useState(0);
 
   // Helper function to get amount based on plan type
   const getAmountForPlan = (planType) => {
@@ -69,48 +70,99 @@ const Statistics = () => {
         setMostPopularPlan(planLabels[maxPlan] || maxPlan || 'N/A');
         setTotalRevenue(revenue);
         setNewSubscriptions(newSubs);
+        // جلب الأوردرات وحساب الإجمالي الشهري
+        const ordersRes = await fetch('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders');
+        const orders = await ordersRes.json();
+        let ordersTotal = 0;
+        if (Array.isArray(orders)) {
+          const now = new Date();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
+          orders.forEach(order => {
+            const date = new Date(order.orderDate || order.order_Date);
+            if (!isNaN(date.getTime()) && date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+              ordersTotal += Number(order.totalPrice) || 0;
+            }
+          });
+        }
+        setTotalOrdersAmount(ordersTotal);
       } catch {}
     }
     fetchRevenueAndStats();
   }, []);
 
   return (
-    <div className="card border-0 shadow-sm h-100">
+    <div className="card border-0 shadow-sm h-100" style={{ minWidth: 420, maxWidth: 800, width: '100%', margin: '0 auto' }}>
       <div className="card-body d-flex flex-column justify-content-center align-items-center">
-        <h5 className="mb-4" style={{fontWeight: 700, fontSize: 26}}>Quick Stats</h5>
+        <h5 className="mb-4" style={{fontWeight: 700, fontSize: 22}}>Quick Stats</h5>
         <div className="d-flex flex-column gap-3 w-100">
           {/* Revenue */}
-          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded" style={{background: 'rgba(39, 174, 96, 0.08)'}}>
+          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded stat-card" style={{background: 'rgba(39, 174, 96, 0.08)'}}>
             <span className="d-flex align-items-center gap-3">
-              <span className="d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, background: '#27ae60', color: '#fff', borderRadius: '50%', fontSize: 26 }}>
+              <span className="stat-icon" style={{ background: '#27ae60' }}>
                 <i className="fas fa-coins"></i>
               </span>
-              <span style={{fontWeight: 600, fontSize: 18}}>Total Subscription Revenue (EGP):</span>
+              <span className="stat-label">Total Subscription Revenue (This Month):</span>
             </span>
-            <span style={{fontWeight: 800, color: '#27ae60', fontSize: 26}}>{totalRevenue.toLocaleString()}</span>
+            <span className="stat-value" style={{ color: '#27ae60' }}>{totalRevenue.toLocaleString()} EGP</span>
           </div>
           {/* New Subscriptions */}
-          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded" style={{background: 'rgba(41, 128, 185, 0.08)'}}>
+          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded stat-card" style={{background: 'rgba(41, 128, 185, 0.08)'}}>
             <span className="d-flex align-items-center gap-3">
-              <span className="d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, background: '#2980b9', color: '#fff', borderRadius: '50%', fontSize: 26 }}>
+              <span className="stat-icon" style={{ background: '#2980b9' }}>
                 <i className="fas fa-plus-circle"></i>
               </span>
-              <span style={{fontWeight: 600, fontSize: 18}}>New Subscriptions (This Month):</span>
+              <span className="stat-label">New Subscriptions (This Month):</span>
             </span>
-            <span style={{fontWeight: 800, color: '#2980b9', fontSize: 26}}>{newSubscriptions}</span>
+            <span className="stat-value" style={{ color: '#2980b9' }}>{newSubscriptions}</span>
           </div>
           {/* Most Popular Plan */}
-          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded" style={{background: 'rgba(142, 68, 173, 0.08)'}}>
+          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded stat-card" style={{background: 'rgba(142, 68, 173, 0.08)'}}>
             <span className="d-flex align-items-center gap-3">
-              <span className="d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, background: '#8e44ad', color: '#fff', borderRadius: '50%', fontSize: 26 }}>
+              <span className="stat-icon" style={{ background: '#8e44ad' }}>
                 <i className="fas fa-star"></i>
               </span>
-              <span style={{fontWeight: 600, fontSize: 18}}>Most Popular Plan:</span>
+              <span className="stat-label">Most Popular Plan:</span>
             </span>
-            <span style={{fontWeight: 800, color: '#8e44ad', fontSize: 26}}>{mostPopularPlan}</span>
+            <span className="stat-value" style={{ color: '#8e44ad' }}>{mostPopularPlan}</span>
+          </div>
+          {/* Total Product Sales */}
+          <div className="d-flex align-items-center justify-content-between px-4 py-3 rounded stat-card" style={{background: 'rgba(255, 140, 0, 0.08)'}}>
+            <span className="d-flex align-items-center gap-3">
+              <span className="stat-icon" style={{ background: '#ff8c00' }}>
+                <i className="fas fa-shopping-cart"></i>
+              </span>
+              <span className="stat-label">Total Product Sales (This Month):</span>
+            </span>
+            <span className="stat-value" style={{ color: '#ff8c00' }}>{totalOrdersAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} EGP</span>
           </div>
         </div>
       </div>
+      <style>{`
+        .stat-card {
+          min-height: 64px;
+        }
+        .stat-icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          border-radius: 50%;
+          font-size: 20px;
+        }
+        .stat-label {
+          font-weight: 600;
+          font-size: 13px;
+        }
+        .stat-value {
+          font-weight: 800;
+          font-size: 17px;
+          min-width: 90px;
+          text-align: end;
+        }
+      `}</style>
     </div>
   );
 };

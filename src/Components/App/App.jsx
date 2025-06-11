@@ -31,6 +31,7 @@ import Payment from '../Payment/Payment';
 import PricingPlans from '../Home/PricingPlans/PricingPlans';
 import ExerciseDetails from '../ExerciseDetails/ExerciseDetails';
 import PaymentPage from '../PaymentPage/PaymentPage';
+import OrderSuccess from '../OrderSuccess/OrderSuccess';
 
 // Admin
 import Admin from '../../admin/Admin';
@@ -82,6 +83,7 @@ const routes = createBrowserRouter([
       { path: 'product/:id', element: <ProductDetails /> },
       { path: 'cart', element: <Cart /> },
       { path: 'checkout', element: <Checkout /> },
+      { path: 'order-success/:orderId', element: <OrderSuccess /> },
       { path: 'exercises', element: <Exercises /> },
       { path: 'exercise/:id', element: <ExerciseDetails /> },
       { path: 'coaches', element: <Coaches/> },

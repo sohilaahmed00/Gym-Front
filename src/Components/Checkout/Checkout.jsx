@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext/CartContext';
+import axios from 'axios';
 // import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa'; // Removed these icons as we'll use Font Awesome
 
 const paymentMethods = {
@@ -28,21 +29,24 @@ const paymentMethods = {
 };
 
 export default function Checkout() {
-  const { cart } = useCart();
+  const { cart, clearCart } = useCart();
   const navigate = useNavigate(); // Add useNavigate hook
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(''); // New state for selected payment method
-  const [paymentProof, setPaymentProof] = useState(null); // New state for payment proof file
-  const [previewUrl, setPreviewUrl] = useState(null); // New state for image preview URL
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [paymentProof, setPaymentProof] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [firstName, setFirstName] = useState('');
   const [streetAddress, setStreetAddress] = useState('');
   const [apartment, setApartment] = useState('');
   const [townCity, setTownCity] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // حالة التحميل
 
   const [firstNameError, setFirstNameError] = useState(false);
   const [streetAddressError, setStreetAddressError] = useState(false);
   const [townCityError, setTownCityError] = useState(false);
   const [phoneNumberError, setPhoneNumberError] = useState(false);
+  const [paymentMethodError, setPaymentMethodError] = useState(false);
+  const [paymentProofError, setPaymentProofError] = useState(false);
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shipping = 0;
@@ -50,9 +54,8 @@ export default function Checkout() {
 
   const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
 
-  const handleProceedToPayment = () => {
+  const handleProceedToPayment = async () => {
     let hasError = false;
-
     if (!firstName) {
       setFirstNameError(true);
       hasError = true;
@@ -69,13 +72,53 @@ export default function Checkout() {
       setPhoneNumberError(true);
       hasError = true;
     }
-
+    if (!selectedPaymentMethod) {
+      setPaymentMethodError(true);
+      hasError = true;
+    }
+    // إذا كانت طريقة الدفع تتطلب إثبات دفع ولم يتم رفعه
+    if ((selectedPaymentMethod === 'instapay' || selectedPaymentMethod === 'vodafonecash' || selectedPaymentMethod === 'fawry' || selectedPaymentMethod === 'banktransfer') && !paymentProof) {
+      setPaymentProofError(true);
+      hasError = true;
+    }
     if (hasError) {
       return;
     }
-
-    // Pass cart and totals to the payment page
-    navigate('/payment', { state: { cart, subtotal, total } });
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append('User_ID', 'f8de3c94-85b0-4c43-826e-4ef8f3f12b8f');
+    formData.append('RecipientName', firstName);
+    formData.append('Address', `${streetAddress}${apartment ? `, ${apartment}` : ''}`);
+    formData.append('City', townCity);
+    formData.append('PhoneNumber', phoneNumber);
+    formData.append('PaymentMethod', selectedPaymentMethod);
+    if (paymentProof) {
+      formData.append('PaymentProof', paymentProof);
+    }
+    cart.forEach((item, index) => {
+      formData.append(`Items[${index}].Product_ID`, item.id);
+      formData.append(`Items[${index}].Quantity`, item.quantity);
+    });
+    try {
+      const response = await axios.post('http://gymmatehealth.runasp.net/api/Orders/AddNewOrder', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Order placed successfully:', response.data);
+      clearCart();
+      if (response.data && (response.data.orderId || response.data.order_id)) {
+        const orderId = response.data.orderId || response.data.order_id;
+        navigate(`/order-success/${orderId}`);
+      } else {
+        alert('Order ID not found in response!');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error.response ? error.response.data : error.message);
+      alert('An error occurred while placing the order. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -83,6 +126,7 @@ export default function Checkout() {
     if (name === 'paymentProof') {
       const file = files[0];
       setPaymentProof(file);
+      setPaymentProofError(false);
       if (file) {
         const url = URL.createObjectURL(file);
         setPreviewUrl(url);
@@ -91,6 +135,7 @@ export default function Checkout() {
       }
     } else if (name === 'paymentMethod') {
       setSelectedPaymentMethod(value);
+      setPaymentMethodError(false);
     } else if (name === 'firstName') {
       setFirstName(value);
       setFirstNameError(false);
@@ -144,6 +189,39 @@ export default function Checkout() {
                   <input className={`form-control ${phoneNumberError ? 'is-invalid' : ''}`} placeholder="e.g. 01012345678" required name="phoneNumber" value={phoneNumber} onChange={handleChange} />
                   {phoneNumberError && <div className="text-danger small mt-1">Please enter your phone number.</div>}
                 </div>
+                {/* Payment Method */}
+                <div className="mb-3">
+                  <label className="form-label fw-medium">Payment Method*</label>
+                  <select className={`form-select ${paymentMethodError ? 'is-invalid' : ''}`} name="paymentMethod" value={selectedPaymentMethod} onChange={handleChange} required>
+                    <option value="">Select a payment method</option>
+                    {Object.entries(paymentMethods).filter(([key]) => key !== '').map(([key, method]) => (
+                      <option key={key} value={key}>{method.name}</option>
+                    ))}
+                  </select>
+                  {paymentMethodError && <div className="text-danger small mt-1">Please select a payment method.</div>}
+                </div>
+                {/* Payment Method Details */}
+                {selectedPaymentMethod && paymentMethods[selectedPaymentMethod] && (
+                  <div className="mb-3">
+                    <div className="alert alert-info p-2">
+                      <i className={`${paymentMethods[selectedPaymentMethod].iconClass} me-2`}></i>
+                      <span style={{ whiteSpace: 'pre-line' }}>{paymentMethods[selectedPaymentMethod].details}</span>
+                    </div>
+                  </div>
+                )}
+                {/* Payment Proof Upload */}
+                {(selectedPaymentMethod === 'instapay' || selectedPaymentMethod === 'vodafonecash' || selectedPaymentMethod === 'fawry' || selectedPaymentMethod === 'banktransfer') && (
+                  <div className="mb-3">
+                    <label className="form-label fw-medium">Upload Payment Proof*</label>
+                    <input type="file" className={`form-control ${paymentProofError ? 'is-invalid' : ''}`} name="paymentProof" accept="image/*" onChange={handleChange} />
+                    {paymentProofError && <div className="text-danger small mt-1">Please upload payment proof.</div>}
+                    {previewUrl && (
+                      <div className="mt-2">
+                        <img src={previewUrl} alt="Payment Proof Preview" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+                      </div>
+                    )}
+                  </div>
+                )}
               </form>
             </div>
           </div>
@@ -176,8 +254,8 @@ export default function Checkout() {
               </div>
 
               {/* Proceed to Payment Button */}
-              <button className="btn btn-warning text-white w-100" onClick={handleProceedToPayment}>
-                Proceed to Payment
+              <button className="btn btn-warning text-white w-100" onClick={handleProceedToPayment} disabled={isLoading}>
+                {isLoading ? 'Processing...' : 'Proceed to Payment'}
               </button>
             </div>
           </div>
