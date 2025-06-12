@@ -72,7 +72,7 @@ export default function OrderSuccess() {
               </li>
               <li className="list-group-item d-flex justify-content-between">
                 <span>Status:</span>
-                <span>{order.orderStatus || order.order_Status}</span>
+                <span>{(order.orderStatus === 'Accepted' || order.orderStatus === 'Approved' || order.order_Status === 'Accepted' || order.order_Status === 'Approved') ? 'Approved' : (order.orderStatus || order.order_Status)}</span>
               </li>
               <li className="list-group-item d-flex justify-content-between">
                 <span>Total Price:</span>
@@ -87,7 +87,7 @@ export default function OrderSuccess() {
                   <li className="list-group-item d-flex justify-content-between align-items-center">
                     <span>Payment Proof:</span>
                     <img
-                      src={`https://gymmatehealth.runasp.net/images/Orders/${order.paymentProof}`}
+                      src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${order.paymentProof}`}
                       alt="Payment Proof"
                       style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', boxShadow: '0 2px 8px #eee', cursor: 'pointer', border: '2px solid #FF5722', marginLeft: '10px' }}
                       onClick={() => setShowImageModal(true)}
@@ -136,7 +136,7 @@ export default function OrderSuccess() {
                         >×</span>
                         <h3 style={{margin: 0, marginBottom: 16}}>Payment Proof</h3>
                         <img
-                          src={`https://gymmatehealth.runasp.net/images/Orders/${order.paymentProof}`}
+                          src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${order.paymentProof}`}
                           alt="Payment Proof Large"
                           style={{ maxWidth: '70vw', maxHeight: '65vh', borderRadius: '10px', boxShadow: '0 2px 8px #eee' }}
                         />
