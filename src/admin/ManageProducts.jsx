@@ -8,7 +8,9 @@ const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // Main image path
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
   DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
-  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProduct${id}`,
+
+  UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProdcut${id}`,
+
   ADD_PRODUCT: `${API_BASE_URL}/Products/AddNewProduct`
 };
 
@@ -335,6 +337,7 @@ export default function ManageProducts() {
       
       console.log('Editing product data:', editingProduct);
       
+
               // If no new image selected, try different approach
       if (!editProductImage) {
         console.log('Trying update without image using JSON...');
@@ -370,6 +373,7 @@ export default function ManageProducts() {
         return;
       }
       
+
       const formData = new FormData();
       
       // Map the field names to match API expectations
@@ -379,12 +383,14 @@ export default function ManageProducts() {
         'price': 'Price',
         'discount': 'Discount',
         'stock_Quantity': 'Stock_Quantity',
-        'product_ID': 'Product_ID',
-        'image_URL': 'Image_URL'
+        'product_ID': 'Product_ID'
       };
       
+      // نجد المنتج الأصلي من القائمة
+      const originalProduct = products.find(p => p.product_ID === editingProduct.product_ID);
+      
       Object.entries(editingProduct).forEach(([key, value]) => {
-        // Include all fields now, image_URL will be handled properly
+        if (key === 'image_URL') return; // نتخطى image_URL هنا
         const apiFieldName = fieldMapping[key] || key;
         console.log(`Adding to FormData for edit: ${apiFieldName} = ${value}`);
         formData.append(apiFieldName, value);
@@ -397,17 +403,17 @@ export default function ManageProducts() {
       }
       
       if (editProductImage) {
-        console.log('Adding edit image to FormData:', editProductImage.name);
+        // إذا تم اختيار صورة جديدة
+        console.log('Adding new image to FormData:', editProductImage.name);
         formData.append('ProductImage', editProductImage);
-      } else {
-        console.log('No new image selected, creating empty file');
-        // Create empty file to bypass ProductImage requirement
-        const emptyFile = new File([''], 'existing-image.jpg', { type: 'image/jpeg' });
-        formData.append('ProductImage', emptyFile);
+      } else if (originalProduct && originalProduct.image_URL) {
+        // نستخدم الـ URL الأصلي للمنتج
+        console.log('Using original product image URL:', originalProduct.image_URL);
+        formData.append('Image_URL', originalProduct.image_URL);
       }
       
-      const response = await fetch(API_ENDPOINTS.ADD_PRODUCT, {
-        method: 'POST',
+      const response = await fetch(`http://gymmatehealth.runasp.net/api/Products/UpdateProdcut${editingProduct.product_ID}`, {
+        method: 'PUT',
         body: formData
       });
       
@@ -904,8 +910,7 @@ export default function ManageProducts() {
         </Modal.Footer>
       </Modal>
 
-      <style>{`
-        .product-row:hover { 
+      <style>{`        .product-row:hover { 
           background: #f8f9fa; 
           transition: all 0.2s ease;
         }

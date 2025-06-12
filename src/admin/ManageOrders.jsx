@@ -110,8 +110,10 @@ export default function ManageOrders() {
                       <tr key={order.order_id} className="order-row">
                         <td>{order.recipientName}</td>
                         <td className="text-center">
-                          <span className={`status-badge ${order.order_Status.toLowerCase()}`}>
-                            {order.order_Status}
+
+                          <span className={`status-badge ${order.order_Status.toLowerCase()}`}> 
+                            {(order.order_Status === 'Accepted' || order.order_Status === 'Approved') ? 'Approved' : order.order_Status}
+
                           </span>
                         </td>
                         <td className="text-center">
@@ -165,7 +167,9 @@ export default function ManageOrders() {
                     </div>
                     <div className="card-body">
                       <div className="row">
-                        <div className="col-md-8">
+
+                        <div className="col-md-6">
+
                           <div className="info-item">
                             <label>Recipient Name</label>
                             <div>{orderDetails.recipientName}</div>
@@ -191,18 +195,22 @@ export default function ManageOrders() {
                             <div>{orderDetails.orderDate?.split('T')[0]}</div>
                           </div>
                         </div>
-                        <div className="col-md-4">
+
+                        <div className="col-md-6">
+
                           <div className="payment-proof">
                             <label>Payment Proof</label>
                             {orderDetails.paymentProof ? (
                               <img 
-                                src={`https://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`}
+
+                                src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`}
                                 alt="Payment Proof"
                                 className="proof-image"
                                 onError={e => {
-                                  if (!e.target.src.includes('/Images/PaymentProofs/')) {
+                                  if (!e.target.src.includes('/images/PaymentProofs/')) {
                                     e.target.onerror = null;
-                                    e.target.src = `https://gymmatehealth.runasp.net/Images/PaymentProofs/${orderDetails.paymentProof}`;
+                                    e.target.src = `http://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`;
+
                                   }
                                 }}
                               />
@@ -515,8 +523,10 @@ export default function ManageOrders() {
         }
 
         .info-item {
-          margin-bottom: 15px;
-          padding: 10px;
+
+          margin-bottom: 10px;
+          padding: 8px;
+
           background-color: #f8f9fa;
           border-radius: 8px;
         }
@@ -524,13 +534,20 @@ export default function ManageOrders() {
         .info-item label {
           display: block;
           color: #6c757d;
+
+          font-size: 0.85rem;
+          margin-bottom: 3px;
           font-size: 0.9rem;
           margin-bottom: 5px;
+
         }
 
         .info-item div {
           color: #2c3e50;
           font-weight: 500;
+
+          font-size: 0.95rem;
+
         }
 
         .payment-proof {
@@ -538,6 +555,11 @@ export default function ManageOrders() {
           padding: 15px;
           background-color: #f8f9fa;
           border-radius: 12px;
+
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+
         }
 
         .payment-proof label {
@@ -549,11 +571,17 @@ export default function ManageOrders() {
 
         .proof-image {
           max-width: 100%;
-          height: auto;
+
+          height: 300px;
+          object-fit: contain;
+
           border-radius: 8px;
           border: 2px solid #e9ecef;
           padding: 5px;
           background-color: #fff;
+
+          margin-top: auto;
+
         }
 
         .no-proof {
