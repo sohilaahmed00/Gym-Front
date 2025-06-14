@@ -12,52 +12,64 @@ const TrainingSchedule = () => {
   const [showModal, setShowModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const toast = useRef(null);
-
   const userId = localStorage.getItem('id');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [assignmentsRes, nutritionRes] = await Promise.all([
-          axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`)
-        ]);
-
-        // Check if assignmentsRes.data is an array or has a "message" property (no data)
-        if (Array.isArray(assignmentsRes.data)) {
-          setAssignments(assignmentsRes.data.sort((a, b) => new Date(a.day) - new Date(b.day)));
-        } else if (assignmentsRes.data?.message) {
-          setAssignments([]); // no assignments
-          toast.current.show({ severity: 'info', summary: 'No Assignments', detail: assignmentsRes.data.message, life: 4000 });
-        }
-
-        // Same for nutrition plans
-        if (Array.isArray(nutritionRes.data)) {
-          setNutritionPlans(nutritionRes.data);
-        } else if (nutritionRes.data?.message) {
-          setNutritionPlans([]); // no nutrition plans
-          toast.current.show({ severity: 'info', summary: 'No Nutrition Plans', detail: nutritionRes.data.message, life: 4000 });
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-        toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load training data', life: 4000 });
-      }
-    };
-
-    fetchData();
+    fetchAllData();
   }, [userId]);
+
+  const fetchAllData = async () => {
+    try {
+      const [assignmentsRes, nutritionRes] = await Promise.all([
+        axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`),
+        axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`)
+      ]);
+
+      if (Array.isArray(assignmentsRes.data)) {
+        const sortedAssignments = assignmentsRes.data.sort((a, b) => new Date(a.day) - new Date(b.day));
+        setAssignments(sortedAssignments);
+      }
+
+      if (Array.isArray(nutritionRes.data)) {
+        const map = {};
+        nutritionRes.data.forEach(plan => {
+          const key = normalizeNutritionDate(plan.day);
+          if (!map[key]) map[key] = plan;
+        });
+        setNutritionPlans(Object.values(map));
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to load training data', life: 4000 });
+    }
+  };
+
+  const normalizeNutritionDate = (dayStr) => {
+    if (/^\d{2}-\d{2}-\d{4}$/.test(dayStr)) {
+      const [dd, mm, yyyy] = dayStr.split('-');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    return dayStr;
+  };
+
+  const isSameDate = (d1, d2) => {
+    const format = (dateStr) => {
+      if (typeof dateStr === 'string' && dateStr.includes('T')) {
+        const d = new Date(dateStr);
+        return d.toISOString().split('T')[0];
+      } else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+        const [day, month, year] = dateStr.split('-');
+        return `${year}-${month}-${day}`;
+      }
+      return dateStr;
+    };
+    return format(d1) === format(d2);
+  };
 
   const handleMarkDone = async (assignment) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Assignments/UpdateAssignment/${assignment.assignment_ID}`, {
-        ...assignment,
-        isCompleted: true,
-      });
-
-      setAssignments(prev =>
-        prev.map(a => a.assignment_ID === assignment.assignment_ID ? { ...a, isCompleted: true } : a)
-      );
-
+      await axios.put(`http://gymmatehealth.runasp.net/api/Assignments/CompleteAssignment/${assignment.assignment_ID}`);
+      await fetchAllData();
       toast.current.show({
         severity: 'success',
         summary: 'Marked as Done',
@@ -66,20 +78,24 @@ const TrainingSchedule = () => {
       });
     } catch (error) {
       console.error('Failed to mark as done:', error);
-      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Failed to mark assignment as done', life: 3000 });
+      toast.current.show({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to mark assignment as done',
+        life: 3000,
+      });
     }
   };
 
   const handleOpenModal = (assignment) => {
-    const nutrition = nutritionPlans.find(n => n.day === assignment.day);
+    const nutrition = nutritionPlans.find(n => isSameDate(n.day, assignment.day));
     setSelectedDay({ ...assignment, nutrition });
     setShowModal(true);
   };
 
-  const handleSaveFeedback = () => {
-    console.log('Feedback for', selectedDay.day, feedbackText);
-    setShowModal(false);
-    setFeedbackText('');
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
   };
 
   return (
@@ -94,6 +110,7 @@ const TrainingSchedule = () => {
           {assignments.map(assignment => {
             const dateObj = new Date(assignment.day);
             const label = `${dateObj.toLocaleDateString()} (${dateObj.toLocaleDateString('en-US', { weekday: 'long' })})`;
+            const nutrition = nutritionPlans.find(n => isSameDate(n.day, assignment.day));
 
             return (
               <div key={assignment.assignment_ID} className="d-flex flex-column gap-3 justify-content-between p-2 text-center shadow-sm" style={{ width: '180px' }}>
@@ -128,43 +145,35 @@ const TrainingSchedule = () => {
         <>
           <div className={styles.modalContainer}>
             <div className={styles.modalContent}>
-              <h4 className={styles.modalTitle}>📆 Plan for {selectedDay.day}</h4>
+              <h4 className={styles.modalTitle}>📆 Plan for {formatDate(selectedDay.day)}</h4>
 
-              {/* Exercise Section */}
+              {/* Exercises */}
               <section className={styles.sectionBox}>
-                <h5>🏋️ Exercise Details</h5>
-                <p>
-                  <strong>Name:</strong>{' '}
-                  <a
-                    href={`/exercise/${selectedDay.exercise?.exercise_ID}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#fd5c28', textDecoration: 'underline' }}
-                  >
-                    {selectedDay.exercise?.exercise_Name}
-                  </a>
-                </p>
-                <p><strong>Description:</strong> {selectedDay.exercise?.description}</p>
-                <p><strong>Target Muscle:</strong> {selectedDay.exercise?.target_Muscle}</p>
-                <p><strong>Calories Burned:</strong> {selectedDay.exercise?.calories_Burned} kcal</p>
-                {selectedDay.exercise?.image_gif && (
-                  <img
-                    src={`http://gymmatehealth.runasp.net/images/Exercise/${selectedDay.exercise.image_gif}`}
-                    alt="exercise gif"
-                    className={styles.exerciseImage}
-                  />
-                )}
+                <h5>🏋️ Exercises</h5>
+                {selectedDay.exercises?.map((ex, i) => (
+                  <div key={i}>
+                    <strong>{ex.exercise_Name}</strong>
+                    <p>{ex.description}</p>
+                    {ex.image_url && (
+                      <img
+                        src={`http://gymmatehealth.runasp.net/images/Exercise/${ex.image_url}`}
+                        alt={ex.exercise_Name}
+                        className={styles.exerciseImage}
+                      />
+                    )}
+                  </div>
+                ))}
               </section>
 
-              {/* Nutrition Section */}
+              {/* Nutrition */}
               {selectedDay.nutrition ? (
                 <section className={styles.sectionBox}>
                   <h5>🥗 Nutrition Plan</h5>
                   <ul className={styles.nutritionGrid}>
                     <li><strong>Calories:</strong> {selectedDay.nutrition.calories_Needs}</li>
-                    <li><strong>Protein:</strong> {selectedDay.nutrition.protein_Needs}g</li>
-                    <li><strong>Carbs:</strong> {selectedDay.nutrition.carbs_Needs}g</li>
-                    <li><strong>Fats:</strong> {selectedDay.nutrition.fats_Needs}g</li>
+                    <li><strong>Protein:</strong> {selectedDay.nutrition.protein_Needs}</li>
+                    <li><strong>Carbs:</strong> {selectedDay.nutrition.carbs_Needs}</li>
+                    <li><strong>Fats:</strong> {selectedDay.nutrition.fats_Needs}</li>
                     <li><strong>1st Meal:</strong> {selectedDay.nutrition.firstMeal}</li>
                     <li><strong>2nd Meal:</strong> {selectedDay.nutrition.secondMeal}</li>
                     <li><strong>3rd Meal:</strong> {selectedDay.nutrition.thirdMeal}</li>
@@ -179,35 +188,8 @@ const TrainingSchedule = () => {
                 <p>No nutrition plan available for this day.</p>
               )}
 
-              <div className="mb-3">
-                {!selectedDay.isCompleted && (
-                  <div className="text-center mb-3">
-                    <Button
-                      label="✅ Mark this Day as Done"
-                      disabled={selectedDay.isCompleted}
-                      onClick={() => handleMarkDone(selectedDay)}
-                      style={{
-                        backgroundColor: '#28a745',
-                        color: '#fff',
-                        border: 'none',
-                        padding: '10px 16px',
-                        borderRadius: '6px',
-                      }}
-                    />
-                  </div>
-                )}
-                <label htmlFor="feedbackText" style={{ color: '#fd5c28' }}>Your Feedback</label>
-                <InputTextarea
-                  value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
-                  rows={4}
-                  className="w-100 mb-3 p-2"
-                  placeholder="Provide your feedback on today's session"
-                />
-              </div>
-              <div className="d-flex justify-content-between">
-                <Button label="Cancel" className="p-button-text" style={{ color: '#fd5c28' }} onClick={() => setShowModal(false)} />
-                <Button label="Submit Feedback" icon="pi pi-check" onClick={handleSaveFeedback} style={{ backgroundColor: '#fd5c28', color: '#fff', border: 'none', padding: '10px' }} />
+              <div className="d-flex justify-content-between mt-3">
+                <Button label="Close" className="p-button-text" style={{ color: '#fd5c28' }} onClick={() => setShowModal(false)} />
               </div>
             </div>
             <div className={styles.modalOverlay} onClick={() => setShowModal(false)} />
