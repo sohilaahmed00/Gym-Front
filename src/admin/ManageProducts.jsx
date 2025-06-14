@@ -8,7 +8,9 @@ const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // Main image path
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
   DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
+
   UPDATE_PRODUCT: (id) => `${API_BASE_URL}/Products/UpdateProdcut${id}`,
+
   ADD_PRODUCT: `${API_BASE_URL}/Products/AddNewProduct`
 };
 
@@ -335,6 +337,43 @@ export default function ManageProducts() {
       
       console.log('Editing product data:', editingProduct);
       
+
+              // If no new image selected, try different approach
+      if (!editProductImage) {
+        console.log('Trying update without image using JSON...');
+        const updateData = {
+          Product_ID: editingProduct.product_ID,
+          Product_Name: editingProduct.product_Name,
+          Description: editingProduct.description,
+          Price: editingProduct.price,
+          Discount: editingProduct.discount,
+          Stock_Quantity: editingProduct.stock_Quantity,
+          Image_URL: editingProduct.image_URL
+        };
+        
+        const response = await fetch(`http://gymmatehealth.runasp.net/api/Products/UpdateProduct${editingProduct.product_ID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updateData)
+        });
+        
+        console.log('JSON Update response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('JSON Update error response:', errorText);
+          throw new Error(`Failed to update product: ${response.status} - ${errorText}`);
+        }
+        
+        await fetchProducts();
+        setEditingProduct(null);
+        showAlert('Product updated successfully', 'success');
+        return;
+      }
+      
+
       const formData = new FormData();
       
       // Map the field names to match API expectations
