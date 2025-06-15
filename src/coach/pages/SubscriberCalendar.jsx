@@ -668,14 +668,20 @@ const SubscriberCalendar = ({ userId, userName }) => {
     const missingPast = [];
     let missingTmrw = null;
 
-    calendarDays.forEach(dayObj => {
-      const dayDate = new Date(dayObj.date);
-      dayDate.setHours(0, 0, 0, 0);
-      const hasAssignment = assignments.some(a => isSameDate(a.day, dayObj.date));
-      const hasNutrition = nutritionPlans.some(n => isSameDate(n.day, dayObj.date));
-      if (dayDate < today && (!hasAssignment || !hasNutrition)) missingPast.push(dayObj.date);
-      else if (dayDate.getTime() === tomorrow.getTime() && (!hasAssignment || !hasNutrition)) missingTmrw = dayObj.date;
-    });
+   calendarDays.forEach(dayObj => {
+  const dayDate = new Date(dayObj.date);
+  dayDate.setHours(0, 0, 0, 0);
+
+  const hasAssignment = Array.isArray(assignments) && assignments.some(a => isSameDate(a.day, dayObj.date));
+  const hasNutrition = Array.isArray(nutritionPlans) && nutritionPlans.some(n => isSameDate(n.day, dayObj.date));
+
+  if (dayDate < today && (!hasAssignment || !hasNutrition)) {
+    missingPast.push(dayObj.date);
+  } else if (dayDate.getTime() === tomorrow.getTime() && (!hasAssignment || !hasNutrition)) {
+    missingTmrw = dayObj.date;
+  }
+});
+
 
     setMissingPastDays(missingPast);
     setMissingTomorrow(missingTmrw);
@@ -697,8 +703,9 @@ const SubscriberCalendar = ({ userId, userName }) => {
 
   const openModal = (day) => {
     setSelectedDate(day);
-    const existingAssignment = assignments.find(a => isSameDate(a.day, day));
-    const existingNutrition = nutritionPlans.find(n => isSameDate(n.day, day));
+  const existingAssignment = (Array.isArray(assignments) ? assignments : []).find(a => isSameDate(a.day, day));
+const existingNutrition = (Array.isArray(nutritionPlans) ? nutritionPlans : []).find(n => isSameDate(n.day, day));
+
 
     setFormData({
       selectedCategoryId: existingAssignment?.category_ID || null,
@@ -776,8 +783,15 @@ const SubscriberCalendar = ({ userId, userName }) => {
         notes: formData.nutritionNotes
       };
 
-      setAssignments(prev => [...prev.filter(a => !isSameDate(a.day, selectedDate)), newAssignment]);
-      setNutritionPlans(prev => [...prev.filter(n => !isSameDate(n.day, selectedDate)), newNutrition]);
+     setAssignments(prev => [
+  ...(Array.isArray(prev) ? prev.filter(a => !isSameDate(a.day, selectedDate)) : []),
+  newAssignment
+]);
+
+setNutritionPlans(prev => [
+  ...(Array.isArray(prev) ? prev.filter(n => !isSameDate(n.day, selectedDate)) : []),
+  newNutrition
+]);
 
       toast.current.show({
         severity: 'success',
@@ -823,14 +837,15 @@ const SubscriberCalendar = ({ userId, userName }) => {
 
       <div className="row">
         {daysToShow.map(day => (
-          <CalendarDayBox
-            key={day.date}
-            dayObj={day}
-            assignments={assignments}
-            nutritionPlans={nutritionPlans}
-            openModal={openModal}
-            isSameDate={isSameDate}
-          />
+         <CalendarDayBox
+          key={day.date}
+          dayObj={day}
+          assignments={Array.isArray(assignments) ? assignments : []}
+          nutritionPlans={Array.isArray(nutritionPlans) ? nutritionPlans : []}
+          openModal={openModal}
+          isSameDate={isSameDate}
+        />
+
         ))}
       </div>
 
