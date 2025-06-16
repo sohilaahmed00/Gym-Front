@@ -86,7 +86,8 @@ export default function Checkout() {
     }
     setIsLoading(true);
     const formData = new FormData();
-    formData.append('User_ID', 'f8de3c94-85b0-4c43-826e-4ef8f3f12b8f');
+    const userId = localStorage.getItem('id');
+    formData.append('User_ID', userId); 
     formData.append('RecipientName', firstName);
     formData.append('Address', `${streetAddress}${apartment ? `, ${apartment}` : ''}`);
     formData.append('City', townCity);
