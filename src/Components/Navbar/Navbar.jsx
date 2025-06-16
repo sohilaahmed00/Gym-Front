@@ -17,6 +17,8 @@ function decodeJWT(token) {
 
 export default function Navbar() {
   const { cart } = useCart(); 
+  const { updateUserInCartContext } = useCart();
+  
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
   const [fullName, setFullName] = useState(''); 
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
@@ -83,6 +85,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout(); 
+    updateUserInCartContext();
     setIsLoggedIn(false); 
     navigate('/login'); 
   };
@@ -150,7 +153,7 @@ export default function Navbar() {
                 </span>
               </Link>
               {isLoggedIn && (
-                <Link to="/user" className="user-name ms-3">
+                <Link to={role === 'Coach' ? '/coach' : '/user'} className="user-name ms-3">
                   Welcome, {fullName}
                 </Link>
               )}

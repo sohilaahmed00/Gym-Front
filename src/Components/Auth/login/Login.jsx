@@ -5,8 +5,12 @@ import { Spinner } from 'react-bootstrap';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';  
 
 import styles from './Login.module.css'; 
+import { useCart } from '../../CartContext/CartContext';
 
 function Login() {
+
+    const { updateUserInCartContext } = useCart();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -58,7 +62,7 @@ function Login() {
         localStorage.setItem('token', data.token);
         localStorage.setItem('id', data.id);
         localStorage.setItem('fullName', data.fullName);
-
+        updateUserInCartContext();
         setTimeout(()=>{
           navigate('/');
         },3000)

@@ -65,6 +65,7 @@ import ChatBot from '../../UserProfile/pages/ChatBot';
 
 // import AdminExercises from '../../admin/AdminExercises';
 import IntroTour from '../IntroJs/IntroTour';
+import UserOrders from '../../UserProfile/pages/UserOrders';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -166,7 +167,10 @@ const routes = createBrowserRouter([
       { path: 'diet', element: <DietPlan/> },
       { path: "settings", element: <UserSettings />},
       { path: 'chat', element: <ChatBot /> },
-     { path: "settings", element: <UserSettings />}
+      { path: "settings", element: <UserSettings />},
+      { path: "orders" , element: <UserOrders /> },
+      { path: "cart" , element: <Cart /> },
+
 
       // { path: 'chat', element: <ChatWithCoach /> },
     ]

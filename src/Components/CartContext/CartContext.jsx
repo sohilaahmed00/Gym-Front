@@ -119,7 +119,7 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         removeFromCart,
         clearCart,
-        updateUserInCartContext, // Expose this function for Login/Logout components
+        updateUserInCartContext, 
       }}
     >
       {children}

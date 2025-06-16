@@ -1,0 +1,84 @@
+.tableWrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  background-color: #fff;
+}
+
+.orderTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  min-width: 1000px;
+}
+
+.orderTable thead tr {
+  background-color: #FF5722;
+  color: #fff;
+  text-align: left;
+}
+
+.orderTable th, .orderTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.orderTable tbody tr:hover {
+  background-color: #fff4ee;
+  transition: background-color 0.3s;
+}
+
+.orderTable td {
+  color: #333;
+}
+
+.orderTable th:first-child,
+.orderTable td:first-child {
+  border-top-left-radius: 12px;
+}
+
+.orderTable th:last-child,
+.orderTable td:last-child {
+  border-top-right-radius: 12px;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.accepted {
+  background-color: #e6f4ea;
+  color: #1b5e20;
+}
+
+.rejected {
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+.pending {
+  background-color: #fff8e1;
+  color: #ef6c00;
+}
+
+.unknown {
+  background-color: #eee;
+  color: #555;
+}
+
+.viewProof {
+  text-decoration: none;
+  color: #FF5722;
+  font-weight: 500;
+  border-bottom: 1px dashed #FF5722;
+}
+
+.viewProof:hover {
+  color: #e64a19;
+}
