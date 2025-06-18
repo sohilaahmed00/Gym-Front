@@ -66,6 +66,7 @@ import ChatBot from '../../UserProfile/pages/ChatBot';
 // import AdminExercises from '../../admin/AdminExercises';
 import IntroTour from '../IntroJs/IntroTour';
 import UserOrders from '../../UserProfile/pages/UserOrders';
+import CoachPayment from '../../coach/pages/CoachPayment';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -147,6 +148,7 @@ const routes = createBrowserRouter([
       { path: 'subscriber/:id', element: <SubscriberDetails /> },
       { path: 'exercise', element: <Exercises /> },
       { path: 'products', element: <Products /> },
+      {path: 'payments', element: <CoachPayment/>},
       {
         path: '/coach/expired/:id',
         element: <ExpiredSubscriberDetails />

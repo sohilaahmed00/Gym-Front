@@ -11,24 +11,24 @@ const PlanModal = ({
   categories,
   filteredExercises,
   selectedDate,
-  assignments,
-  nutritionPlans,
+  assignments = [],
+  nutritionPlans = [],
   isSameDate
 }) => {
   const [errors, setErrors] = useState({});
 
   const isAlreadyPlanned =
-    assignments.some(a => isSameDate(a.day, selectedDate)) ||
-    nutritionPlans.some(n => isSameDate(n.day, selectedDate));
+    Array.isArray(assignments) && assignments.some(a => isSameDate(a.day, selectedDate)) ||
+    Array.isArray(nutritionPlans) && nutritionPlans.some(n => isSameDate(n.day, selectedDate));
 
   const handleValidationAndSubmit = () => {
     const newErrors = {};
 
-    // Negative value checks
-    if (formData.calories < 0) newErrors.calories = "Calories can't be negative";
-    if (formData.protein < 0) newErrors.protein = "Protein can't be negative";
-    if (formData.carbs < 0) newErrors.carbs = "Carbs can't be negative";
-    if (formData.fats < 0) newErrors.fats = "Fats can't be negative";
+    // Negative number check
+    ['calories', 'protein', 'carbs', 'fats'].forEach(field => {
+      const value = Number(formData[field]);
+      if (value < 0) newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} can't be negative`;
+    });
 
     // Required meals
     ['firstMeal', 'secondMeal', 'thirdMeal'].forEach(meal => {
@@ -44,11 +44,10 @@ const PlanModal = ({
       onSubmit();
     }
   };
-useEffect(() => {
-  if (!show) {
-    setErrors({});
-  }
-}, [show]);
+
+  useEffect(() => {
+    if (!show) setErrors({});
+  }, [show]);
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
@@ -59,6 +58,7 @@ useEffect(() => {
         <Form>
           <h6>🏋️ Assignment</h6>
 
+          {/* Category */}
           <Form.Group className="mb-3">
             <Form.Label>Category</Form.Label>
             <Form.Select
@@ -74,6 +74,7 @@ useEffect(() => {
             </Form.Select>
           </Form.Group>
 
+          {/* Exercises */}
           <Form.Group className="mb-3">
             <Form.Label>Exercises</Form.Label>
             <Select
@@ -99,6 +100,7 @@ useEffect(() => {
             />
           </Form.Group>
 
+          {/* Notes */}
           <Form.Group className="mb-3">
             <Form.Label>Notes</Form.Label>
             <Form.Control
@@ -110,9 +112,9 @@ useEffect(() => {
           </Form.Group>
 
           <hr />
-
           <h6>🥗 Nutrition Plan</h6>
 
+          {/* Meals */}
           {['firstMeal', 'secondMeal', 'thirdMeal', 'fourthMeal', 'fifthMeal', 'snacks', 'vitamins'].map(meal => (
             <Form.Group key={meal} className="mb-2">
               <Form.Label>{meal}</Form.Label>
@@ -130,6 +132,7 @@ useEffect(() => {
             </Form.Group>
           ))}
 
+          {/* Nutrition Notes */}
           <Form.Group className="mb-3">
             <Form.Label>Notes</Form.Label>
             <Form.Control
@@ -140,6 +143,7 @@ useEffect(() => {
             />
           </Form.Group>
 
+          {/* Macros */}
           <Form.Group className="mb-3 d-flex gap-2">
             {['calories', 'protein', 'carbs', 'fats'].map((field) => (
               <div className="w-100" key={field}>
@@ -156,6 +160,7 @@ useEffect(() => {
           </Form.Group>
         </Form>
       </Modal.Body>
+
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Cancel</Button>
         {!isAlreadyPlanned && (
