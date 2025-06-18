@@ -157,8 +157,12 @@ const SubscriberCalendar = ({ userId, userName }) => {
 
   const openModal = (day) => {
     setSelectedDate(day);
-    const existingAssignment = assignments.find(a => isSameDate(a.day, day));
-    const existingNutrition = nutritionPlans.find(n => isSameDate(n.day, day));
+    const existingAssignment =  Array.isArray(assignments)
+  ? assignments.find(a => isSameDate(a.day, day))
+  : null;
+    const existingNutrition = Array.isArray(nutritionPlans)
+  ? nutritionPlans.find(n => isSameDate(n.day, day))
+  : null;
 
     setFormData({
       selectedCategoryId: existingAssignment?.category_ID || null,
