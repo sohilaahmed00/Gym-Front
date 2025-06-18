@@ -16,7 +16,7 @@ const UserHome = () => {
   const toast = useRef(null);
   const toastShown = useRef(false);
   const navigate = useNavigate();
-
+  
   const [name, setName] = useState('');
   const [plan, setPlan] = useState('');
   const [subscription, setSubscription] = useState(undefined); // use undefined to detect loading
@@ -97,7 +97,11 @@ const UserHome = () => {
         });
 
         const total = getTotalSessions(sub.subscriptionType);
-        const completed = assignmentRes.data.filter(a => a.isCompleted).length;
+const completed = Array.isArray(assignmentRes.data)
+  ? assignmentRes.data.filter(a => a.isCompleted).length
+  : Array.isArray(assignmentRes.data.assignments)
+    ? assignmentRes.data.assignments.filter(a => a.isCompleted).length
+    : 0;
         const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
         setCompletedSessions(completed);

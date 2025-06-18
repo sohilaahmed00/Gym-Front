@@ -1,5 +1,4 @@
-// PlanModal.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import Select from 'react-select';
 
@@ -11,8 +10,46 @@ const PlanModal = ({
   setFormData,
   categories,
   filteredExercises,
-  selectedDate
+  selectedDate,
+  assignments,
+  nutritionPlans,
+  isSameDate
 }) => {
+  const [errors, setErrors] = useState({});
+
+  const isAlreadyPlanned =
+    assignments.some(a => isSameDate(a.day, selectedDate)) ||
+    nutritionPlans.some(n => isSameDate(n.day, selectedDate));
+
+  const handleValidationAndSubmit = () => {
+    const newErrors = {};
+
+    // Negative value checks
+    if (formData.calories < 0) newErrors.calories = "Calories can't be negative";
+    if (formData.protein < 0) newErrors.protein = "Protein can't be negative";
+    if (formData.carbs < 0) newErrors.carbs = "Carbs can't be negative";
+    if (formData.fats < 0) newErrors.fats = "Fats can't be negative";
+
+    // Required meals
+    ['firstMeal', 'secondMeal', 'thirdMeal'].forEach(meal => {
+      if (!formData.meals[meal]?.trim()) {
+        newErrors[meal] = `${meal} is required`;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+    } else {
+      setErrors({});
+      onSubmit();
+    }
+  };
+useEffect(() => {
+  if (!show) {
+    setErrors({});
+  }
+}, [show]);
+
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
@@ -22,7 +59,6 @@ const PlanModal = ({
         <Form>
           <h6>🏋️ Assignment</h6>
 
-          {/* Category */}
           <Form.Group className="mb-3">
             <Form.Label>Category</Form.Label>
             <Form.Select
@@ -38,7 +74,6 @@ const PlanModal = ({
             </Form.Select>
           </Form.Group>
 
-          {/* Exercises */}
           <Form.Group className="mb-3">
             <Form.Label>Exercises</Form.Label>
             <Select
@@ -64,7 +99,6 @@ const PlanModal = ({
             />
           </Form.Group>
 
-          {/* Notes */}
           <Form.Group className="mb-3">
             <Form.Label>Notes</Form.Label>
             <Form.Control
@@ -90,7 +124,9 @@ const PlanModal = ({
                     meals: { ...formData.meals, [meal]: e.target.value }
                   })
                 }
+                isInvalid={!!errors[meal]}
               />
+              <Form.Control.Feedback type="invalid">{errors[meal]}</Form.Control.Feedback>
             </Form.Group>
           ))}
 
@@ -105,36 +141,26 @@ const PlanModal = ({
           </Form.Group>
 
           <Form.Group className="mb-3 d-flex gap-2">
-            <Form.Control
-              type="number"
-              placeholder="Calories"
-              value={formData.calories}
-              onChange={e => setFormData({ ...formData, calories: e.target.value })}
-            />
-            <Form.Control
-              type="number"
-              placeholder="Protein"
-              value={formData.protein}
-              onChange={e => setFormData({ ...formData, protein: e.target.value })}
-            />
-            <Form.Control
-              type="number"
-              placeholder="Carbs"
-              value={formData.carbs}
-              onChange={e => setFormData({ ...formData, carbs: e.target.value })}
-            />
-            <Form.Control
-              type="number"
-              placeholder="Fats"
-              value={formData.fats}
-              onChange={e => setFormData({ ...formData, fats: e.target.value })}
-            />
+            {['calories', 'protein', 'carbs', 'fats'].map((field) => (
+              <div className="w-100" key={field}>
+                <Form.Control
+                  type="number"
+                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  value={formData[field]}
+                  onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                  isInvalid={!!errors[field]}
+                />
+                <Form.Control.Feedback type="invalid">{errors[field]}</Form.Control.Feedback>
+              </div>
+            ))}
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="success" onClick={onSubmit}>Save</Button>
+        {!isAlreadyPlanned && (
+          <Button variant="success" onClick={handleValidationAndSubmit}>Save</Button>
+        )}
       </Modal.Footer>
     </Modal>
   );
