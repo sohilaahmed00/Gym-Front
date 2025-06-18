@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaHome, FaDumbbell, FaShoppingCart, FaUsers, FaCog, FaBell, FaCommentDots } from 'react-icons/fa';
+import { FaHome, FaDumbbell, FaShoppingCart, FaUsers, FaCog, FaBell, FaCommentDots,FaMoneyBillWave } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
@@ -15,13 +15,13 @@ const Sidebar = () => {
   const [notifCount, setNotifCount] = useState(3);
   const [msgCount, setMsgCount] = useState(5);
 
-  const plans = ['All', '3_Months', '6_Months', '12_Months'];
+  const plans = ['All', '3_Months', '6_Months', '1_Year'];
 
   const formatPlan = (plan) => ({
     'All': 'All Plans',
     '3_Months': '3 Months',
     '6_Months': '6 Months',
-    '12_Months': '12 Months'
+    '1_Year': '1 Year'
   }[plan] || 'Unknown');
 
   useEffect(() => {
@@ -127,9 +127,18 @@ const Sidebar = () => {
         <NavLink to="/coach/products" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
           <FaShoppingCart /> Products
         </NavLink>
+        <NavLink
+          to="/coach/payments"
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+           <FaMoneyBillWave /> Payments
+        </NavLink>
         <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
           <FaHome /> Back Home
         </NavLink>
+        
       </nav>
 
       <hr />

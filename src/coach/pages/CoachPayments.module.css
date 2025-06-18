@@ -1,0 +1,105 @@
+.paymentsContainer {
+  padding: 30px 0;
+  background: #fafafa;
+}
+.methodSection {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+}
+
+.select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.detailsInput {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.saveBtn {
+  background-color: #fd5c28;
+  border: none;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.message {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.title {
+  color: #fd5c28;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+
+
+
+
+.detailsInput {
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  width: 300px;
+}
+
+.saveBtn {
+  background-color: #fd5c28;
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.message {
+  margin-left: 12px;
+  font-weight: bold;
+}
+
+.monthSection {
+  margin-top: 40px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.table th, .table td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.table thead {
+  background-color: #fd5c28;
+  color: white;
+}
+
+.paid {
+  color: green;
+  font-weight: bold;
+}
+
+.pending {
+  color: orange;
+  font-weight: bold;
+}
