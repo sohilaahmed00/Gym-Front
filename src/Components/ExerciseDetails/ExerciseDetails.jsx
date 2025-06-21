@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchExerciseById } from '../../services/exerciseAPI'; // Import the API function
 import styles from './ExerciseDetails.module.css';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 function ExerciseDetails() {
   const { id } = useParams(); // Get the exercise ID from the URL
@@ -10,7 +11,7 @@ function ExerciseDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/images/Exercise/'; // Base URL for images
+  const baseUrl = `${API_BASE_IMAGE_URL}t/images/Exercise/`; // Base URL for images
 
   useEffect(() => {
     const getExerciseDetails = async () => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom';
 import styles from './ForgotPassword.module.css'; // Import the CSS module
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -25,7 +26,7 @@ function ForgotPassword() {
     setLoading(true);
 
     try {                                 
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/forget-password', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/forget-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './CoachPayments.module.css';
+import { API_BASE_URL } from '../../config';
 
 const subscriptionPrices = {
   '3_Months': 600,
@@ -22,7 +23,7 @@ const CoachPayments = () => {
 
   const fetchSubs = async () => {
     try {
-      const res = await axios.get(`http://gymmatehealth.runasp.net/api/Subscribes/coach/${coachId}`);
+      const res = await axios.get(`${API_BASE_URL}/Subscribes/coach/${coachId}`);
       setSubs(res.data);
     } catch (err) {
       console.error(err);
@@ -45,7 +46,7 @@ const CoachPayments = () => {
     }
 
     try {
-      await axios.post('http://gymmatehealth.runasp.net/api/Coach/SavePaymentMethod', {
+      await axios.post(`${API_BASE_URL}/Coach/SavePaymentMethod`, {
         coachId,
         method: paymentMethod,
         details: paymentDetails

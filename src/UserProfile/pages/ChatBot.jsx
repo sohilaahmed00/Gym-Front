@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { InferenceClient } from '@huggingface/inference';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config';
 
 const client = new InferenceClient(process.env.REACT_APP_HF_API_KEY);
 
@@ -51,11 +52,11 @@ const ChatBot = () => {
     const fetchData = async () => {
       try {
         const [userRes, subRes, assignRes, nutritionRes, allExercisesRes] = await Promise.all([
-          axios.get(`http://gymmatehealth.runasp.net/api/Users/Getuserbyid/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/Subscribes/GetSubscribeByUserId/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/Exercises/GetAllExercises`)
+          axios.get(`${API_BASE_URL}/Users/Getuserbyid/${userId}`),
+          axios.get(`${API_BASE_URL}/Subscribes/GetSubscribeByUserId/${userId}`),
+          axios.get(`${API_BASE_URL}/Assignments/GetAllUserAssignments/${userId}`),
+          axios.get(`${API_BASE_URL}/NutritionPlans/GetAllUserNutritionplans/${userId}`),
+          axios.get(`${API_BASE_URL}/Exercises/GetAllExercises`)
         ]);
 
         const user = userRes.data;

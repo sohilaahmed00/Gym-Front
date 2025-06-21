@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './CoachProfile.module.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 function CoachProfile() {
   const { id } = useParams();
@@ -13,7 +14,7 @@ function CoachProfile() {
     const fetchCoachProfile = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://gymmatehealth.runasp.net/api/Coaches/GetCoachbyId/${id}`);
+        const response = await fetch(`${API_BASE_URL}/Coaches/GetCoachbyId/${id}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -88,7 +89,7 @@ function CoachProfile() {
       <div className={styles.profileContent}>
         <div className={styles.profileImage}>
           <img 
-            src={`http://gymmatehealth.runasp.net/images/profiles/${coach.applicationUser?.image}` || '/placeholder-coach.jpg'} 
+            src={`${API_BASE_IMAGE_URL}/images/profiles/${coach.applicationUser?.image}` || '/placeholder-coach.jpg'} 
             alt={coach.applicationUser?.fullName}
           />
         </div>

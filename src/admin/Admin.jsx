@@ -12,6 +12,7 @@ import PendingCoaches from './PendingCoaches'
 import ExerciseCategories from './ExerciseCategories'
 import AdminChart from './AdminChart'
 import Statistics from './Statistics'
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config'
 // import UserTypePieChart from './UserTypePieChart'
 
 function Admin() {
@@ -64,7 +65,7 @@ function Admin() {
   useEffect(() => {
     async function fetchCoaches() {
       try {
-        const res = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        const res = await fetch(`${API_BASE_URL}/Coaches/GetAllCoaches`);
         const data = await res.json();
         const sorted = [...data].sort((a, b) => new Date(b.createdAt || b.addedDate || b.date || 0) - new Date(a.createdAt || a.addedDate || a.date || 0));
         setRecentCoaches(sorted.slice(0, 5));
@@ -76,7 +77,7 @@ function Admin() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const res = await fetch('http://gymmatehealth.runasp.net/api/Users/GetAllUsers');
+        const res = await fetch(`${API_BASE_URL}i/Users/GetAllUsers`);
         const data = await res.json();
         const sorted = [...data].sort((a, b) => new Date(b.createdAt || b.addedDate || b.date || 0) - new Date(a.createdAt || a.addedDate || a.date || 0));
         setRecentUsers(sorted.slice(0, 5));
@@ -89,12 +90,12 @@ function Admin() {
     async function fetchPendingCounts() {
       try {
         // جلب المدربين المعلقين من API الكوتشات المعلقة مباشرة
-        const coachesRes = await fetch('http://gymmatehealth.runasp.net/api/Coaches/AllUnapprovedCoaches');
+        const coachesRes = await fetch(`${API_BASE_URL}/Coaches/AllUnapprovedCoaches`);
         const coaches = await coachesRes.json();
         setPendingCoachesCount(coaches.length);
 
         // جلب الاشتراكات المعلقة
-        const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const subsRes = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         const subs = await subsRes.json();
         // عدل حسب اسم الحقل والقيمة الفعلية للحالة المعلقة
         const pendingSubs = subs.filter(sub => sub.status === 'pending' || sub.status === 0);
@@ -113,10 +114,10 @@ function Admin() {
     const fetchStats = async () => {
       try {
         const [coachesRes, usersRes, productsRes, subsRes] = await Promise.all([
-          fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches'),
-          fetch('http://gymmatehealth.runasp.net/api/Users/GetAllUsers'),
-          fetch('http://gymmatehealth.runasp.net/api/Products/GetAllProducts'),
-          fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions'),
+          fetch(`${API_BASE_URL}/Coaches/GetAllCoaches`),
+          fetch(`${API_BASE_URL}/Users/GetAllUsers`),
+          fetch(`${API_BASE_URL}/Products/GetAllProducts`),
+          fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`),
         ]);
         const [coaches, users, products, subscriptions] = await Promise.all([
           coachesRes.json(), usersRes.json(), productsRes.json(), subsRes.json()
@@ -156,7 +157,7 @@ function Admin() {
     async function fetchRevenueAndStats() {
       try {
         // Get all subscriptions
-        const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const subsRes = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         const subs = await subsRes.json();
         let revenue = 0;
         let newSubs = 0;
@@ -202,7 +203,7 @@ function Admin() {
         setTotalRevenue(revenue);
         setNewSubscriptions(newSubs);
         // Get all users for new users this month
-        const usersRes = await fetch('http://gymmatehealth.runasp.net/api/Users/GetAllUsers');
+        const usersRes = await fetch(`${API_BASE_URL}/Users/GetAllUsers`);
         const users = await usersRes.json();
         let newUsersCount = 0;
         if (Array.isArray(users)) {
@@ -328,7 +329,7 @@ function Admin() {
                     <li key={coach.userId} className="list-group-item d-flex justify-content-between align-items-center">
                       <span className="d-flex align-items-center gap-2">
                         {coach.image ? (
-                          <img src={`http://gymmatehealth.runasp.net/images/profiles/${coach.image}`} alt={coach.fullName} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                          <img src={`${API_BASE_IMAGE_URL}/images/profiles/${coach.image}`} alt={coach.fullName} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
                           <span style={{ width: 32, height: 32, borderRadius: '50%', background: '#eee', color: '#888', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                             <i className="fas fa-user-tie"></i>
@@ -354,7 +355,7 @@ function Admin() {
                     <li key={user.userId} className="list-group-item d-flex justify-content-between align-items-center">
                       <span className="d-flex align-items-center gap-2">
                         {user.image ? (
-                          <img src={`http://gymmatehealth.runasp.net/images/profiles/${user.image}`} alt={user.fullName} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                          <img src={`${API_BASE_IMAGE_URL}/images/profiles/${user.image}`} alt={user.fullName} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
                           <span style={{ width: 32, height: 32, borderRadius: '50%', background: '#eee', color: '#888', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
                             <i className="fas fa-user"></i>

@@ -4,6 +4,7 @@ import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import styles from './TrainingSchedule.module.css';
 import { isSameDate, parseCustomDate, formatDateForBackend } from '../../services/date';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 const TrainingSchedule = () => {
   const [assignments, setAssignments] = useState([]);
@@ -20,8 +21,8 @@ const TrainingSchedule = () => {
   const fetchAllData = async () => {
     try {
       const [assignmentsRes, nutritionRes] = await Promise.all([
-        axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`),
-        axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`)
+        axios.get(`${API_BASE_URL}/Assignments/GetAllUserAssignments/${userId}`),
+        axios.get(`${API_BASE_URL}/NutritionPlans/GetAllUserNutritionplans/${userId}`)
       ]);
 
       if (Array.isArray(assignmentsRes.data)) {
@@ -58,7 +59,7 @@ const TrainingSchedule = () => {
 
   const handleMarkDone = async (assignment) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Assignments/CompleteAssignment/${assignment.assignment_ID}`);
+      await axios.put(`${API_BASE_URL}/Assignments/CompleteAssignment/${assignment.assignment_ID}`);
       await fetchAllData();
       toast.current.show({
         severity: 'success',
@@ -146,7 +147,7 @@ const TrainingSchedule = () => {
                     <p>{ex.description}</p>
                     {ex.image_url && (
                       <img
-                        src={`http://gymmatehealth.runasp.net/images/Exercise/${ex.image_url}`}
+                        src={`${API_BASE_IMAGE_URL}/images/Exercise/${ex.image_url}`}
                         alt={ex.exercise_Name}
                         className={styles.exerciseImage}
                       />

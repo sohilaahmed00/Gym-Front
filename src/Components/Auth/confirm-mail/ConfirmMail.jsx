@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { SaveRegistrationProgress } from '../../../services/checkRegisterationStep';
 import styles from './ConfirmMail.module.css'
 import { Spinner } from 'react-bootstrap';
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 function decodeJWT(token) {
   try {
@@ -57,7 +58,7 @@ const ConfirmMail = () => {
 
     try {
       setLoading(true);
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/confirm-email', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/confirm-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }), 

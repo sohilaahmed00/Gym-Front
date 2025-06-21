@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 // API variables
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_ALL_SUBSCRIPTIONS: `${API_BASE_URL}/Subscribes/GetAllSubscribtions`,
   GET_USER_BY_ID: (userId) => `${API_BASE_URL}/Users/Getuserbyid/${userId}`,
@@ -366,7 +366,7 @@ export default function ManageSubscriptions() {
                         {subscription.paymentProof ? (
                           <button 
                             className="btn btn-sm btn-outline-info"
-                            onClick={() => handleShow(`http://gymmatehealth.runasp.net/Images/PaymentProofs/${subscription.paymentProof}`)}
+                            onClick={() => handleShow(`${API_BASE_IMAGE_URL}/Images/PaymentProofs/${subscription.paymentProof}`)}
                           >
                             <i className="fas fa-image me-1"></i>
                             View

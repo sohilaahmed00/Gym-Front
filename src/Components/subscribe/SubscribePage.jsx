@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SubscribePage.module.css';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { API_BASE_URL } from '../../config';
 
 const planPrices = {
   '3_Months': 600,
@@ -65,7 +66,7 @@ const SubscribePage = () => {
   });
 
   useEffect(() => {
-    fetch('http://gymmatehealth.runasp.net/api/Coaches/AllApprovedCoaches')
+    fetch(`${API_BASE_URL}/Coaches/AllApprovedCoaches`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -121,7 +122,7 @@ const SubscribePage = () => {
     }
 console.log(formData);
 
-    fetch('http://gymmatehealth.runasp.net/api/Subscribes/AddNewSubscribe', {
+    fetch(`${API_BASE_URL}/Subscribes/AddNewSubscribe`, {
       method: 'POST',
       body: data,
     })

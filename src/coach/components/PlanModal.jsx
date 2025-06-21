@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import Select from 'react-select';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 const PlanModal = ({
   show,
@@ -90,7 +91,7 @@ const PlanModal = ({
               formatOptionLabel={option => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <img
-                    src={`http://gymmatehealth.runasp.net/images/Exercise/${option.image_url}`}
+                    src={`${API_BASE_IMAGE_URL}/images/Exercise/${option.image_url}`}
                     alt={option.label}
                     style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
                   />

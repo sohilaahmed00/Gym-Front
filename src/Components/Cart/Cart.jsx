@@ -4,13 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext.jsx';
 import styles from './Cart.module.css';
+import { API_BASE_IMAGE_URL } from '../../config.js';
 
 export default function Cart() {
   const orangeColor = '#FF5722';
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [localQuantities, setLocalQuantities] = useState({});
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/Images/Products/`;
 
   useEffect(() => {
     setLocalQuantities(

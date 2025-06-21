@@ -2,7 +2,6 @@
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import axios from 'axios';
 
-// const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 
 // export default function ManageClients() {
 //   // Clients state

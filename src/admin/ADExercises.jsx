@@ -3,13 +3,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 // تعريف متغيرات API
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
+
 const API_ENDPOINTS = {
   GET_CATEGORY: (id) => `${API_BASE_URL}/Categories/GetCategory/${id}`,
-  GET_EXERCISES_BY_CATEGORY: (id) => `http://gymmatehealth.runasp.net/api/Exercises/GetByCategoryId/${id}`,
+  GET_EXERCISES_BY_CATEGORY: (id) => `${API_BASE_URL}/Exercises/GetByCategoryId/${id}`,
   GET_ALL_EXERCISES: `${API_BASE_URL}/Exercises/GetAllExercises`,
   ADD_EXERCISE: `${API_BASE_URL}/Exercises/AddExercise`,
   UPDATE_EXERCISE: `${API_BASE_URL}/Exercises/UpdateExercise`,

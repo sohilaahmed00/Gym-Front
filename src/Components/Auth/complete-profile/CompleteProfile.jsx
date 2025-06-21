@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompleteProfile.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Spinner } from 'react-bootstrap';
+import { API_BASE_URL } from '../../../config';
 
 const CompleteProfile = () => {
   const [height, setHeight] = useState('');
@@ -63,7 +64,7 @@ const CompleteProfile = () => {
         : { id, specialization, portfolio_Link, experience_Years: Number(experience_Years), availability, bio };
 
     try {
-      const response = await fetch(`http://gymmatehealth.runasp.net/Auth/${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}/Auth/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyData),

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Toast } from 'primereact/toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './EnterOtp.module.css';
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 function EnterOtp() {
   const [otp, setOtp] = useState('');
@@ -45,7 +46,7 @@ function EnterOtp() {
    
     
     try {           
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/register-otp-for-new-password', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/register-otp-for-new-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(otpData),
