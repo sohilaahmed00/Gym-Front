@@ -4,8 +4,8 @@ import axios from 'axios';
 import 'primereact/resources/themes/saga-blue/theme.css';      
 import 'primereact/resources/primereact.min.css';              
 import 'primeicons/primeicons.css';                           
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
-const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
 export default function ExerciseDropdown({ onSelect }) {
   const [exercises, setExercises] = useState([]);
@@ -14,7 +14,7 @@ export default function ExerciseDropdown({ onSelect }) {
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/Exercises/GetAllExercises`);
+        const res = await axios.get(`${API_BASE_URL}/Exercises/GetAllExercises`);
         setExercises(res.data);
       } catch (err) {
         console.error('Error fetching exercises:', err);
@@ -29,7 +29,7 @@ export default function ExerciseDropdown({ onSelect }) {
         <div className="flex align-items-center">
           <img
             alt={option.exercise_Name}
-            src={`http://gymmatehealth.runasp.net/images/Exercise/${option.image_gif}`}
+            src={`${API_BASE_IMAGE_URL}/images/Exercise/${option.image_gif}`}
             style={{ width: 40, height: 30, objectFit: 'cover', marginRight: 8 }}
           />
           <div>{option.exercise_Name}</div>
@@ -45,7 +45,7 @@ export default function ExerciseDropdown({ onSelect }) {
       <div className="flex align-items-center" style={{ gap: '8px' }}>
         <img
           alt={option.exercise_Name}
-          src={`http://gymmatehealth.runasp.net/images/Exercise/${option.image_gif}`}
+          src={`${API_BASE_IMAGE_URL}/images/Exercise/${option.image_gif}`}
           style={{ width: 40, height: 30, objectFit: 'cover' }}
         />
         <div>{option.exercise_Name}</div>

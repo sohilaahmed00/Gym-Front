@@ -3,8 +3,8 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './UserOrders.module.css';
 import { Link } from 'react-router-dom';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
-const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -22,7 +22,7 @@ const UserOrders = () => {
 
   useEffect(() => {
     if (!userId) return;
-    axios.get(`${API_BASE}/Orders/GetOrdersByUserId/${userId}`)
+    axios.get(`${API_BASE_URL}/Orders/GetOrdersByUserId/${userId}`)
       .then((res) => {
         setOrders(res.data);
         setLoading(false);
@@ -85,7 +85,7 @@ const UserOrders = () => {
                   <td>{order.totalPrice.toFixed(2)} EGP</td>
                   <td>
                     <a
-                      href={`http://gymmatehealth.runasp.net/images/${order.paymentProof}`}
+                      href={`${API_BASE_IMAGE_URL}/images/${order.paymentProof}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={styles.viewProof}

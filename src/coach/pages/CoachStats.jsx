@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 
 import styles from './CoachStats.module.css'; // Import CSS module
+import { API_BASE_URL } from '../../config';
 
 const COLORS = ['#fd5c28', '#7b6ef6'];
 
@@ -42,7 +43,7 @@ const CoachStats = () => {
 
     const fetchCoach = async () => {
       try {
-        const res = await fetch(`http://gymmatehealth.runasp.net/api/Coaches/GetCoachbyId/${coachId}`);
+        const res = await fetch(`${API_BASE_URL}/Coaches/GetCoachbyId/${coachId}`);
         if (!res.ok) throw new Error('Failed to fetch coach info');
         const data = await res.json();
         setCoachName(data.applicationUser?.fullName || '');
@@ -59,7 +60,7 @@ const CoachStats = () => {
 
     const fetchSubs = async () => {
       try {
-        const res = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const res = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         if (!res.ok) throw new Error('Failed to fetch subscriptions');
         const data = await res.json();
 

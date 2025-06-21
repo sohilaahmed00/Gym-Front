@@ -3,10 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
-// تعريف متغيرات API
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // مسار الصور الرئيسي
+ 
 const API_ENDPOINTS = {
   GET_ALL_CATEGORIES: `${API_BASE_URL}/Categories/GetAllCategories`,
   ADD_CATEGORY: `${API_BASE_URL}/Categories/AddNewCategory`,
@@ -409,7 +408,7 @@ const ExerciseCategories = () => {
                       <div className="card-img-top d-flex align-items-center justify-content-center bg-light" style={{ height: '120px' }}>
                         {category.imageUrl ? (
                           <img 
-                            src={`http://gymmatehealth.runasp.net/images/category/${category.imageUrl}`}
+                            src={`${API_BASE_IMAGE_URL}/images/category/${category.imageUrl}`}
                             alt={category.category_Name}
                             style={{ 
                               width: '100%', 

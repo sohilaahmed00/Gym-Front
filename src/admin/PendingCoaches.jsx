@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 const PendingCoaches = () => {
   // Pending coaches state
@@ -18,7 +19,7 @@ const PendingCoaches = () => {
   const fetchPendingCoaches = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://gymmatehealth.runasp.net/api/Coaches/AllUnapprovedCoaches');
+      const response = await axios.get(`${API_BASE_URL}/Coaches/AllUnapprovedCoaches`);
       setPendingCoaches(response.data);
       setFilteredCoaches(response.data);
     } catch (error) {
@@ -74,7 +75,7 @@ const PendingCoaches = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Coaches/AdminApprovesCoach/${id}`);
+      await axios.put(`${API_BASE_URL}/Coaches/AdminApprovesCoach/${id}`);
       fetchPendingCoaches();
       setAlert({ show: true, type: 'success', message: 'Coach approved successfully' });
     } catch (error) {
@@ -85,7 +86,7 @@ const PendingCoaches = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.post(`http://gymmatehealth.runasp.net/api/Coaches/RejectCoach/${id}`);
+      await axios.post(`${API_BASE_URL}/Coaches/RejectCoach/${id}`);
       fetchPendingCoaches();
       setAlert({ show: true, type: 'success', message: 'Coach rejected successfully' });
     } catch (error) {
@@ -193,7 +194,7 @@ const PendingCoaches = () => {
                         }}>
                           {coach.image ? (
                             <img 
-                              src={`http://gymmatehealth.runasp.net/images/profiles/${coach.image}`}
+                              src={`${API_BASE_IMAGE_URL}/images/profiles/${coach.image}`}
                               alt={coach.fullName}
                               style={{
                                 width: 38,

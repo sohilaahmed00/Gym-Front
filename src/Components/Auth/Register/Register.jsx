@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Spinner } from 'react-bootstrap'; 
 import { CheckRegistrationProgress, SaveRegistrationProgress } from '../../../services/checkRegisterationStep';
 import styles from './Register.module.css'
+import { API_BASE_IMAGE_URL } from '../../../config';
 const Register = () => {
   const [userType, setUserType] = useState('User');
   const [fullName, setFullName] = useState('');
@@ -76,7 +77,7 @@ const Register = () => {
     formData.append('Image', image); 
 
     try {
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/register', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/register`, {
         method: 'POST',
         body: formData, 
       });

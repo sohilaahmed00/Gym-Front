@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faCheck, faSpinner, faShoppingCart, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext';
 import styles from './OnlineStore.module.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 export default function OnlineStore() {
   const [products, setProducts] = useState([]);
@@ -17,7 +18,7 @@ export default function OnlineStore() {
   const { cart, addToCart } = useCart();
 
   useEffect(() => {
-    fetch('http://gymmatehealth.runasp.net/api/Products/GetAllProducts')
+    fetch(`${API_BASE_URL}/Products/GetAllProducts`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
@@ -156,7 +157,7 @@ export default function OnlineStore() {
                 <div className={styles.productCard} key={product.product_ID}>
                   <div className={styles.productImage}>
                     <img
-                      src={`http://gymmatehealth.runasp.net/Images/Products/${product.image_URL}`}
+                      src={`${API_BASE_IMAGE_URL}/Images/Products/${product.image_URL}`}
                       alt={product.product_Name}
                     />
                     {product.discount > 0 && (

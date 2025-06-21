@@ -6,6 +6,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import { API_BASE_URL } from '../config';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -36,10 +37,10 @@ const UserTypePieChart = () => {
         setLoading(true);
         setError(null);
         // Get all users
-        const usersRes = await fetch('http://gymmatehealth.runasp.net/api/Users/GetAllUsers');
+        const usersRes = await fetch(`${API_BASE_URL}/Users/GetAllUsers`);
         const users = await usersRes.json();
         // Get all subscriptions
-        const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const subsRes = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         const subs = await subsRes.json();
         if (!Array.isArray(users) || !Array.isArray(subs)) {
           throw new Error('Invalid data format');

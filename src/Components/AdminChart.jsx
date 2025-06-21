@@ -11,6 +11,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { API_BASE_URL } from '../config';
 
 // تسجيل مكونات Chart.js
 ChartJS.register(
@@ -39,7 +40,7 @@ const AdminChart = () => {
         setLoading(true);
         setError(null);
         
-        const res = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const res = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         if (!res.ok) {
           throw new Error('فشل في جلب البيانات');
         }
