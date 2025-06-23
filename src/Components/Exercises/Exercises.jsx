@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Exercises.module.css';
 import { fetchCategories, fetchExercises } from '../../services/exerciseAPI';
 import { Link } from 'react-router-dom';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 export default function Exercises() {
   const [categories, setCategories] = useState([]);
@@ -12,7 +13,7 @@ export default function Exercises() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/images/Exercise/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/images/Exercise/`;
 
   useEffect(() => {
     setLoading(true);

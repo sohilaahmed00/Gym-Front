@@ -5,8 +5,8 @@ import { Toast } from 'primereact/toast';
 import CalendarDayBox from '../components/CalendarDayBox';
 import PlanModal from '../components/PlanModal';
 import { formatDateForBackend, isSameDate } from '../../services/date';
+import { API_BASE_URL } from '../../config';
 
-const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
 const SubscriberCalendar = ({ userId, userName }) => {
   const coachId = localStorage.getItem('id');
@@ -53,7 +53,7 @@ const SubscriberCalendar = ({ userId, userName }) => {
     if (!userId) return;
     const fetchSubscriptionStart = async () => {
       try {
-        const subRes = await fetch(`${API_BASE}/Subscribes/GetSubscribeByUserId/${userId}`);
+        const subRes = await fetch(`${API_BASE_URL}/Subscribes/GetSubscribeByUserId/${userId}`);
         const subs = await subRes.json();
         if (Array.isArray(subs) && subs.length > 0) {
           const [datePart] = subs[0].startDate.split('T'); // "2025-06-18"
@@ -95,10 +95,10 @@ const SubscriberCalendar = ({ userId, userName }) => {
       setLoading(true);
       try {
         const [assignmentsRes, nutritionRes, exercisesRes, categoriesRes] = await Promise.all([
-          fetch(`${API_BASE}/Assignments/GetAllUserAssignments/${userId}`),
-          fetch(`${API_BASE}/NutritionPlans/GetAllUserNutritionplans/${userId}`),
-          fetch(`${API_BASE}/Exercises/GetAllExercises`),
-          fetch(`${API_BASE}/Categories/GetAllCategories`)
+          fetch(`${API_BASE_URL}/Assignments/GetAllUserAssignments/${userId}`),
+          fetch(`${API_BASE_URL}/NutritionPlans/GetAllUserNutritionplans/${userId}`),
+          fetch(`${API_BASE_URL}/Exercises/GetAllExercises`),
+          fetch(`${API_BASE_URL}/Categories/GetAllCategories`)
         ]);
         setAssignments(assignmentsRes.ok ? await assignmentsRes.json() : []);
         setNutritionPlans(nutritionRes.ok ? await nutritionRes.json() : []);
@@ -195,7 +195,7 @@ const SubscriberCalendar = ({ userId, userName }) => {
     try {
       const dayFormatted = formatDateForBackend(selectedDate);
 
-      await axios.post(`${API_BASE}/NutritionPlans/AddNutritionPlanForUser`, {
+      await axios.post(`${API_BASE_URL}/NutritionPlans/AddNutritionPlanForUser`, {
         Coach_ID: coachId,
         User_ID: userId,
         day: dayFormatted,
@@ -217,7 +217,7 @@ const SubscriberCalendar = ({ userId, userName }) => {
         }]
       };
 
-      await axios.post(`${API_BASE}/Assignments/AddNewAssignmentsForUser`, assignmentsPayload);
+      await axios.post(`${API_BASE_URL}/Assignments/AddNewAssignmentsForUser`, assignmentsPayload);
 
       const newAssignment = {
         day: selectedDate,

@@ -1,382 +1,340 @@
 .calculatorPage {
   min-height: 100vh;
-  background: #f8f9fa;
-  padding: 2.5rem 0;
-  direction: ltr;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #fdfdfe;
+  padding: 3rem 0;
+  font-family: 'Poppins', sans-serif;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 .title {
-  font-size: 2.5rem;
-  color: #FF5722;
+  font-size: 2.8rem;
+  color: #333;
   text-align: center;
-  margin-bottom: 1rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  text-shadow: 1px 1px 3px rgba(255, 87, 34, 0.2);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
 }
 
 .subtitle {
-  font-size: 1.2rem;
-  color: #5f6368;
+  font-size: 1.15rem;
+  color: #667;
   text-align: center;
-  margin-bottom: 2.5rem;
-  font-weight: 500;
-  max-width: 700px;
+  margin-bottom: 3rem;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.6;
 }
 
 .intro {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2.5rem;
-  border-left: 4px solid #FF5722;
-  text-align: left;
+  background: linear-gradient(135deg, #fff, #f9f9f9);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem;
+  border: 1px solid #eee;
 }
 
 .intro p {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.7;
-  color: #4a5568;
+  color: #556;
   margin: 0;
-  text-align: left;
+  text-align: center;
 }
 
 .calculatorForm {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2.5rem;
-  border-top: 3px solid #FF5722;
-  text-align: left;
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+  margin-bottom: 3rem;
 }
 
 .formGroup {
-  margin-bottom: 1.8rem;
-  text-align: left;
+  margin-bottom: 2rem;
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 0.8rem;
-  color: #2d3748;
+  margin-bottom: 0.75rem;
+  color: #444;
   font-weight: 600;
-  font-size: 1.1rem;
-  text-align: left;
+  font-size: 1rem;
 }
 
 .radioGroup {
   display: flex;
-  gap: 2rem;
-  margin-top: 0.6rem;
-  text-align: left;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .radioGroup label {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.5rem;
   cursor: pointer;
   font-weight: 500;
-  font-size: 1.1rem;
-  color: #4a5568;
-  transition: color 0.2s;
+  font-size: 1rem;
+  color: #555;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
 }
 
 .radioGroup label:hover {
+  background: #f9f9f9;
+  border-color: #ccc;
+}
+
+.radioGroup input[type="radio"]:checked + span {
   color: #FF5722;
 }
 
-input[type="radio"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #FF5722;
+.radioGroup label > input[type="radio"] {
+  display: none;
 }
+
+.radioGroup label > input[type="radio"]:checked ~ span {
+    font-weight: 600;
+}
+.radioGroup label:has(input[type="radio"]:checked) {
+    border-color: #FF5722;
+    background-color: #fff8f6;
+    box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.1);
+}
+
 
 input[type="number"],
 select {
   width: 100%;
-  padding: 1rem 1.2rem;
-  border: 1px solid #e0e0e0;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  background: white;
-  color: #2d3748;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #f9fafb;
+  color: #374151;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.7rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.8rem;
+}
+
 
 input[type="number"]:focus,
 select:focus {
   outline: none;
   border-color: #FF5722;
-  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.15);
+  background: #fff;
 }
 
 .calculateButton {
-  background: #FF5722;
+  background: linear-gradient(90deg, #FF5722, #ff7043);
   color: white;
   border: none;
-  padding: 1.2rem 2rem;
+  padding: 1.1rem 2rem;
   border-radius: 8px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
   width: 100%;
-  margin-top: 1.5rem;
-  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
+  margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.25);
   letter-spacing: 0.5px;
 }
 
 .calculateButton:hover {
-  background: #e64a19;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 87, 34, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(255, 87, 34, 0.3);
+}
+
+.error, .success {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-left-width: 5px;
+  border-left-style: solid;
 }
 
 .error {
-  background: #ffebee;
-  color: #c62828;
-  padding: 1.2rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border-left: 4px solid #c62828;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  text-align: left;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #ef4444;
 }
 
 .success {
-  background: #e8f5e9;
-  color: #2e7d32;
-  padding: 1.2rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border-left: 4px solid #2e7d32;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  text-align: left;
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #22c55e;
 }
 
 .results {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2.5rem;
-  border-top: 3px solid #FF5722;
-  text-align: left;
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+  margin-bottom: 3rem;
+  text-align: center;
 }
 
 .results h2 {
-  color: #FF5722;
-  margin-bottom: 1.8rem;
-  font-size: 1.8rem;
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 0.8rem;
-  text-align: left;
-}
-
-.results h2::after {
-  left: 0;
-  transform: translateX(0%);
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 1.7rem;
+  font-weight: 600;
 }
 
 .resultCard {
   padding: 2rem;
-  background: #fff8f6;
-  border-radius: 8px;
-  border: 1px solid #ffccbc;
-  text-align: left;
+  background: linear-gradient(135deg, #fff8f6, #fff);
+  border-radius: 12px;
+  border: 1px solid #ffefe8;
 }
 
 .resultCard h3 {
-  color: #2a4365;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-align: left;
+  color: #444;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .calories {
-  font-size: 3rem;
+  font-size: 3.5rem;
   color: #FF5722;
-  font-weight: 800;
-  margin: 1.5rem 0;
-  display: inline-block;
-  text-align: left;
+  font-weight: 700;
+  margin: 1rem 0;
+  line-height: 1.2;
 }
 
 .goalMessage {
-  color: #4a5568;
-  font-size: 1.2rem;
-  line-height: 1.7;
-  font-weight: 500;
-  text-align: left;
+  color: #667;
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 .infoSection {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 2.5rem;
-  border-top: 3px solid #FF5722;
-  text-align: left;
+  background: #ffffff;
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+  margin-bottom: 3rem;
 }
 
 .infoSection h2 {
-  color: #FF5722;
-  margin-bottom: 1.8rem;
-  font-size: 1.8rem;
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 0.8rem;
-  text-align: left;
-}
-
-.infoSection h2:after {
-  left: 0;
-  transform: translateX(0%);
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.7rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .infoSection p {
-  color: #4a5568;
-  line-height: 1.7;
-  margin-bottom: 1.8rem;
-  font-size: 1.1rem;
-  text-align: left;
+  color: #556;
+  font-size: 1rem;
+  line-height: 1.8;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .infoSection ul {
   list-style: none;
   padding: 0;
-  margin: 0;
-  text-align: left;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
 .infoSection ul li {
-  color: #4a5568;
-  margin-bottom: 1.2rem;
-  padding-left: 2rem;
-  position: relative;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  text-align: left;
+  background: #f9fafb;
+  padding: 1.25rem;
+  border-radius: 8px;
+  color: #444;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #eee;
 }
 
 .infoSection ul li::before {
-  content: '•';
-  color: #FF5722;
-  position: absolute;
-  left: 0;
-  font-size: 1.8rem;
-  line-height: 1;
-  top: -0.2rem;
+    content: '✔';
+    color: #FF5722;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .contactSection {
-  padding: 2.5rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-top: 3px solid #FF5722;
-  text-align: left;
+  text-align: center;
+  background: #fff8f6;
+  padding: 3rem 2rem;
+  border-radius: 16px;
 }
 
 .contactSection h2 {
-  color: #FF5722;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  font-weight: 700;
-  position: relative;
-  padding-bottom: 0.8rem;
-  text-align: left;
-}
-
-.contactSection h2::after {
-  left: 0;
-  transform: translateX(0%);
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.7rem;
+  font-weight: 600;
 }
 
 .contactSection p {
-  color: #4a5568;
-  margin-bottom: 2rem;
+  color: #556;
   font-size: 1.1rem;
-  line-height: 1.7;
-  max-width: none;
-  margin-left: 0;
-  margin-right: 0;
-  text-align: left;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .contactButton {
-  background: #FF5722;
+  background: #333;
   color: white;
   border: none;
-  padding: 1.2rem 2.5rem;
+  padding: 1rem 2.5rem;
   border-radius: 8px;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.3);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.8rem;
-  text-align: center;
+  transition: background-color 0.2s, transform 0.2s;
   text-decoration: none;
+  display: inline-block;
 }
 
 .contactButton:hover {
-  background: #e64a19;
+  background: #111;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 87, 34, 0.4);
 }
 
 @media (max-width: 768px) {
+  .calculatorForm, .results, .infoSection {
+    padding: 2rem 1.5rem;
+  }
   .title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
-
   .subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
-
-  .container {
-    padding: 0 1.2rem;
-  }
-
   .radioGroup {
     flex-direction: column;
-    gap: 1rem;
-  }
-
-  .calculatorForm,
-  .results,
-  .infoSection,
-  .contactSection {
-    padding: 1.8rem;
-  }
-
-  .calories {
-    font-size: 2.5rem;
+    gap: 0.75rem;
   }
 }

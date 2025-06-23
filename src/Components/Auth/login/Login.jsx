@@ -6,6 +6,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import styles from './Login.module.css'; 
 import { useCart } from '../../CartContext/CartContext';
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 function Login() {
 
@@ -40,7 +41,7 @@ function Login() {
     };
 
     try {
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/login', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),

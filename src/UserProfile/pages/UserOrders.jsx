@@ -3,10 +3,8 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './UserOrders.module.css';
 import { Link } from 'react-router-dom';
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 
-const API_BASE = 'http://gymmatehealth.runasp.net/api';
+
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -26,7 +24,7 @@ const UserOrders = () => {
 
   useEffect(() => {
     if (!userId) return;
-    axios.get(`${API_BASE}/Orders/GetOrdersByUserId/${userId}`)
+    axios.get(`${API_BASE_URL}/Orders/GetOrdersByUserId/${userId}`)
       .then((res) => {
         setOrders(res.data);
         setLoading(false);
@@ -88,27 +86,6 @@ const UserOrders = () => {
                   <td>{order.isPaid ? '✅' : '❌'}</td>
                   <td>{order.totalPrice.toFixed(2)} EGP</td>
                   <td>
-                    {order.paymentProof ? (
-                      <img
-                        src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${order.paymentProof}`}
-                        alt="Payment Proof"
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: '8px',
-                          objectFit: 'cover',
-                          cursor: 'pointer',
-                          border: '2px solid #dee2e6',
-                          background: '#f8f9fa',
-                        }}
-                        onClick={() => {
-                          setSelectedProof(order.paymentProof);
-                          setShowProofModal(true);
-                        }}
-                      />
-                    ) : (
-                      <span className="text-muted">-</span>
-                    )}
                   </td>
                 </tr>
               ))}

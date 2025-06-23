@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_BASE_URL } from '../config';
 
 // تعريف متغيرات API
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_ALL_USERS: `${API_BASE_URL}/Users/GetAllUsers`,
   DELETE_USER: `${API_BASE_URL}/Users/DeleteUser`
@@ -14,8 +14,6 @@ export default function ManageUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [editingUser, setEditingUser] = useState(null);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [genderFilter, setGenderFilter] = useState('');
   const [userTypeFilter, setUserTypeFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,33 +51,6 @@ export default function ManageUsers() {
       showAlert('An error occurred while deleting the user', 'danger');
     } finally {
       setDeletingId(null);
-    }
-  };
-
-  // Edit modal open
-  const handleEditUser = (user) => {
-    setEditingUser(user);
-  };
-
-  // Update user data
-  const handleUpdateUser = async (updatedData) => {
-    setIsUpdating(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${editingUser.userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData)
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update user data');
-      }
-      showAlert('User updated successfully', 'success');
-      setEditingUser(null);
-      fetchUsers();
-    } catch (err) {
-      showAlert(err.message, 'danger');
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -229,29 +200,23 @@ console.log(users);
                       </span>
                     </td>
                     <td>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary" onClick={() => handleEditUser(user)}>
-                          <i className="fas fa-edit me-1"></i>
-                          Edit
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteUser(user.userId)}
-                          disabled={deletingId === user.userId}
-                        >
-                          {deletingId === user.userId ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                              Deleting...
-                            </>
-                          ) : (
-                            <>
-                              <i className="fas fa-trash me-1"></i>
-                              Delete
-                            </>
-                          )}
-                        </button>
-                      </div>
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => handleDeleteUser(user.userId)}
+                        disabled={deletingId === user.userId}
+                      >
+                        {deletingId === user.userId ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Deleting...
+                          </>
+                        ) : (
+                          <>
+                            <i className="fas fa-trash me-1"></i>
+                            Delete
+                          </>
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -306,74 +271,6 @@ console.log(users);
           }
         `}</style>
       </div>
-
-      {/* Edit Modal */}
-      {editingUser && (
-        <div className="modal show" style={{ display: 'block', background: 'rgba(0,0,0,0.3)' }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit User</h5>
-                <button type="button" className="btn-close" onClick={() => setEditingUser(null)}></button>
-              </div>
-              <form onSubmit={e => {
-                e.preventDefault();
-                handleUpdateUser({
-                  height: editingUser.height,
-                  weight: editingUser.weight,
-                  bDate: editingUser.bDate,
-                  gender: editingUser.gender,
-                  medicalConditions: editingUser.medicalConditions,
-                  allergies: editingUser.allergies,
-                  fitness_Goal: editingUser.fitness_Goal
-                });
-              }}>
-                <div className="modal-body">
-                  <div className="mb-2">
-                    <label className="form-label">Height</label>
-                    <input type="number" className="form-control" value={editingUser.height || ''} onChange={e => setEditingUser({ ...editingUser, height: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Weight</label>
-                    <input type="number" className="form-control" value={editingUser.weight || ''} onChange={e => setEditingUser({ ...editingUser, weight: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Birth Date</label>
-                    <input type="date" className="form-control" value={editingUser.bDate ? editingUser.bDate.slice(0,10) : ''} onChange={e => setEditingUser({ ...editingUser, bDate: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Gender</label>
-                    <select className="form-select" value={editingUser.gender || ''} onChange={e => setEditingUser({ ...editingUser, gender: e.target.value })}>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Medical Conditions</label>
-                    <input type="text" className="form-control" value={editingUser.medicalConditions || ''} onChange={e => setEditingUser({ ...editingUser, medicalConditions: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Allergies</label>
-                    <input type="text" className="form-control" value={editingUser.allergies || ''} onChange={e => setEditingUser({ ...editingUser, allergies: e.target.value })} />
-                  </div>
-                  <div className="mb-2">
-                    <label className="form-label">Fitness Goal</label>
-                    <input type="text" className="form-control" value={editingUser.fitness_Goal || ''} onChange={e => setEditingUser({ ...editingUser, fitness_Goal: e.target.value })} />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="submit" className="btn btn-success" disabled={isUpdating}>
-                    {isUpdating ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button type="button" className="btn btn-secondary" onClick={() => setEditingUser(null)}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 } 

@@ -24,11 +24,29 @@ const settingsDropdown = [
   { icon: 'fas fa-file-alt', label: 'Content Settings', path: '/admin/settings/content' },
 ];
 
-export default function SideList({ pendingSubscriptionsCount = 0, pendingCoachesCount = 0 }) {
+export default function SideList({ pendingSubscriptionsCount = 0, pendingCoachesCount = 0, isOpen, setIsOpen }) {
   const [showSettings, setShowSettings] = useState(false);
+
+  const handleLinkClick = () => {
+    if (window.innerWidth < 992) {
+      setIsOpen(false);
+    }
+  };
+
+  const badgeStyle = {
+    minWidth: '24px',
+    height: '24px',
+    padding: '0',
+    fontSize: '0.8rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '6px'
+  };
+
   return (
     <aside
-      className="bg-white border-end"
+      className={`bg-white border-end admin-sidebar ${isOpen ? 'is-open' : ''} d-lg-block`}
       style={{
         width: 300,
         minWidth: 300,
@@ -95,6 +113,7 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
                           fontSize: 15,
                           margin: '2px 0',
                         })}
+                        onClick={handleLinkClick}
                       >
                         <i className={sub.icon}></i>
                         <span>{sub.label}</span>
@@ -105,20 +124,12 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
               </div>
             );
           }
-          // ديناميكي للبادج
+
           let badge = null;
-          if (item.label === 'Pending Subscriptions') {
-            badge = (
-              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem', backgroundColor: '#ff7a00 !important', minWidth: '28px', textAlign: 'center', display: 'inline-block' }}>
-                {pendingSubscriptionsCount}
-              </span>
-            );
-          } else if (item.label === 'Pending Coaches') {
-            badge = (
-              <span className="badge bg-danger rounded-pill ms-auto" style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem', backgroundColor: '#ff7a00 !important', minWidth: '28px', textAlign: 'center', display: 'inline-block' }}>
-                {pendingCoachesCount}
-              </span>
-            );
+          if (item.label === 'Pending Coaches' && pendingCoachesCount > 0) {
+            badge = <span className="badge bg-danger ms-auto" style={badgeStyle}>{pendingCoachesCount}</span>;
+          } else if (item.label === 'Pending Subscriptions' && pendingSubscriptionsCount > 0) {
+            badge = <span className="badge bg-danger ms-auto" style={badgeStyle}>{pendingSubscriptionsCount}</span>;
           }
           return (
             <NavLink
@@ -135,6 +146,7 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
                 transition: 'all 0.3s ease'
               })}
               end={item.path === '/admin'}
+              onClick={handleLinkClick}
             >
               <i className={item.icon} style={{ color: 'inherit' }}></i>
               <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
@@ -145,4 +157,4 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
       </nav>
     </aside>
   );
-} 
+}

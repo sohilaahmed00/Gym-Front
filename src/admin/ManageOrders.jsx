@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 export default function ManageOrders() {
   const [orders, setOrders] = useState([]);
@@ -14,8 +15,18 @@ export default function ManageOrders() {
 
   useEffect(() => {
     setLoading(true);
+
     axios.get('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders')
-      .then(res => setOrders(res.data))
+      .then(res => {
+        // ترتيب الطلبات حسب التاريخ (الأحدث أولاً)
+        const sortedOrders = res.data.sort((a, b) => {
+          const dateA = new Date(a.orderDate || a.order_Date || 0);
+          const dateB = new Date(b.orderDate || b.order_Date || 0);
+          return dateB - dateA; // ترتيب تنازلي (الأحدث أولاً)
+        });
+        setOrders(sortedOrders);
+      })
+
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);
@@ -23,7 +34,7 @@ export default function ManageOrders() {
   // موافقة الطلب
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/ApproveOrder/${id}`);
+      await axios.put(`${API_BASE_URL}/Orders/ApproveOrder/${id}`);
       setOrders(prev => prev.map(order => order.order_id === id ? { ...order, order_Status: 'Approved' } : order));
       alert('Order approved successfully!');
     } catch {
@@ -34,7 +45,7 @@ export default function ManageOrders() {
   // رفض الطلب
   const handleReject = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Orders/RejectOrder/${id}`);
+      await axios.put(`${API_BASE_URL}/Orders/RejectOrder/${id}`);
       setOrders(prev => prev.map(order => order.order_id === id ? { ...order, order_Status: 'Rejected' } : order));
       alert('Order rejected!');
     } catch {
@@ -46,7 +57,7 @@ export default function ManageOrders() {
   const fetchOrderDetails = useCallback(async (id) => {
     setDetailsLoading(true);
     try {
-      const res = await axios.get(`http://gymmatehealth.runasp.net/api/Orders/GetOrderById/${id}`);
+      const res = await axios.get(`${API_BASE_URL}/Orders/GetOrderById/${id}`);
       setOrderDetails(res.data);
     } catch {
       setOrderDetails(null);
@@ -203,13 +214,13 @@ export default function ManageOrders() {
                             {orderDetails.paymentProof ? (
                               <img 
 
-                                src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`}
+                                src={`${API_BASE_IMAGE_URL}/images/PaymentProofs/${orderDetails.paymentProof}`}
                                 alt="Payment Proof"
                                 className="proof-image"
                                 onError={e => {
                                   if (!e.target.src.includes('/images/PaymentProofs/')) {
                                     e.target.onerror = null;
-                                    e.target.src = `http://gymmatehealth.runasp.net/images/PaymentProofs/${orderDetails.paymentProof}`;
+                                    e.target.src = `${API_BASE_IMAGE_URL}/images/PaymentProofs/${orderDetails.paymentProof}`;
 
                                   }
                                 }}
@@ -258,7 +269,7 @@ export default function ManageOrders() {
                                   <td>
                                     {item.imageUrl ? (
                                       <img 
-                                        src={`http://gymmatehealth.runasp.net/Images/Products/${item.imageUrl}`} 
+                                        src={`${API_BASE_IMAGE_URL}/Images/Products/${item.imageUrl}`} 
                                         alt={item.productName} 
                                         className="product-image"
                                       />

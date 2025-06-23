@@ -8,6 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { Carousel } from 'primereact/carousel';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { useCart } from '../../Components/CartContext/CartContext';
+import { API_BASE_URL } from '../../config';
 
 const UserHome = () => {
    const { cart } = useCart(); 
@@ -75,9 +76,9 @@ const UserHome = () => {
     const fetchData = async () => {
       try {
         const [subRes, userRes, assignmentRes] = await Promise.all([
-          axios.get(`http://gymmatehealth.runasp.net/api/Subscribes/GetSubscribeByUserId/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/Users/Getuserbyid/${userId}`),
-          axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`)
+          axios.get(`${API_BASE_URL}/Subscribes/GetSubscribeByUserId/${userId}`),
+          axios.get(`${API_BASE_URL}/Users/Getuserbyid/${userId}`),
+          axios.get(`${API_BASE_URL}/Assignments/GetAllUserAssignments/${userId}`)
         ]);
 
         if (!subRes.data || subRes.data.length === 0) {
@@ -122,7 +123,7 @@ const completed = Array.isArray(assignmentRes.data)
         setIsMissed(missed);
 
         if (sub.coach_ID) {
-          const coachRes = await axios.get(`http://gymmatehealth.runasp.net/api/Coaches/GetCoachbyId/${sub.coach_ID}`);
+          const coachRes = await axios.get(`${API_BASE_URL}/Coaches/GetCoachbyId/${sub.coach_ID}`);
           setCoachName(coachRes?.data?.applicationUser?.fullName || '');
         }
 

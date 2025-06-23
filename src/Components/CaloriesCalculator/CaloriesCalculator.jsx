@@ -46,28 +46,34 @@ const CaloriesCalculator = () => {
       return;
     }
 
-    // Calculate BMR (Basal Metabolic Rate)
+    // Calculate BMR (Basal Metabolic Rate) using Mifflin-St Jeor
     let bmr;
     if (formData.gender === 'male') {
-      bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
     } else {
-      bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
     }
 
     // Apply activity level multiplier
     let activityMultiplier;
     switch (formData.activityLevel) {
-      case 'low':
-        activityMultiplier = 1.2;
-        break;
-      case 'medium':
-        activityMultiplier = 1.55;
-        break;
-      case 'high':
-        activityMultiplier = 1.9;
-        break;
-      default:
-        activityMultiplier = 1.2;
+        case 'sedentary':
+            activityMultiplier = 1.2;
+            break;
+        case 'light':
+            activityMultiplier = 1.375;
+            break;
+        case 'moderate':
+            activityMultiplier = 1.55;
+            break;
+        case 'very':
+            activityMultiplier = 1.725;
+            break;
+        case 'super':
+            activityMultiplier = 1.9;
+            break;
+        default:
+            activityMultiplier = 1.2;
     }
 
     // Calculate TDEE (Total Daily Energy Expenditure)
@@ -78,12 +84,12 @@ const CaloriesCalculator = () => {
     let goalMessage;
     switch (formData.goal) {
       case 'lose':
-        adjustedCalories = tdee - 500;
-        goalMessage = `To lose weight, aim for 500 calories below your maintenance level.`;
+        adjustedCalories = { min: tdee - 500, max: tdee - 250 };
+        goalMessage = `To lose weight, aim for a daily intake between ${tdee - 500} and ${tdee - 250} calories.`;
         break;
       case 'gain':
-        adjustedCalories = tdee + 500;
-        goalMessage = `To gain muscle, aim for 500 calories above your maintenance level.`;
+        adjustedCalories = { min: tdee + 250, max: tdee + 500 };
+        goalMessage = `To build muscle, aim for a daily intake between ${tdee + 250} and ${tdee + 500} calories.`;
         break;
       case 'maintain':
         adjustedCalories = tdee;
@@ -130,7 +136,7 @@ const CaloriesCalculator = () => {
                   checked={formData.gender === 'male'}
                   onChange={handleChange}
                 />
-                Male
+                <span>Male</span>
               </label>
               <label>
                 <input
@@ -140,7 +146,7 @@ const CaloriesCalculator = () => {
                   checked={formData.gender === 'female'}
                   onChange={handleChange}
                 />
-                Female
+                <span>Female</span>
               </label>
             </div>
           </div>
@@ -182,9 +188,11 @@ const CaloriesCalculator = () => {
             <label>Activity Level</label>
             <select name="activityLevel" value={formData.activityLevel} onChange={handleChange}>
               <option value="">Select activity level</option>
-              <option value="low">Low (little or no exercise)</option>
-              <option value="medium">Medium (moderate exercise 3-5 times/week)</option>
-              <option value="high">High (intense exercise or sports daily)</option>
+              <option value="sedentary">Sedentary (little or no exercise)</option>
+              <option value="light">Lightly active (light exercise 1-3 days/week)</option>
+              <option value="moderate">Moderately active (moderate exercise 3-5 days/week)</option>
+              <option value="very">Very active (hard exercise 6-7 days/week)</option>
+              <option value="super">Super active (very hard exercise daily or physical job)</option>
             </select>
           </div>
 
@@ -207,8 +215,21 @@ const CaloriesCalculator = () => {
           <div className={styles.results}>
             <h2>Calculation Results</h2>
             <div className={styles.resultCard}>
-              <h3>Your Daily Calorie Needs</h3>
-              <p className={styles.calories}>{result.adjustedCalories} calories</p>
+              <h3>Daily Maintenance Calories (BMI)</h3>
+              <p className={styles.calories}>{result.tdee} calories</p>
+              
+              {formData.goal !== 'maintain' && (
+                <>
+                  <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #eee' }} />
+                  <h3>Your Recommended Intake for Your Goal</h3>
+                  <p className={styles.calories}>
+                    {typeof result.adjustedCalories === 'object'
+                      ? `${result.adjustedCalories.min} - ${result.adjustedCalories.max}`
+                      : result.adjustedCalories} calories
+                  </p>
+                </>
+              )}
+              
               <p className={styles.goalMessage}>{result.goalMessage}</p>
             </div>
           </div>
@@ -242,4 +263,4 @@ const CaloriesCalculator = () => {
   );
 };
 
-export default CaloriesCalculator; 
+export default CaloriesCalculator;

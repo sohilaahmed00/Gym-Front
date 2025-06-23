@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faMinus, faPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext';
 import { fetchProductById } from '../../services/productAPI';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -34,7 +35,7 @@ const ProductDetails = () => {
 
   if (!product) return <div className="text-center py-5">Loading...</div>;
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/Images/Products/`;
 
   return (
     <div className="container py-5">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext/CartContext';
 import axios from 'axios';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 // import { FaUniversity, FaMoneyBillWave } from 'react-icons/fa'; // Removed these icons as we'll use Font Awesome
 
 const paymentMethods = {
@@ -52,7 +53,7 @@ export default function Checkout() {
   const shipping = 0;
   const total = subtotal + shipping;
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/Images/Products/`;
 
   const handleProceedToPayment = async () => {
     let hasError = false;
@@ -101,7 +102,7 @@ export default function Checkout() {
       formData.append(`Items[${index}].Quantity`, item.quantity);
     });
     try {
-      const response = await axios.post('http://gymmatehealth.runasp.net/api/Orders/AddNewOrder', formData, {
+      const response = await axios.post(`${API_BASE_URL}/Orders/AddNewOrder`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

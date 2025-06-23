@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Coaches.module.css';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 function Coaches() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,7 +17,7 @@ function Coaches() {
     const fetchCoaches = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/AllApprovedCoaches');
+        const response = await fetch(`${API_BASE_URL}/Coaches/AllApprovedCoaches`);
         ;
         
         if (!response.ok) {
@@ -29,7 +30,7 @@ function Coaches() {
           name: coach.fullName,
           specialization: coach.specialization,
           bio: coach.bio,
-          image: coach.image ? `http://gymmatehealth.runasp.net/images/profiles/${coach.image}` : '/placeholder-coach.jpg',
+          image: coach.image ? `${API_BASE_IMAGE_URL}/images/profiles/${coach.image}` : '/placeholder-coach.jpg',
           rating: 0, 
           experience: `${coach.experience_Years} years`,
           availability: coach.availability === "true"
@@ -131,14 +132,7 @@ function Coaches() {
                 <h2 className={styles.coachName}>{coach.name}</h2>
                 <p className={styles.coachSpecialization}>{coach.specialization}</p>
                 <p className={styles.coachBio}>{coach.bio}</p>
-                <div className={styles.rating}>
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={styles.star}>
-                      {i < Math.floor(coach.rating || 0) ? '★' : '☆'}
-                    </span>
-                  ))}
-                  <span>({coach.rating || 'N/A'})</span>
-                </div>
+                
                 <div className={styles.buttonsContainer}>
                   <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
                     View Profile
