@@ -15,8 +15,18 @@ export default function ManageOrders() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API_BASE_URL}/Orders/GetAllOrders`)
-      .then(res => setOrders(res.data))
+
+    axios.get('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders')
+      .then(res => {
+        // ترتيب الطلبات حسب التاريخ (الأحدث أولاً)
+        const sortedOrders = res.data.sort((a, b) => {
+          const dateA = new Date(a.orderDate || a.order_Date || 0);
+          const dateB = new Date(b.orderDate || b.order_Date || 0);
+          return dateB - dateA; // ترتيب تنازلي (الأحدث أولاً)
+        });
+        setOrders(sortedOrders);
+      })
+
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);

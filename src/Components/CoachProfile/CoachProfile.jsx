@@ -77,62 +77,65 @@ function CoachProfile() {
 
   return (
     <div className={styles.profilePage}>
-      <div className={styles.profileHeader}>
-        <button 
-          className={styles.backButton}
-          onClick={() => navigate('/coaches')}
-        >
-          ← Back to Coaches
-        </button>
-      </div>
+      <button 
+        className={styles.backButton}
+        onClick={() => navigate('/coaches')}
+      >
+        ← Back to Coaches
+      </button>
 
-      <div className={styles.profileContent}>
-        <div className={styles.profileImage}>
+      <div className={styles.profileContainer}>
+        {/* Right Column for Image (now on the left) */}
+        <div className={styles.rightColumn}>
           <img 
             src={`${API_BASE_IMAGE_URL}/images/profiles/${coach.applicationUser?.image}` || '/placeholder-coach.jpg'} 
             alt={coach.applicationUser?.fullName}
+            className={styles.coachImage}
           />
-        </div>
-
-        <div className={styles.profileInfo}>
-          <h1>{coach.applicationUser?.fullName}</h1>
-          <div className={styles.specialization}>
-            <span>{coach.specialization}</span>
-          </div>
-
-          <div className={styles.stats}>
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>{coach.experience_Years}</span>
-              <span className={styles.statLabel}>Years Experience</span>
-            </div>
-          </div>
-
-          <div className={styles.bio}>
-            <h2>About Me</h2>
-            <p>{coach.bio}</p>
-          </div>
-
-          <div className={styles.contactSection}>
-            <h2>Contact Information</h2>
-            <div className={styles.contactInfo}>
-              <div className={styles.contactItem}>
-                <i className="fas fa-envelope"></i>
-                <span>{coach.applicationUser?.email || 'Not provided'}</span>
-              </div>
-              <div className={styles.contactItem}>
-                <i className="fas fa-globe"></i>
-                <span>{coach.portfolio_Link || 'Not provided'}</span>
-              </div>
-            </div>
-          </div>
-
           <button 
-            className={styles.bookButton}
+            className={styles.subscribeButton}
             onClick={handleSubscribe}
-            
           >
             Subscribe Now
           </button>
+        </div>
+
+        {/* Left Column for Information (now on the right) */}
+        <div className={styles.leftColumn}>
+          <h1 className={styles.coachName}>{coach.applicationUser?.fullName}</h1>
+          <p className={styles.coachSpecialization}>{coach.specialization}</p>
+
+          <h2 className={styles.sectionTitle}>About Me</h2>
+          <p className={styles.bioText}>{coach.bio}</p>
+
+          <div className={styles.statsContainer}>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}>{coach.experience_Years}</div>
+              <div className={styles.statLabel}>Years Experience</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}>Certified</div>
+              <div className={styles.statLabel}>Coach</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}>Online</div>
+              <div className={styles.statLabel}>Coaching</div>
+            </div>
+          </div>
+
+          <h2 className={styles.sectionTitle}>Portfolio</h2>
+          <div className={styles.contactInfo}>
+            <div className={styles.contactItem}>
+              <i className="fas fa-globe"></i>
+              {coach.portfolio_Link ? (
+                <a href={coach.portfolio_Link} target="_blank" rel="noopener noreferrer" className={styles.portfolioLink}>
+                  {coach.portfolio_Link}
+                </a>
+              ) : (
+                <span>Not provided</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
