@@ -170,7 +170,6 @@ export default function ManageCoaches() {
                   <th className="border-0">Experience (Years)</th>
                   <th className="border-0">Portfolio</th>
                   <th className="border-0">Status</th>
-                  <th className="border-0">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,18 +229,6 @@ export default function ManageCoaches() {
                       <span className={`badge ${coach.isConfirmedByAdmin ? 'bg-success' : 'bg-danger'} text-white`}>
                         {coach.isConfirmedByAdmin ? 'Approved' : 'Not Approved'}
                       </span>
-                    </td>
-                    <td>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-primary">
-                          <i className="fas fa-edit me-1"></i>
-                          Edit
-                        </button>
-                        <button className="btn btn-sm btn-outline-danger">
-                          <i className="fas fa-trash me-1"></i>
-                          Delete
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))}

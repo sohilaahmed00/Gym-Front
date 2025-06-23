@@ -1,0 +1,32 @@
+.admin-layout {
+  position: relative;
+}
+
+.main-content {
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar-toggle-btn {
+  display: none; /* مخفي بشكل افتراضي */
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1050; /* فوق السايد بار */
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .sidebar-toggle-btn {
+    display: block; /* يظهر على الشاشات الصغيرة */
+  }
+
+  .main-content {
+    margin-left: 0 !important; /* المحتوى يأخذ العرض الكامل */
+  }
+} 

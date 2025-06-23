@@ -27,30 +27,33 @@ const PricingPlans = () => {
           <h3>3 Months Plan</h3>
           <div className={styles.price}>600 EGP</div>
           <ul>
-            <li><span className={styles.checkmark}>✓</span> Unlimited Access to Gym Equipment</li>
-            <li><span className={styles.checkmark}>✓</span> Access to Group Fitness Classes</li>
-            <li><span className={styles.checkmark}>✓</span> Personalized Workout Plan</li>
-            <li><span className={styles.checkmark}>✓</span> Locker Room Access</li>
+            <li><span className={styles.checkmark}>✅</span> Full access to the GymMate</li>
+            <li><span className={styles.checkmark}>🏋️</span> Personalized workout plan</li>
+            <li><span className={styles.checkmark}>🍱</span> Nutrition plan based to your caloric needs </li>
+            <li><span className={styles.checkmark}>📊</span> Progress tracking & analysis</li>
+            <li><span className={styles.checkmark}>✏️</span> Update personal data</li>
+            <li><span className={styles.checkmark}>💬</span> 24/7 chat support with the intelligent assistant</li>
           </ul>
           <button
             className={styles.getStartedBtn}
             onClick={() => handleSubscribe('3 Months Plan')}
           >
-            Subscribe Now
+          Subscribe Now
           </button>
         </div>
 
         {/* 6 Months Plan */}
         <div className={`${styles.planCard} ${styles.highlighted}`}>
           <div className={styles.popularBadge}>Most Popular</div>
-          <h3 style={{marginTop: '1.5rem'}}>6 Months Plan</h3>
+          <h3> 6 Months Plan</h3>
           <div className={styles.price}>1200 EGP</div>
           <ul>
-            <li><span className={styles.checkmark}>✓</span> Unlimited Access to Gym Equipment</li>
-            <li><span className={styles.checkmark}>✓</span> Access to Group Fitness Classes</li>
-            <li><span className={styles.checkmark}>✓</span> Personal Training Session per Month</li>
-            <li><span className={styles.checkmark}>✓</span> Nutritional Guidance and Meal Plans</li>
-            <li><span className={styles.checkmark}>✓</span> Access to Wellness Programs</li>
+            <li><span className={styles.checkmark}>✅</span> Full access to the GymMate</li>
+            <li><span className={styles.checkmark}>🏋️</span> Personalized workout plan</li>
+            <li><span className={styles.checkmark}>🍱</span> Nutrition plan based to your caloric needs </li>
+            <li><span className={styles.checkmark}>💬</span> 24/7 chat support with the intelligent assistant</li>
+            <li><span className={styles.checkmark}>⏳</span> Extended duration for consistent progress</li>
+            <li><span className={styles.checkmark}>💸</span> More cost-effective in the long run</li>
           </ul>
           <button
             className={styles.getStartedBtn}
@@ -65,11 +68,12 @@ const PricingPlans = () => {
           <h3>1 Year Plan</h3>
           <div className={styles.price}>1800 EGP</div>
           <ul>
-            <li><span className={styles.checkmark}>✓</span> All Premium Plan Benefits</li>
-            <li><span className={styles.checkmark}>✓</span> Weekly Personal Training Sessions</li>
-            <li><span className={styles.checkmark}>✓</span> Customized Advanced Workout Plans</li>
-            <li><span className={styles.checkmark}>✓</span> Monthly Wellness Seminars</li>
-            <li><span className={styles.checkmark}>✓</span> VIP Access to New Classes</li>
+            <li><span className={styles.checkmark}>🏋️</span> Personalized workout plan</li>
+            <li><span className={styles.checkmark}>🍱</span> Nutrition plan based to your caloric needs </li>
+            <li><span className={styles.checkmark}>💬</span> 24/7 chat support with the intelligent assistant</li>
+            <li><span className={styles.checkmark}>⏳</span> Extended duration for consistent progress</li>
+            <li><span className={styles.checkmark}>💸</span> More cost-effective in the long run</li>
+            <li><span className={styles.checkmark}>📆</span> Full-year support for long-term transformation</li>
           </ul>
           <button
             className={styles.getStartedBtn}

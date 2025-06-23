@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_ALL_SUBSCRIPTIONS: `${API_BASE_URL}/Subscribes/GetAllSubscribtions`,
   GET_USER_BY_ID: (userId) => `${API_BASE_URL}/Users/Getuserbyid/${userId}`,
-  GET_USER_SUBSCRIBES: (userId) => `${API_BASE_URL}/Subscribes/user/${userId}`
+  GET_COACH_BY_ID: (coachId) => `${API_BASE_URL}/Coaches/GetCoachbyId/${coachId}`,
 };
 
 // Subscription type translations
@@ -48,7 +48,6 @@ export default function ManageSubscriptions() {
   const [subscriptions, setSubscriptions] = useState([]);
   const [users, setUsers] = useState({});
   const [coaches, setCoaches] = useState({});
-  const [userCoaches, setUserCoaches] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -97,19 +96,18 @@ export default function ManageSubscriptions() {
     }
   };
 
-  // Fetch all coaches for a user
-  const fetchUserCoaches = async (userId) => {
+  // Fetch coach data by ID
+  const fetchCoachData = async (coachId) => {
     try {
-      const response = await fetch(API_ENDPOINTS.GET_USER_SUBSCRIBES(userId));
-      if (!response.ok) return [];
-      const subscribes = await response.json();
-      // استخرج أسماء المدربين من الاشتراكات
-      const coachNames = subscribes
-        .map(sub => sub.coachName || (sub.coach && sub.coach.applicationUser && sub.coach.applicationUser.fullName))
-        .filter(Boolean);
-      return coachNames;
-    } catch {
-      return [];
+      const response = await fetch(API_ENDPOINTS.GET_COACH_BY_ID(coachId));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch coach data: ${coachId}`);
+      }
+      const coachData = await response.json();
+      return coachData;
+    } catch (error) {
+      console.error(`Error fetching coach data ${coachId}:`, error);
+      return null;
     }
   };
 
@@ -117,16 +115,14 @@ export default function ManageSubscriptions() {
   const fetchUsersData = async (subscriptionsData) => {
     const userPromises = {};
     const coachPromises = {};
-    const userCoachPromises = {};
     
     // Collect all user and coach IDs
     subscriptionsData.forEach(subscription => {
       if (subscription.user_ID && !userPromises[subscription.user_ID]) {
         userPromises[subscription.user_ID] = fetchUserData(subscription.user_ID);
-        userCoachPromises[subscription.user_ID] = fetchUserCoaches(subscription.user_ID);
       }
       if (subscription.coach_ID && !coachPromises[subscription.coach_ID]) {
-        coachPromises[subscription.coach_ID] = fetchUserData(subscription.coach_ID);
+        coachPromises[subscription.coach_ID] = fetchCoachData(subscription.coach_ID);
       }
     });
     
@@ -152,22 +148,8 @@ export default function ManageSubscriptions() {
       index++;
     }
     
-    // Wait for all user coaches API requests
-    const userCoachResults = await Promise.allSettled(Object.values(userCoachPromises));
-    const userCoachesData = {};
-    index = 0;
-    for (const userId of Object.keys(userCoachPromises)) {
-      if (userCoachResults[index].status === 'fulfilled' && userCoachResults[index].value) {
-        userCoachesData[userId] = userCoachResults[index].value;
-      } else {
-        userCoachesData[userId] = [];
-      }
-      index++;
-    }
-    
     setUsers(usersData);
     setCoaches(coachesData);
-    setUserCoaches(userCoachesData);
   };
 
   // Fetch subscriptions data from API
@@ -270,116 +252,99 @@ export default function ManageSubscriptions() {
                 <tr>
                   <th className="border-0">User</th>
                   <th className="border-0">Coach</th>
+                  <th className="border-0">Specialization</th>
                   <th className="border-0">Subscription Type</th>
                   <th className="border-0">Start Date</th>
                   <th className="border-0">End Date</th>
                   <th className="border-0">Status</th>
                   <th className="border-0">Approved</th>
                   <th className="border-0">Payment Proof</th>
-                  {/* <th className="border-0">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
                 {subscriptions
                   .filter(subscription => {
-                    // فلتر الحالة
-                    if (filterStatus && subscription.status !== filterStatus) return false;
-                    // فلتر المدة
                     if (filterType && subscription.subscriptionType !== filterType) return false;
-                    // لا تعرض pending دائماً
-                    if (subscription.status === 'Pending') return false;
-                    // فلتر الموافقة
-                    if (!subscription.isApproved) return false;
-                    // فلتر البحث بالاسم
+                    if (filterStatus && subscription.status !== filterStatus) return false;
+
                     if (searchText.trim()) {
                       if (searchBy === 'user') {
                         const userName = users[subscription.user_ID]?.applicationUser?.fullName?.toLowerCase() || '';
                         if (!userName.includes(searchText.trim().toLowerCase())) return false;
                       } else if (searchBy === 'coach') {
-                        const coachNames = (userCoaches[subscription.user_ID] || []).map(c => c.toLowerCase());
-                        if (!coachNames.some(name => name.includes(searchText.trim().toLowerCase()))) return false;
+                        const coachName = coaches[subscription.coach_ID]?.applicationUser?.fullName?.toLowerCase() || '';
+                        if (!coachName.includes(searchText.trim().toLowerCase())) return false;
                       }
                     }
                     return true;
                   })
                   .map((subscription) => (
                     <tr key={subscription.subscribe_ID} className="subscription-row">
-                      <td>
+                      <td className="align-middle" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         {users[subscription.user_ID] ? (
-                          <div className="d-flex align-items-center">
+                          <>
                             {users[subscription.user_ID].applicationUser.image ? (
                               <img 
                                 src={`${API_BASE_URL.replace('/api', '')}/Images/profiles/${users[subscription.user_ID].applicationUser.image}`} 
                                 alt={users[subscription.user_ID].applicationUser.fullName}
-                                className="rounded-circle me-2"
-                                width="26"
-                                height="26"
-                                style={{ objectFit: 'cover', border: '1.5px solid #dee2e6' }}
+                                style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover' }}
                               />
                             ) : (
-                              <span className="avatar-placeholder me-2" style={{ width: 26, height: 26, fontSize: 13, border: '1.5px solid #dee2e6' }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: '50%', background: '#6c757d22', color: '#6c757d', fontSize: 20 }}>
                                 <i className="fas fa-user"></i>
                               </span>
                             )}
-                            <span style={{ fontSize: 14 }}>{users[subscription.user_ID].applicationUser.fullName}</span>
-                          </div>
+                            <span style={{ fontWeight: 600, fontSize: 16 }}>{users[subscription.user_ID].applicationUser.fullName}</span>
+                          </>
                         ) : (
                           <span className="text-muted">-</span>
                         )}
                       </td>
-                      <td>
-                        {userCoaches[subscription.user_ID] && userCoaches[subscription.user_ID].length > 0 ? (
-                          <span style={{ fontSize: 14, display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                            {userCoaches[subscription.user_ID].map((coach, idx, arr) => (
-                              <span key={idx}>
-                                {coach}
-                                {idx < arr.length - 1 && <span style={{ color: '#888', margin: '0 2px' }}>,</span>}
-                              </span>
-                            ))}
+                      <td className="align-middle">
+                        {coaches[subscription.coach_ID] ? (
+                          <span style={{ fontWeight: 600, fontSize: 16 }}>
+                            {coaches[subscription.coach_ID]?.applicationUser?.fullName || 'N/A'}
                           </span>
                         ) : (
                           <span className="text-muted">-</span>
                         )}
                       </td>
-                      <td>
-                        <span className="badge bg-primary" style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                      <td className="align-middle">
+                        {coaches[subscription.coach_ID] ? (
+                          <span className="badge bg-secondary">
+                            {coaches[subscription.coach_ID]?.specialization || 'N/A'}
+                          </span>
+                        ) : (
+                          <span className="text-muted">-</span>
+                        )}
+                      </td>
+                      <td className="align-middle">
+                        <span className="badge bg-primary">
                           {subscriptionTypeLabels[subscription.subscriptionType] || subscription.subscriptionType}
                         </span>
                       </td>
-                      <td>{formatDate(subscription.startDate)}</td>
-                      <td>{formatDate(subscription.endDate)}</td>
-                      <td>
-                        <span className={`badge ${
-                          subscription.status === 'Active' ? 'bg-success' : 
-                          subscription.status === 'Pending' ? 'bg-warning' : 
-                          subscription.status === 'Rejected' ? 'bg-danger' : 'bg-secondary'
-                        } text-white`} style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                      <td className="align-middle">{formatDate(subscription.startDate)}</td>
+                      <td className="align-middle">{formatDate(subscription.endDate)}</td>
+                      <td className="align-middle">
+                        <span className={`badge ${subscription.status === 'Active' ? 'bg-success' : 'bg-warning'}`}>
                           {statusLabels[subscription.status] || subscription.status}
                         </span>
                       </td>
-                      <td>
-                        <span className={`badge ${subscription.isApproved ? 'bg-success' : 'bg-danger'}`} style={{ fontSize: 13, height: 22, width: 65, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 7 }}>
+                      <td className="align-middle">
+                        <span className={`badge ${subscription.isApproved ? 'bg-success' : 'bg-danger'}`}>
                           {subscription.isApproved ? 'Yes' : 'No'}
                         </span>
                       </td>
-                      <td>
-                        {subscription.paymentProof ? (
-                          <button 
+                      <td className="align-middle">
+                        {subscription.paymentProof && (
+                          <button
                             className="btn btn-sm btn-outline-info"
                             onClick={() => handleShow(`http://gymmatehealth.runasp.net/Images/PaymentProofs/${subscription.paymentProof}`)}
                           >
                             <i className="fas fa-image me-1"></i>
                             View
                           </button>
-                        ) : (
-                          <span className="text-muted">-</span>
                         )}
-                      </td>
-                      <td>
-                        {/* <button className="btn btn-sm btn-warning text-white d-flex align-items-center p-1 px-2" style={{ fontWeight: 600, fontSize: 13, borderRadius: 6, height: 22, width: 65, gap: '3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <i className="fas fa-ban" style={{ fontSize: 13 }}></i>
-                          <span style={{ lineHeight: 1 }}>Suspend</span>
-                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -403,9 +368,6 @@ export default function ManageSubscriptions() {
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-        .btn-group .btn {
-          padding: 0.4rem 0.8rem;
-        }
         .form-select, .form-control {
           border-radius: 8px;
           border: 1px solid #dee2e6;
@@ -416,34 +378,7 @@ export default function ManageSubscriptions() {
           border-color: #0d6efd;
           box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
-        .alert {
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-          animation: slideIn 0.4s ease;
-        }
-        .avatar-placeholder {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 26px;
-          height: 26px;
-          border-radius: 50%;
-          background-color: #e9ecef;
-          color: #6c757d;
-          font-size: 13px;
-        }
-        @keyframes slideIn {
-          from { 
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
       `}</style>
-      <PaymentProofModal show={showModal} handleClose={handleClose} imageUrl={currentImage} />
     </div>
   );
-} 
+}

@@ -427,14 +427,14 @@ const AdminExercises = () => {
                 <table className="table align-middle mb-0">
                   <thead className="bg-light">
                     <tr>
-                      <th className="border-0 text-start">Exercise</th>
-                      <th className="border-0">Category</th>
-                      <th className="border-0" style={{minWidth: '120px', maxWidth: '160px'}}>Description</th>
-                      <th className="border-0">Target Muscle</th>
-                      <th className="border-0">Level</th>
-                      <th className="border-0">Duration</th>
-                      <th className="border-0">Calories</th>
-                      <th className="border-0">Actions</th>
+                      <th style={{ width: '20%' }}>Exercise</th>
+                      <th style={{ width: '10%' }}>Category</th>
+                      <th style={{ width: '25%' }} className="d-none d-lg-table-cell">Description</th>
+                      <th style={{ width: '10%' }}>Target Muscle</th>
+                      <th style={{ width: '10%' }}>Level</th>
+                      <th style={{ width: '10%' }}>Duration</th>
+                      <th style={{ width: '10%' }}>Calories</th>
+                      <th style={{ width: '15%' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -462,9 +462,7 @@ const AdminExercises = () => {
                         <td>
                           <span className="badge bg-secondary">{getCategoryName(exercise.category_ID)}</span>
                         </td>
-                        <td>
-                          <span className="text-muted" style={{ fontSize: '0.9rem', maxWidth: '140px', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exercise.description}</span>
-                        </td>
+                        <td className="text-muted d-none d-lg-table-cell">{exercise.description}</td>
                         <td>
                           <span className="badge bg-light text-dark" style={{ minWidth: '100px', textAlign: 'center' }}>{exercise.target_Muscle || "Not specified"}</span>
                         </td>

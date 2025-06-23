@@ -131,14 +131,7 @@ function Coaches() {
                 <h2 className={styles.coachName}>{coach.name}</h2>
                 <p className={styles.coachSpecialization}>{coach.specialization}</p>
                 <p className={styles.coachBio}>{coach.bio}</p>
-                <div className={styles.rating}>
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={styles.star}>
-                      {i < Math.floor(coach.rating || 0) ? '★' : '☆'}
-                    </span>
-                  ))}
-                  <span>({coach.rating || 'N/A'})</span>
-                </div>
+                
                 <div className={styles.buttonsContainer}>
                   <Link to={`/coach/${coach.id}`} className={styles.viewProfileBtn}>
                     View Profile
