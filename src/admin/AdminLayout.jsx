@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SideList from './SideList';
 import { Outlet } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 export default function AdminLayout() {
   const [pendingCoachesCount, setPendingCoachesCount] = useState(0);
@@ -12,7 +13,7 @@ export default function AdminLayout() {
     // جلب عدد المدربين المعلقين
     const fetchPendingCoaches = async () => {
       try {
-        const response = await axios.get('http://gymmatehealth.runasp.net/api/Coaches/AllUnapprovedCoaches');
+        const response = await axios.get(`${API_BASE_URL}/Coaches/AllUnapprovedCoaches`);
         setPendingCoachesCount(Array.isArray(response.data) ? response.data.length : 0);
       } catch {
         setPendingCoachesCount(0);
@@ -22,7 +23,7 @@ export default function AdminLayout() {
     // جلب عدد الاشتراكات المعلقة
     const fetchPendingSubscriptions = async () => {
       try {
-        const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/GetAllpendingsubscriptions');
+        const response = await axios.get(`${API_BASE_URL}/Subscribes/GetAllpendingsubscriptions`);
         setPendingSubscriptionsCount(Array.isArray(response.data) ? response.data.length : 0);
       } catch {
         setPendingSubscriptionsCount(0);

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 // API configuration
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net'; // Main image path
 const API_ENDPOINTS = {
   GET_ALL_PRODUCTS: `${API_BASE_URL}/Products/GetAllProducts`,
   DELETE_PRODUCT: (id) => `${API_BASE_URL}/Products/DeleteProduct${id}`,
@@ -72,7 +71,6 @@ export default function ManageProducts() {
     setShowImageModal(true);
   };
 
-  // Product images are served from: http://gymmatehealth.runasp.net/Images/Products/
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
     try {
@@ -351,7 +349,7 @@ export default function ManageProducts() {
           Image_URL: editingProduct.image_URL
         };
         
-        const response = await fetch(`http://gymmatehealth.runasp.net/api/Products/UpdateProduct${editingProduct.product_ID}`, {
+        const response = await fetch(`${API_BASE_URL}/Products/UpdateProduct${editingProduct.product_ID}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -412,7 +410,7 @@ export default function ManageProducts() {
         formData.append('Image_URL', originalProduct.image_URL);
       }
       
-      const response = await fetch(`http://gymmatehealth.runasp.net/api/Products/UpdateProdcut${editingProduct.product_ID}`, {
+      const response = await fetch(`${API_BASE_URL}/Products/UpdateProdcut${editingProduct.product_ID}`, {
         method: 'PUT',
         body: formData
       });

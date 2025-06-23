@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 const paymentMethods = {
   '': 'Select a payment method',
@@ -34,7 +35,7 @@ export default function PaymentPage() {
   const [paymentProof, setPaymentProof] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/Images/Products/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/Images/Products/`;
 
   const handlePlaceOrder = () => {
     if (!selectedPaymentMethod || !paymentProof) {

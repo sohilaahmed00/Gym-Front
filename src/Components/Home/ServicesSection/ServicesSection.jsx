@@ -64,9 +64,7 @@ const Services = () => {
               </div>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
-              <Link to={service.path} className={styles.learnMoreBtn}>
-                Learn More
-              </Link>
+              
             </div>
           ))}
         </div>

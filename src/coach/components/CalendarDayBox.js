@@ -1,11 +1,14 @@
 // CalendarDayBox.js
 import React from 'react';
 
-const CalendarDayBox = ({ dayObj, assignments, nutritionPlans, openModal, isSameDate }) => {
-  const hasAssignment = assignments?.some(a => isSameDate(a.day, dayObj.date));
-  const hasNutrition = nutritionPlans?.some(n => isSameDate(n.day, dayObj.date));
+const CalendarDayBox = ({ dayObj, assignments = [], nutritionPlans = [], openModal, isSameDate }) => {
+  const safeAssignments = Array.isArray(assignments) ? assignments : [];
+  const safeNutritionPlans = Array.isArray(nutritionPlans) ? nutritionPlans : [];
 
-  const assignmentOfDay = assignments.find(a => isSameDate(a.day, dayObj.date));
+  const hasAssignment = safeAssignments.some(a => isSameDate(a.day, dayObj.date));
+  const hasNutrition = safeNutritionPlans.some(n => isSameDate(n.day, dayObj.date));
+
+  const assignmentOfDay = safeAssignments.find(a => isSameDate(a.day, dayObj.date));
   const workoutName = assignmentOfDay?.exercises?.map(ex => ex.exercise_Name).join(', ') || null;
 
   const date = new Date(dayObj.date);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 export default function OrderSuccess() {
   const { orderId } = useParams();
@@ -20,7 +21,7 @@ export default function OrderSuccess() {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const response = await axios.get(`http://gymmatehealth.runasp.net/api/Orders/GetOrderById/${orderId}`);
+        const response = await axios.get(`${API_BASE_URL}/Orders/GetOrderById/${orderId}`);
         setOrder(response.data);
       } catch (err) {
         setError('Failed to fetch order details.');
@@ -92,7 +93,7 @@ export default function OrderSuccess() {
                     <span>Payment Proof:</span>
                     <img
 
-                      src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${order.paymentProof}`}
+                      src={`${API_BASE_IMAGE_URL}/images/PaymentProofs/${order.paymentProof}`}
 
                       alt="Payment Proof"
                       style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '8px', boxShadow: '0 2px 8px #eee', cursor: 'pointer', border: '2px solid #FF5722', marginLeft: '10px' }}
@@ -143,7 +144,7 @@ export default function OrderSuccess() {
                         <h3 style={{margin: 0, marginBottom: 16}}>Payment Proof</h3>
                         <img
 
-                         src={`http://gymmatehealth.runasp.net/images/PaymentProofs/${order.paymentProof}`}
+                         src={`${API_BASE_IMAGE_URL}/images/PaymentProofs/${order.paymentProof}`}
 
                          
 
@@ -203,7 +204,7 @@ export default function OrderSuccess() {
                   e.preventDefault();
                   setUpdateMsg('');
                   try {
-                    await axios.put(`http://gymmatehealth.runasp.net/api/Orders/UpdateOrder/${orderId}`, editData);
+                    await axios.put(`${API_BASE_URL}/Orders/UpdateOrder/${orderId}`, editData);
                     setOrder({ ...order, 
                       recipientName: editData.RecipientName,
                       address: editData.Address,

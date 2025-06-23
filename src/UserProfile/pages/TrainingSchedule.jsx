@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from 'primereact/button';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 import axios from 'axios';
 import styles from './TrainingSchedule.module.css';
+import { isSameDate, parseCustomDate, formatDateForBackend } from '../../services/date';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 const TrainingSchedule = () => {
   const [assignments, setAssignments] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [feedbackText, setFeedbackText] = useState('');
   const toast = useRef(null);
   const userId = localStorage.getItem('id');
 
@@ -21,12 +21,17 @@ const TrainingSchedule = () => {
   const fetchAllData = async () => {
     try {
       const [assignmentsRes, nutritionRes] = await Promise.all([
-        axios.get(`http://gymmatehealth.runasp.net/api/Assignments/GetAllUserAssignments/${userId}`),
-        axios.get(`http://gymmatehealth.runasp.net/api/NutritionPlans/GetAllUserNutritionplans/${userId}`)
+        axios.get(`${API_BASE_URL}/Assignments/GetAllUserAssignments/${userId}`),
+        axios.get(`${API_BASE_URL}/NutritionPlans/GetAllUserNutritionplans/${userId}`)
       ]);
 
       if (Array.isArray(assignmentsRes.data)) {
-        const sortedAssignments = assignmentsRes.data.sort((a, b) => new Date(a.day) - new Date(b.day));
+        const parseDate = (str) => {
+          const [day, month, year] = str.split('-');
+          return new Date(`${year}-${month}-${day}`);
+        };
+
+        const sortedAssignments = assignmentsRes.data.sort((a, b) => parseDate(a.day) - parseDate(b.day));
         setAssignments(sortedAssignments);
       }
 
@@ -52,23 +57,9 @@ const TrainingSchedule = () => {
     return dayStr;
   };
 
-  const isSameDate = (d1, d2) => {
-    const format = (dateStr) => {
-      if (typeof dateStr === 'string' && dateStr.includes('T')) {
-        const d = new Date(dateStr);
-        return d.toISOString().split('T')[0];
-      } else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
-        const [day, month, year] = dateStr.split('-');
-        return `${year}-${month}-${day}`;
-      }
-      return dateStr;
-    };
-    return format(d1) === format(d2);
-  };
-
   const handleMarkDone = async (assignment) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Assignments/CompleteAssignment/${assignment.assignment_ID}`);
+      await axios.put(`${API_BASE_URL}/Assignments/CompleteAssignment/${assignment.assignment_ID}`);
       await fetchAllData();
       toast.current.show({
         severity: 'success',
@@ -94,7 +85,7 @@ const TrainingSchedule = () => {
   };
 
   const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
+    const d = parseCustomDate(dateStr);
     return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()}`;
   };
 
@@ -108,8 +99,8 @@ const TrainingSchedule = () => {
       ) : (
         <div className="d-flex flex-wrap gap-3">
           {assignments.map(assignment => {
-            const dateObj = new Date(assignment.day);
-            const label = `${dateObj.toLocaleDateString()} (${dateObj.toLocaleDateString('en-US', { weekday: 'long' })})`;
+            const dateObj = parseCustomDate(assignment.day);
+            const label = `${formatDate(assignment.day)} (${dateObj.toLocaleDateString('en-US', { weekday: 'long' })})`;
             const nutrition = nutritionPlans.find(n => isSameDate(n.day, assignment.day));
 
             return (
@@ -156,7 +147,7 @@ const TrainingSchedule = () => {
                     <p>{ex.description}</p>
                     {ex.image_url && (
                       <img
-                        src={`http://gymmatehealth.runasp.net/images/Exercise/${ex.image_url}`}
+                        src={`${API_BASE_IMAGE_URL}/images/Exercise/${ex.image_url}`}
                         alt={ex.exercise_Name}
                         className={styles.exerciseImage}
                       />

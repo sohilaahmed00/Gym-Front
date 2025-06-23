@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { FaHome, FaDumbbell, FaShoppingCart, FaUsers, FaCog, FaBell, FaCommentDots } from 'react-icons/fa';
+import { FaHome, FaDumbbell, FaShoppingCart, FaUsers, FaCog, FaBell, FaCommentDots,FaMoneyBillWave } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -15,19 +16,19 @@ const Sidebar = () => {
   const [notifCount, setNotifCount] = useState(3);
   const [msgCount, setMsgCount] = useState(5);
 
-  const plans = ['All', '3_Months', '6_Months', '12_Months'];
+  const plans = ['All', '3_Months', '6_Months', '1_Year'];
 
   const formatPlan = (plan) => ({
     'All': 'All Plans',
     '3_Months': '3 Months',
     '6_Months': '6 Months',
-    '12_Months': '12 Months'
+    '1_Year': '1 Year'
   }[plan] || 'Unknown');
 
   useEffect(() => {
     const fetchSubscribers = async () => {
       try {
-        const response = await fetch(`http://gymmatehealth.runasp.net/api/Subscribes/coach/${coachId}`);
+        const response = await fetch(`${API_BASE_URL}/Subscribes/coach/${coachId}`);
         if (!response.ok) throw new Error('Failed to fetch subscribers');
         const data = await response.json();
         console.log(data, "dd");
@@ -40,7 +41,7 @@ const Sidebar = () => {
           status: item.status || 'active',
           hasNewMessage: false,
           image: item.user?.applicationUser?.image
-            ? `http://gymmatehealth.runasp.net/images/User/${item.user.applicationUser.image}`
+            ? `${API_BASE_IMAGE_URL}/images/User/${item.user.applicationUser.image}`
             : null,
           ...item,
         }));
@@ -127,9 +128,18 @@ const Sidebar = () => {
         <NavLink to="/coach/products" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
           <FaShoppingCart /> Products
         </NavLink>
+        <NavLink
+          to="/coach/payments"
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+           <FaMoneyBillWave /> Payments
+        </NavLink>
         <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
           <FaHome /> Back Home
         </NavLink>
+        
       </nav>
 
       <hr />
@@ -169,7 +179,7 @@ const Sidebar = () => {
               >
                 <div className={styles.subscriberNameContainer}>
                   {sub.image ? (
-                    <img src={`http://gymmatehealth.runasp.net/images/profiles/${sub.image}`} alt={sub.name} className={styles.userImage} />
+                    <img src={`${API_BASE_IMAGE_URL}/images/profiles/${sub.image}`} alt={sub.name} className={styles.userImage} />
                   ) : (
                     <div
                       className={styles.userImage}

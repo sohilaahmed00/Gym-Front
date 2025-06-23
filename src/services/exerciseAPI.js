@@ -1,6 +1,8 @@
+import { API_BASE_URL } from "../config";
+
 export const fetchCategories = async () => {
   try {
-    const res = await fetch('http://gymmatehealth.runasp.net/api/Categories/GetAllCategories');
+    const res = await fetch(`${API_BASE_URL}/Categories/GetAllCategories`);
     if (!res.ok) throw new Error('Failed to fetch categories');
     const data = await res.json();
     console.log('✅ Categories API response:', data);
@@ -13,7 +15,7 @@ export const fetchCategories = async () => {
 
 export const fetchExercises = async () => {
   try {
-    const res = await fetch('http://gymmatehealth.runasp.net/api/Exercises/GetAllExercises');
+    const res = await fetch(`${API_BASE_URL}/Exercises/GetAllExercises`);
     if (!res.ok) throw new Error('Failed to fetch exercises');
     const data = await res.json();
     console.log('✅ Exercises API response:', data);
@@ -26,7 +28,7 @@ export const fetchExercises = async () => {
 
 export const fetchExerciseById = async (id) => {
   try {
-    const res = await fetch(`http://gymmatehealth.runasp.net/api/Exercises/GetExerciseById${id}`);
+    const res = await fetch(`${API_BASE_URL}/Exercises/GetExerciseById${id}`);
     if (!res.ok) throw new Error('Failed to fetch exercise with ID ' + id);
     const data = await res.json();
     console.log(`✅ Exercise ${id} API response:`, data);
