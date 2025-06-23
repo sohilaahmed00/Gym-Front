@@ -3,7 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './UserOrders.module.css';
 import { Link } from 'react-router-dom';
-import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
+
 
 
 const getStatusClass = (status) => {
@@ -19,6 +19,8 @@ const UserOrders = () => {
   const userId = localStorage.getItem('id');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [selectedProof, setSelectedProof] = useState(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -48,7 +50,7 @@ const UserOrders = () => {
 
       {orders.length === 0 ? (
         <div className={styles.emptyBox}>
-          <p>You haven’t placed any orders yet.</p>
+          <p>You haven't placed any orders yet.</p>
           <div className={styles.actions}>
             <Link to="/products" className={styles.primaryBtn}>Browse Products</Link>
             <Link to="/cart" className={styles.outlineBtn}>Go to Cart</Link>
@@ -84,14 +86,6 @@ const UserOrders = () => {
                   <td>{order.isPaid ? '✅' : '❌'}</td>
                   <td>{order.totalPrice.toFixed(2)} EGP</td>
                   <td>
-                    <a
-                      href={`${API_BASE_IMAGE_URL}/images/${order.paymentProof}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.viewProof}
-                    >
-                      View
-                    </a>
                   </td>
                 </tr>
               ))}
@@ -99,8 +93,48 @@ const UserOrders = () => {
           </table>
         </div>
       )}
+
+      <PaymentProofModal
+        show={showProofModal}
+        onHide={() => setShowProofModal(false)}
+        paymentProof={selectedProof}
+      />
     </div>
   );
 };
+
+function PaymentProofModal({ show, onHide, paymentProof }) {
+  return (
+    <Modal show={show} onHide={onHide} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>Payment Proof</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ textAlign: "center" }}>
+        {paymentProof ? (
+          <img
+            src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${paymentProof}`}
+            alt="Payment Proof"
+            style={{
+              width: '100%',
+              maxWidth: '600px',
+              maxHeight: '70vh',
+              borderRadius: '8px',
+              border: '2px solid #e9ecef',
+              background: '#fff',
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
+          <p>No payment proof available.</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
 export default UserOrders;

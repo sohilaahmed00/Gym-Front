@@ -179,6 +179,29 @@ const TrainingSchedule = () => {
                 <p>No nutrition plan available for this day.</p>
               )}
 
+              <div className="d-flex flex-column align-items-center mt-4 mb-2" style={{gap: 8}}>
+                <span style={{ fontWeight: 500, color: '#444', marginBottom: 2 }}>
+                  Want to search for another exercise or view all exercises?
+                </span>
+                <button
+                  onClick={() => window.location.href = '/exercises'}
+                  style={{
+                    background: '#FF5722',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '8px 22px',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    boxShadow: '0 2px 8px rgba(255,87,34,0.10)',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  Go to Exercises Page
+                </button>
+              </div>
+
               <div className="d-flex justify-content-between mt-3">
                 <Button label="Close" className="p-button-text" style={{ color: '#fd5c28' }} onClick={() => setShowModal(false)} />
               </div>
