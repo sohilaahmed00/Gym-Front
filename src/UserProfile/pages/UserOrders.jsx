@@ -3,6 +3,8 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './UserOrders.module.css';
 import { Link } from 'react-router-dom';
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
@@ -19,6 +21,8 @@ const UserOrders = () => {
   const userId = localStorage.getItem('id');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [selectedProof, setSelectedProof] = useState(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -48,7 +52,7 @@ const UserOrders = () => {
 
       {orders.length === 0 ? (
         <div className={styles.emptyBox}>
-          <p>You haven’t placed any orders yet.</p>
+          <p>You haven't placed any orders yet.</p>
           <div className={styles.actions}>
             <Link to="/products" className={styles.primaryBtn}>Browse Products</Link>
             <Link to="/cart" className={styles.outlineBtn}>Go to Cart</Link>
@@ -84,14 +88,27 @@ const UserOrders = () => {
                   <td>{order.isPaid ? '✅' : '❌'}</td>
                   <td>{order.totalPrice.toFixed(2)} EGP</td>
                   <td>
-                    <a
-                      href={`http://gymmatehealth.runasp.net/images/${order.paymentProof}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.viewProof}
-                    >
-                      View
-                    </a>
+                    {order.paymentProof ? (
+                      <img
+                        src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${order.paymentProof}`}
+                        alt="Payment Proof"
+                        style={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: '8px',
+                          objectFit: 'cover',
+                          cursor: 'pointer',
+                          border: '2px solid #dee2e6',
+                          background: '#f8f9fa',
+                        }}
+                        onClick={() => {
+                          setSelectedProof(order.paymentProof);
+                          setShowProofModal(true);
+                        }}
+                      />
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -99,8 +116,48 @@ const UserOrders = () => {
           </table>
         </div>
       )}
+
+      <PaymentProofModal
+        show={showProofModal}
+        onHide={() => setShowProofModal(false)}
+        paymentProof={selectedProof}
+      />
     </div>
   );
 };
+
+function PaymentProofModal({ show, onHide, paymentProof }) {
+  return (
+    <Modal show={show} onHide={onHide} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title>Payment Proof</Modal.Title>
+      </Modal.Header>
+      <Modal.Body style={{ textAlign: "center" }}>
+        {paymentProof ? (
+          <img
+            src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${paymentProof}`}
+            alt="Payment Proof"
+            style={{
+              width: '100%',
+              maxWidth: '600px',
+              maxHeight: '70vh',
+              borderRadius: '8px',
+              border: '2px solid #e9ecef',
+              background: '#fff',
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
+          <p>No payment proof available.</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
 export default UserOrders;
