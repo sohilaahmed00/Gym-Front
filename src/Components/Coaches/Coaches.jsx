@@ -116,7 +116,6 @@ function Coaches() {
           </div>
         </div>
       </div>
-
       <div className={styles.coachesGrid}>
         {filteredCoaches.length > 0 ? (
           filteredCoaches.map(coach => (
