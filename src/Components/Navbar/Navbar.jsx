@@ -72,7 +72,7 @@ export default function Navbar() {
     // { name: 'Clients', icon: <i className="fa fa-users me-1"></i>, path: '/manage-clients' },
        { name: 'Products', icon: <i className="fa fa-store me-1"></i>, path: '/products' },
 
-    { name: 'Manage Exercises', icon: <i className="fa fa-laptop-code me-1"></i>, path: '/exercises' },
+    { name: ' Exercises', icon: <i className="fa fa-laptop-code me-1"></i>, path: '/exercises' },
     { name: 'Manage Diet', icon: <i className="fa fa-carrot me-1"></i>, path: '/nutrition-plan' },
     { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/coach' }
   ];

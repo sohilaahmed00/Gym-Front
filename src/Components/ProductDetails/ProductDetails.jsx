@@ -6,6 +6,26 @@ import { useCart } from '../CartContext/CartContext';
 import { fetchProductById } from '../../services/productAPI';
 import { API_BASE_IMAGE_URL } from '../../config';
 
+// دالة لفك تشفير التوكن (JWT)
+function decodeJWT(token) {
+  if (!token) return {};
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return {};
+  }
+}
+
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -14,6 +34,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const orangeColor = '#FF5722';
+  const [role, setRole] = useState('');
 
   useEffect(() => {
     const getProductDetails = async () => {
@@ -27,6 +48,16 @@ const ProductDetails = () => {
 
     getProductDetails();
   }, [id]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeJWT(token);
+      if (decoded?.roles?.length) {
+        setRole(decoded.roles[0]);
+      }
+    }
+  }, []);
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity });
@@ -75,32 +106,37 @@ const ProductDetails = () => {
 
           {/* الكمية + الزر */}
           <div className="d-flex align-items-center mb-3">
-            <button className="btn btn-outline-secondary" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
-              <FontAwesomeIcon icon={faMinus} />
-            </button>
-            <span className="mx-3">{quantity}</span>
-            <button className="btn btn-outline-secondary" onClick={() => setQuantity(q => q + 1)}>
-              <FontAwesomeIcon icon={faPlus} />
-            </button>
-
-            <button
-              className="btn text-white ms-4"
-              style={{ backgroundColor: orangeColor, borderColor: orangeColor }}
-              onClick={handleAddToCart}
-            >
-              {added ? (
-                <>
-                  <FontAwesomeIcon icon={faCheck} className="me-2" />
-                  Added to Cart
-                </>
-              ) : (
-                'Buy Now'
-              )}
-            </button>
+            {role !== 'Coach' && (
+              <>
+                <button className="btn btn-outline-secondary" onClick={() => setQuantity(q => Math.max(1, q - 1))}>
+                  <FontAwesomeIcon icon={faMinus} />
+                </button>
+                <span className="mx-3">{quantity}</span>
+                <button className="btn btn-outline-secondary" onClick={() => setQuantity(q => q + 1)}>
+                  <FontAwesomeIcon icon={faPlus} />
+                </button>
+              </>
+            )}
+            {role !== 'Coach' && (
+              <button
+                className="btn text-white ms-4"
+                style={{ backgroundColor: orangeColor, borderColor: orangeColor }}
+                onClick={handleAddToCart}
+              >
+                {added ? (
+                  <>
+                    <FontAwesomeIcon icon={faCheck} className="me-2" />
+                    Added to Cart
+                  </>
+                ) : (
+                  'Buy Now'
+                )}
+              </button>
+            )}
           </div>
 
           {/* رسالة تأكيد + الزرين */}
-          {added && (
+          {added && role !== 'Coach' && (
             <div className="mt-4">
               <p className="text-success fw-semibold">
                 ✅ Product added to cart successfully!
