@@ -171,6 +171,7 @@ export default function ManageCoaches() {
                   <th className="border-0">Experience (Years)</th>
                   <th className="border-0">Portfolio</th>
                   <th className="border-0">Status</th>
+                  <th className="border-0">Payment Method</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,6 +232,7 @@ export default function ManageCoaches() {
                         {coach.isConfirmedByAdmin ? 'Approved' : 'Not Approved'}
                       </span>
                     </td>
+                    <td>{coach.paymentMethod || 'N/A'}</td>
                   </tr>
                 ))}
               </tbody>

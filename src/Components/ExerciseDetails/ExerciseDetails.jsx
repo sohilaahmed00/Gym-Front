@@ -11,7 +11,7 @@ function ExerciseDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const baseUrl = `${API_BASE_IMAGE_URL}t/images/Exercise/`; // Base URL for images
+  const baseUrl = `${API_BASE_IMAGE_URL}/images/Exercise/`; // Base URL for images
 
   useEffect(() => {
     const getExerciseDetails = async () => {

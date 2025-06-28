@@ -77,7 +77,7 @@ function Admin() {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const res = await fetch(`${API_BASE_URL}i/Users/GetAllUsers`);
+        const res = await fetch(`${API_BASE_URL}/Users/GetAllUsers`);
         const data = await res.json();
         const sorted = [...data].sort((a, b) => new Date(b.createdAt || b.addedDate || b.date || 0) - new Date(a.createdAt || a.addedDate || a.date || 0));
         setRecentUsers(sorted.slice(0, 5));
