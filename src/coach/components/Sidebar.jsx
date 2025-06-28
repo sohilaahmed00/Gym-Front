@@ -124,6 +124,17 @@ const Sidebar = () => {
           <FaMoneyBillWave />
           <span>Payments</span>
         </NavLink>
+          <NavLink
+              to="/coach/contact-admin"
+              className={({ isActive }) =>
+                isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+              }
+            >
+              <FaCommentDots />
+              <span>Contact Admin</span>
+            </NavLink>
+
+
         <NavLink
           to="/"
           className={({ isActive }) =>
