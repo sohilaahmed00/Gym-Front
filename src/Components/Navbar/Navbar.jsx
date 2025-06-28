@@ -34,9 +34,14 @@ export default function Navbar() {
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = decodeJWT(token);
-      if (decoded?.roles?.length) {
-        setRole(decoded.roles[0]);
+       if (decoded?.roles?.length) {
+      const userRole = decoded.roles[0];
+      setRole(userRole);
+
+      if (userRole === 'Admin') {
+        navigate('/admin'); 
       }
+    }
     }
   }, [location.pathname]);
 
@@ -77,11 +82,13 @@ export default function Navbar() {
     { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/coach' }
   ];
 
-  let links = guestLinks;
-  if (isLoggedIn) {
-    if (role === 'Coach') links = coachLinks;
-    else if (role === 'User') links = userLinks;
-  }
+ let links = guestLinks;
+if (isLoggedIn) {
+  if (role === 'Coach') links = coachLinks;
+  else if (role === 'User') links = userLinks;
+  else if (role === 'Admin') links = [...guestLinks, ...userLinks, ...coachLinks]; 
+}
+
 
   const handleLogout = () => {
     logout(); 

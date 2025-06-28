@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { Toast } from 'primereact/toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Spinner } from 'react-bootstrap';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';  
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-import styles from './Login.module.css'; 
-import { useCart } from '../../CartContext/CartContext';
+import styles from './AdminLogin.module.css';
 import { API_BASE_IMAGE_URL } from '../../../config';
 
-function Login() {
+// ✅ Replace jwt-decode with custom decode function
+function decodeJWT(token) {
+  try {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  } catch {
+    return null;
+  }
+}
 
-    const { updateUserInCartContext } = useCart();
-
+const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); 
   const [errors, setErrors] = useState({});
   const toast = React.useRef(null);
   const navigate = useNavigate();
@@ -28,17 +34,13 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
-
     setLoading(true);
 
-    const loginData = {
-      email,
-      password,
-    };
+    const loginData = { email, password };
 
     try {
       const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/login`, {
@@ -48,40 +50,36 @@ function Login() {
       });
 
       const data = await response.json();
-
       setLoading(false);
+      
 
       if (response.ok) {
-         const token = data.token;
-  const payload = token.split('.')[1];
-  const decoded = JSON.parse(atob(payload));
-  const role = decoded?.roles?.[0];
+        const decoded = decodeJWT(data.token);
 
-        if (role === 'Admin') {
+        if (decoded?.roles?.[0] === 'Admin') {
+          // Save admin info
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('id', data.id);
+          localStorage.setItem('fullName', data.fullName);
+
           toast.current.show({
-            severity: 'error',
-            summary: 'Not Allowed',
-            detail: 'You are not allowed to sign in as Admin here',
+            severity: 'success',
+            summary: 'Login Successful',
+            detail: 'Welcome, Admin!',
             life: 3000,
           });
-          return;
-        }
-        toast.current.show({
-          severity: 'success',
-          summary: 'Login Successful',
-          detail: 'You have logged in successfully!',
-          life: 3000,
-        });
 
-        // Save token and user data to localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('id', data.id);
-        localStorage.setItem('fullName', data.fullName);
-        updateUserInCartContext();
-        setTimeout(()=>{
-          navigate('/');
-        },3000)
-        
+          setTimeout(() => {
+            navigate('/admin');
+          }, 3000);
+        } else {
+          toast.current.show({
+            severity: 'error',
+            summary: 'Unauthorized',
+            detail: 'You are not authorized as Admin',
+            life: 3000,
+          });
+        }
       } else {
         toast.current.show({
           severity: 'error',
@@ -101,16 +99,11 @@ function Login() {
     }
   };
 
-  const handleForgotPassword = () => {
-    // Navigate to the forgot password page
-    navigate('/forgot-password');
-  };
-
   return (
     <div className={styles.loginContainer}>
       <Toast ref={toast} />
-      <h2 className={styles.title}>Login</h2>
-      <form onSubmit={handleLoginSubmit} className={styles.form}>
+      <h2 className={styles.title}>Admin Login</h2>
+      <form onSubmit={handleAdminLogin} className={styles.form}>
         <div className={styles.formGroup}>
           <label>Email</label>
           <input
@@ -136,33 +129,17 @@ function Login() {
               className={styles.eyeIcon}
               onClick={() => setShowPassword((prev) => !prev)}
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />} 
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
           {errors.password && <p className={styles.errorText}>{errors.password}</p>}
         </div>
         <button type="submit" className={styles.submitBtn} disabled={loading}>
-          {loading ? (
-            <Spinner animation="border" size="sm" />
-          ) : (
-            'Login'
-          )}
+          {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
         </button>
       </form>
-      
-      {/* Forgot Password Link */}
-      <div className={styles.forgotPassword}>
-        <span onClick={handleForgotPassword} className="text-primary" style={{ cursor: 'pointer' }}>
-          Forgot Password?
-        </span>
-      </div>
-      
-    
-      <div className={styles.registerLink}>
-        <span>Don't have an account? <Link to="/register">Sign Up</Link></span>
-      </div>
     </div>
   );
-}
+};
 
-export default Login;
+export default AdminLogin;

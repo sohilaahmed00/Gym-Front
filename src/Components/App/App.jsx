@@ -67,6 +67,7 @@ import ChatBot from '../../UserProfile/pages/ChatBot';
 import IntroTour from '../IntroJs/IntroTour';
 import UserOrders from '../../UserProfile/pages/UserOrders';
 import CoachPayment from '../../coach/pages/CoachPayment';
+import AdminLogin from '../Auth/adminAuth/AdminAuth';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -101,6 +102,7 @@ const routes = createBrowserRouter([
       { path: "/enter-otp" , element: <EnterOtp />},
       { path: "/reset-password" , element: <ResetPassword />},
       { path: 'login', element: <Login />},
+      {path:'/admin-login', element: <AdminLogin/>},
       { path: 'payment', element: <PaymentPage />},
 
       {
