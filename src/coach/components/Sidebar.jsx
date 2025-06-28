@@ -86,47 +86,34 @@ const Sidebar = () => {
     <aside className={styles.sidebar}>
       <h3 className={styles.title}>Coach Panel</h3>
 
-      <div className={styles.iconsWrapper}>
-        <div className={styles.iconButton}>
-          <FaBell size={24} onClick={() => { setShowNotif(!showNotif); setShowMsgs(false); }} />
-          {notifCount > 0 && <span className={styles.badge}>{notifCount}</span>}
-          {showNotif && (
-            <div className={styles.dropdownMenu}>
-              <strong>You have {notifCount} new alerts</strong>
-              <ul style={{ paddingLeft: 15, marginTop: 10 }}>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('feedback')}>💡 New feedback added</li>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('userPlan')}>🔥 User finished a plan</li>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleNotificationClick('expired')}>📦 Plan expired for Sarah</li>
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.iconButton}>
-          <FaCommentDots size={24} onClick={() => { setShowMsgs(!showMsgs); setShowNotif(false); }} />
-          {msgCount > 0 && <span className={styles.badge}>{msgCount}</span>}
-          {showMsgs && (
-            <div className={`${styles.dropdownMenu} ${styles.dropdownMenuRight}`}>
-              <strong>Recent Messages</strong>
-              <ul style={{ paddingLeft: 15, marginTop: 10 }}>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Ahmed Mostafa')}>📩 Ahmed: Need help on push ups</li>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Mohamed Ali')}>📩 Mohamed: Thank you coach!</li>
-                <li style={{ cursor: 'pointer' }} onClick={() => handleMessageClick('Sohila Ahmed')}>📩 Sohila: Subscription ended</li>
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-
       <nav>
-        <NavLink to="/coach" end className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
-          <FaUsers /> Dashboard
+        <NavLink
+          to="/coach"
+          end
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+          <FaUsers />
+          <span>Dashboard</span>
         </NavLink>
-        <NavLink to="/coach/exercise" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
-          <FaDumbbell /> Exercises
+        <NavLink
+          to="/coach/exercise"
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+          <FaDumbbell />
+          <span>Exercises</span>
         </NavLink>
-        <NavLink to="/coach/products" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
-          <FaShoppingCart /> Products
+        <NavLink
+          to="/coach/products"
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+          <FaShoppingCart />
+          <span>Products</span>
         </NavLink>
         <NavLink
           to="/coach/payments"
@@ -134,12 +121,18 @@ const Sidebar = () => {
             isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
           }
         >
-           <FaMoneyBillWave /> Payments
+          <FaMoneyBillWave />
+          <span>Payments</span>
         </NavLink>
-        <NavLink to="/" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}>
-          <FaHome /> Back Home
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
+          }
+        >
+          <FaHome />
+          <span>Back Home</span>
         </NavLink>
-        
       </nav>
 
       <hr />
