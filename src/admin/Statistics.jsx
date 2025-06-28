@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 const Statistics = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -26,7 +27,7 @@ const Statistics = () => {
     async function fetchRevenueAndStats() {
       try {
         // Get all subscriptions
-        const subsRes = await fetch('http://gymmatehealth.runasp.net/api/Subscribes/GetAllSubscribtions');
+        const subsRes = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         const subs = await subsRes.json();
         let revenue = 0;
         let newSubs = 0;
@@ -71,7 +72,7 @@ const Statistics = () => {
         setTotalRevenue(revenue);
         setNewSubscriptions(newSubs);
         // جلب الأوردرات وحساب الإجمالي الشهري
-        const ordersRes = await fetch('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders');
+        const ordersRes = await fetch(`${API_BASE_URL}/Orders/GetAllOrders`);
         const orders = await ordersRes.json();
         let ordersTotal = 0;
         if (Array.isArray(orders)) {

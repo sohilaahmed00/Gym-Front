@@ -11,12 +11,13 @@ import {
   faShoppingCart
 } from '@fortawesome/free-solid-svg-icons';
 import styles from './Sidebar.module.css';
+import { API_BASE_URL } from '../config';
 
 const Sidebar = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    fetch(`http://gymmatehealth.runasp.net/api/Subscribes/GetSubscribeByUserId/${localStorage.getItem('id')}`)
+    fetch(`${API_BASE_URL}/Subscribes/GetSubscribeByUserId/${localStorage.getItem('id')}`)
       .then(res => {
         if (res.ok) return res.json();
         throw new Error('No subscription');

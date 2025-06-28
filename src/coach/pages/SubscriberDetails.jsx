@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import SubscriberCalendar from './SubscriberCalendar';
 import styles from './ProfileCard.module.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
 
-const API_BASE = 'http://gymmatehealth.runasp.net/api';
 
 const SubscriberDetails = () => {
   const { id } = useParams();
@@ -14,7 +14,7 @@ const SubscriberDetails = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${API_BASE}/Users/Getuserbyid/${id}`);
+        const res = await fetch(`${API_BASE_URL}/Users/Getuserbyid/${id}`);
         if (!res.ok) throw new Error('Failed to fetch user data');
         const data = await res.json();
         setUser(data);
@@ -40,7 +40,7 @@ console.log(profile);
       <div className="row align-items-center">
         <div className="col-md-2 text-center">
           <img
-            src={`http://gymmatehealth.runasp.net/images/profiles/${profile.image}`}
+            src={`${API_BASE_IMAGE_URL}/images/profiles/${profile.image}`}
             alt={profile.fullName}
             className={styles.profileImg}
           />

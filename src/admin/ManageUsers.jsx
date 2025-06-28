@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_BASE_URL } from '../config';
 
 // تعريف متغيرات API
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_ALL_USERS: `${API_BASE_URL}/Users/GetAllUsers`,
   DELETE_USER: `${API_BASE_URL}/Users/DeleteUser`

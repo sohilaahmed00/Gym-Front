@@ -1,8 +1,9 @@
 import React from 'react';
 import styles from './WhyChooseUs.module.css';
-import gym1 from '../../images/Rectangle 30.png';
-import gym2 from '../../images/Rectangle 31.png';
-import gym3 from '../../images/Rectangle 32.png';
+import gym1 from '../../images/Screenshot 2025-06-27 231125.png';
+import gym2 from '../../images/Screenshot 2025-06-27 232453.png';
+import gym3 from '../../images/Screenshot 2025-06-27 233722.png';
+import gym4 from '../../images/Screenshot 2025-06-27 233514.png';
 
 const WhyChooseUs = () => {
   return (
@@ -10,52 +11,57 @@ const WhyChooseUs = () => {
       <div className={styles.section2Content}>
         <h2>Why Choose Us</h2>
         <p className={styles.section2Subtitle}>
-          Discover the Benefits That Set Us Apart and Propel Your Fitness Journey Forward.
+          Discover the unique features that make your fitness journey smarter and easier with us.
         </p>
         
         <div className={` ${styles.featuresGrid}`}>
           <div className={styles.featuresLeft}>
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>👨‍🏫</span>
+              <span className={styles.featureIcon}>💻</span>
               <div className={styles.featureText}>
-                <h3>Expert Trainers</h3>
-                <p>Our certified trainers provide personalized guidance and expert advice to help you achieve your fitness goals.</p>
+                <h3>Personalized Online Training</h3>
+                <p>Get customized workout plans tailored to your goals, delivered directly to you by professional coaches.</p>
               </div>
             </div>
             
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>🏋️</span>
+              <span className={styles.featureIcon}>🧑‍🏫</span>
               <div className={styles.featureText}>
-                <h3>State-of-the-Art Equipment</h3>
-                <p>Work out with the latest and most advanced fitness equipment to maximize your results and enhance your experience.</p>
+                <h3>Direct Access to Coaches</h3>
+                <p>Subscribe and connect with certified coaches for real-time guidance, support, and progress tracking.</p>
               </div>
             </div>
 
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>📋</span>
+              <span className={styles.featureIcon}>🤖</span>
               <div className={styles.featureText}>
-                <h3>Comprehensive Programs</h3>
-                <p>Enjoy a variety of classes and programs tailored to all fitness levels, from beginner to advanced.</p>
+                <h3>AI-Powered Fitness Chatbot</h3>
+                <p>Chat with our smart AI assistant to receive instant workout suggestions, ready-made routines, and nutrition tips anytime.</p>
               </div>
             </div>
             
             <div className={styles.feature}>
-              <span className={styles.featureIcon}>🤝</span>
+              <span className={styles.featureIcon}>📋</span>
               <div className={styles.featureText}>
-                <h3>Supportive Community</h3>
-                <p>Be part of a positive and motivating community that encourages you to stay consistent and push your limits.</p>
+                <h3>Ready-to-Use Workout & Nutrition Plans</h3>
+                <p>Access a variety of pre-designed workout programs and meal plans to suit your lifestyle and fitness level.</p>
+              </div>
+            </div>
+
+            <div className={styles.feature}>
+              <span className={styles.featureIcon}>🧮</span>
+              <div className={styles.featureText}>
+                <h3>Advanced Calorie Calculator</h3>
+                <p>Easily track your daily calorie needs and optimize your diet for better results.</p>
               </div>
             </div>
           </div>
 
-          <div className={styles.imagesGrid}>
-            <div className={styles.imagesLeft}>
-              <img src={gym1} alt="Gym facility 1" />
-              <img src={gym2} alt="Gym facility 2" />
-            </div>
-            <div className={styles.imageRight}>
-              <img src={gym3} alt="Gym facility 3" />
-            </div>
+          <div className={styles.imagesZigzag}>
+            <img src={gym1} alt="Feature 1" className={styles.imgZigzag1} />
+            <img src={gym2} alt="Feature 2" className={styles.imgZigzag2} />
+            <img src={gym3} alt="Feature 3" className={styles.imgZigzag3} />
+            <img src={gym4} alt="Feature 4" className={styles.imgZigzag4} />
           </div>
         </div>
       </div>

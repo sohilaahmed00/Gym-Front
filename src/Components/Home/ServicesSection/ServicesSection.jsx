@@ -7,44 +7,29 @@ import nutrition from '../../images/nutrition.png';
 import wellness from '../../images/wellness.png';
 import cardio from '../../images/cardio.png';
 import strength from '../../images/strength.png';
+import img1 from '../../images/Screenshot 2025-06-28 010109.png';
+import img2 from '../../images/Screenshot 2025-06-28 010832.png';
+import img3 from '../../images/Screenshot 2025-06-28 012952.png';
 
 const services = [
   {
-    title: "Personal Training",
-    description: "Get customized workouts and one-on-one coaching from our expert trainers to achieve your specific fitness goals.",
-    image: personalTraining,
-    path: "/services/personal-training",
+    title: "Personalized Workout Plans",
+    description: "Create customized workout routines based on each user's fitness level, goals, and body data—delivered through an interactive and dynamic interface.",
+    image: img1,
+    path: "#",
   },
   {
-    title: "Group Fitness Classes",
-    description: "Join our dynamic and motivating group classes, ranging from yoga to high-intensity interval training, designed for all fitness levels.",
-    image: groupFitness,
-    path: "/services/group-fitness",
+    title: "AI-Powered Virtual Assistant",
+    description: "Get 24/7 support from our smart chatbot, trained to answer fitness and nutrition questions, offer suggestions, and guide you through your journey.",
+    image: img2,
+    path: "#",
   },
   {
-    title: "Nutritional Guidance",
-    description: "Nutrition plans and advice from our certified nutritionists to complement your fitness routine and enhance your results.",
-    image: nutrition,
-    path: "/services/nutritional-guidance",
+    title: "Coach Subscription & Monitoring",
+    description: "Subscribe to certified coaches who can track your progress, assign tasks, and adjust your workout and meal plans in real time.",
+    image: img3,
+    path: "#",
   },
-  {
-    title: "Wellness Programs",
-    description: "Wellness programs that include stress management, mental well-being, and recovery techniques to support your overall health.",
-    image: wellness,
-    path: "/services/wellness-programs",
-  },
-  {
-    title: "Cardio Workouts",
-    description: "Boost your endurance and cardiovascular health with our variety of cardio classes and equipment, tailored to all fitness levels.",
-    image: cardio,
-    path: "/services/cardio-workouts",
-  },
-  {
-    title: "Strength Training",
-    description: "Build muscle and increase strength with our structured strength training programs and state-of-the-art weightlifting equipment.",
-    image: strength,
-    path: "/services/strength-training",
-  }
 ];
 
 const Services = () => {
@@ -64,9 +49,7 @@ const Services = () => {
               </div>
               <h3>{service.title}</h3>
               <p>{service.description}</p>
-              <Link to={service.path} className={styles.learnMoreBtn}>
-                Learn More
-              </Link>
+              
             </div>
           ))}
         </div>

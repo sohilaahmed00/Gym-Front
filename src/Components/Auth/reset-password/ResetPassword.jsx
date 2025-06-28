@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Toast } from 'primereact/toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './ResetPassword.module.css';
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState('');
@@ -33,7 +34,7 @@ function ResetPassword() {
     };
 
     try {           
-      const response = await fetch('http://gymmatehealth.runasp.net/Auth/reset-password', {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/reset-password`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

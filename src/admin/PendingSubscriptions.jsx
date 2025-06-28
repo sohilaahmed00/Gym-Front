@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
 const API_ENDPOINTS = {
   GET_USER_BY_ID: (userId) => `${API_BASE_URL}/Users/Getuserbyid/${userId}`
 };
@@ -53,7 +53,7 @@ const PendingSubscriptions = () => {
   const fetchPendingSubscriptions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://gymmatehealth.runasp.net/api/Subscribes/GetAllpendingsubscriptions');
+      const response = await axios.get(`${API_BASE_URL}/Subscribes/GetAllpendingsubscriptions`);
       const subscriptions = response.data.map(subscription => ({
         ...subscription,
         id: subscription.subscribe_ID,
@@ -131,7 +131,7 @@ const PendingSubscriptions = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Subscribes/approve/${id}`);
+      await axios.put(`${API_BASE_URL}/Subscribes/approve/${id}`);
       fetchPendingSubscriptions();
       setAlert({ show: true, type: 'success', message: 'Subscription approved successfully' });
     } catch (error) {
@@ -142,7 +142,7 @@ const PendingSubscriptions = () => {
 
   const handleReject = async (id) => {
     try {
-      await axios.put(`http://gymmatehealth.runasp.net/api/Subscribes/reject/${id}`);
+      await axios.put(`${API_BASE_URL}/Subscribes/reject/${id}`);
       fetchPendingSubscriptions();
       setAlert({ show: true, type: 'success', message: 'Subscription rejected successfully' });
     } catch (error) {
@@ -256,7 +256,7 @@ const PendingSubscriptions = () => {
                           }}>
                             {users[sub.user_ID].applicationUser.image ? (
                               <img
-                                src={`http://gymmatehealth.runasp.net/Images/profiles/${users[sub.user_ID].applicationUser.image}`}
+                                src={`${API_BASE_IMAGE_URL}/Images/profiles/${users[sub.user_ID].applicationUser.image}`}
                                 alt={users[sub.user_ID].applicationUser.fullName}
                                 style={{
                                   width: 38,
@@ -304,12 +304,12 @@ const PendingSubscriptions = () => {
                       <td>
                         {console.log('Subscription data:', sub)}
                         {console.log('PaymentProof:', sub.paymentProof)}
-                        {console.log('Trying URL 1:', `http://gymmatehealth.runasp.net/api/Images/PaymentProofs/${sub.paymentProof}`)}
-                        {console.log('Trying URL 2:', `http://gymmatehealth.runasp.net/Images/PaymentProofs/${sub.paymentProof}`)}
-                        {console.log('Trying URL 3:', `http://gymmatehealth.runasp.net/images/PaymentProofs/${sub.paymentProof}`)}
+                        {console.log('Trying URL 1:', `${API_BASE_URL}/Images/PaymentProofs/${sub.paymentProof}`)}
+                        {console.log('Trying URL 2:', `${API_BASE_IMAGE_URL}/Images/PaymentProofs/${sub.paymentProof}`)}
+                        {console.log('Trying URL 3:', `${API_BASE_IMAGE_URL}/images/PaymentProofs/${sub.paymentProof}`)}
                         {sub.paymentProof ? (
                           <img
-                            src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${sub.paymentProof}`}
+                            src={`${API_BASE_IMAGE_URL}/Images/PaymentProofs/${sub.paymentProof}`}
                             alt="Payment Proof"
                             style={{
                               width: 50,
@@ -319,7 +319,7 @@ const PendingSubscriptions = () => {
                               cursor: 'pointer',
                               border: '2px solid #dee2e6'
                             }}
-                            onClick={() => handleShow(`http://gymmatehealth.runasp.net/Images/PaymentProofs/${sub.paymentProof}`)}
+                            onClick={() => handleShow(`${API_BASE_IMAGE_URL}/Images/PaymentProofs/${sub.paymentProof}`)}
                           />
                         ) : (
                           <span className="text-muted">-</span>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Toast } from 'primereact/toast';
 import styles from './UserSettings.module.css';
+import { API_BASE_URL } from '../../config';
 
 export default function UserSettings() {
   const toast = useRef(null);
@@ -26,7 +27,7 @@ export default function UserSettings() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`http://gymmatehealth.runasp.net/api/Users/Getuserbyid/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/Users/Getuserbyid/${userId}`);
         const data = await response.json();
 
         setFormData({
@@ -67,7 +68,7 @@ export default function UserSettings() {
 
     setLoading(true);
     try {
-      const response = await fetch(`http://gymmatehealth.runasp.net/api/Users/UpdateUser/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

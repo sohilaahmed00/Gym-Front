@@ -3,9 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
-const API_BASE_URL = 'http://gymmatehealth.runasp.net/api';
-const API_BASE_IMAGE_URL = 'http://gymmatehealth.runasp.net/images/Exercise/';
+const API_IMAGE_URL = `${API_BASE_IMAGE_URL}/images/Exercise/`;
 
 const API_ENDPOINTS = {
   GET_ALL_EXERCISES: `${API_BASE_URL}/Exercises/GetAllExercises`,
@@ -64,7 +64,7 @@ const AdminExercises = () => {
   const getImageUrl = (imageFileName) => {
     if (!imageFileName) return null;
     try {
-        return `${API_BASE_IMAGE_URL}/Images/${imageFileName}`;
+        return `${API_IMAGE_URL}/Images/${imageFileName}`;
     } catch (err) {
         console.error('Error loading image:', err);
         return null;
@@ -179,7 +179,7 @@ const AdminExercises = () => {
       }
 
       const response = await axios.post(
-        `http://gymmatehealth.runasp.net/api/Exercises/AddNewExercise`,
+        `${API_BASE_URL}/Exercises/AddNewExercise`,
         formData,
         {
           headers: {
@@ -445,7 +445,7 @@ const AdminExercises = () => {
                             {exercise.image_url ? (
                               <div style={{ width: 60, height: 60, borderRadius: '8px', overflow: 'hidden', border: '1px solid #dee2e6', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8f9fa' }}>
                                 <img 
-                                  src={exercise.image_gif ? `${API_BASE_IMAGE_URL}${exercise.image_gif}` : `${API_BASE_IMAGE_URL}${exercise.image_url}`}
+                                  src={exercise.image_gif ? `${API_IMAGE_URL}${exercise.image_gif}` : `${API_IMAGE_URL}${exercise.image_url}`}
                                   alt={exercise.exercise_Name}
                                   onError={e => { e.target.onerror = null; e.target.src = "https://placehold.co/60x60?text=Image"; }}
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}

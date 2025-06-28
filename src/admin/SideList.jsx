@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 const sidebarItems = [
   { icon: 'fas fa-chart-pie', label: 'Dashboard', path: '/admin' },
@@ -26,11 +26,18 @@ const settingsDropdown = [
 
 export default function SideList({ pendingSubscriptionsCount = 0, pendingCoachesCount = 0, isOpen, setIsOpen }) {
   const [showSettings, setShowSettings] = useState(false);
+  const navigate = useNavigate();
 
   const handleLinkClick = () => {
     if (window.innerWidth < 992) {
       setIsOpen(false);
     }
+  };
+
+  const handleLogout = () => {
+    // هنا تقدر تمسح التوكن أو أي بيانات دخول
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   const badgeStyle = {
@@ -60,6 +67,31 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
       <div className="d-flex align-items-center gap-2 p-4 border-bottom" style={{ marginTop: '0px', width: '100%' }}>
         {/* <i className="fas fa-snowflake text-primary fs-4"></i> */}
         <span className="fw-bold fs-3" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}> Admin Panel </span>
+      </div>
+      <div style={{ width: '100%', padding: '1rem 1rem 0.5rem 1rem', borderBottom: '1px solid #eee', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: '#eee',
+            color: '#333',
+            border: 'none',
+            borderRadius: 6,
+            padding: '7px 18px',
+            fontWeight: 'bold',
+            fontSize: 15,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            boxShadow: '0 2px 8px #eee',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.18s',
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = '#ff7a00'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.transform = 'scale(1.04)'; }}
+          onMouseOut={e => { e.currentTarget.style.background = '#eee'; e.currentTarget.style.color = '#333'; e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <i className="fas fa-home" style={{fontSize:16}}></i>
+          <span style={{marginLeft:4}}>Home</span>
+        </button>
       </div>
       <nav className="nav flex-column p-2" style={{ width: '100%' }}>
         <style>{`
@@ -155,6 +187,33 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
           );
         })}
       </nav>
+      <div style={{width:'100%',padding:'1.5rem 1rem 1.5rem 1rem',marginTop:'auto'}}>
+        <button
+          onClick={handleLogout}
+          style={{
+            width: '100%',
+            background: '#ff3300',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '8px 0',
+            fontWeight: 'bold',
+            fontSize: 15,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            boxShadow: '0 2px 8px #eee',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.18s',
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = '#ff6600'; e.currentTarget.style.transform = 'scale(1.04)'; }}
+          onMouseOut={e => { e.currentTarget.style.background = '#ff3300'; e.currentTarget.style.transform = 'scale(1)'; }}
+        >
+          <i className="fas fa-sign-out-alt" style={{marginRight:6,fontSize:16}}></i>
+          Log Out
+        </button>
+      </div>
     </aside>
   );
 }

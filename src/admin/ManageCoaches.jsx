@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_BASE_IMAGE_URL, API_BASE_URL } from '../config';
 
 export default function ManageCoaches() {
   // Coaches state
@@ -21,7 +22,7 @@ export default function ManageCoaches() {
     const fetchCoaches = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://gymmatehealth.runasp.net/api/Coaches/GetAllCoaches');
+        const response = await fetch(`${API_BASE_URL}/Coaches/GetAllCoaches`);
         if (!response.ok) {
           throw new Error('فشل في جلب بيانات المدربين');
         }
@@ -183,7 +184,7 @@ export default function ManageCoaches() {
                       }}>
                         {coach?.image ? (
                           <img 
-                            src={`http://gymmatehealth.runasp.net/images/profiles/${coach?.image}`} 
+                            src={`${API_BASE_IMAGE_URL}/images/profiles/${coach?.image}`} 
                             alt={coach?.fullName}
                             style={{
                               width: 38,

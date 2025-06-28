@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Exercises.module.css';
 import { fetchCategories, fetchExercises } from '../../services/exerciseAPI';
 import { Link } from 'react-router-dom';
+import { API_BASE_IMAGE_URL } from '../../config';
 
 export default function Exercises() {
   const [categories, setCategories] = useState([]);
@@ -10,8 +11,9 @@ export default function Exercises() {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const baseUrl = 'http://gymmatehealth.runasp.net/images/Exercise/';
+  const baseUrl = `${API_BASE_IMAGE_URL}/images/Exercise/`;
 
   useEffect(() => {
     setLoading(true);
@@ -49,15 +51,40 @@ export default function Exercises() {
   
 
   useEffect(() => {
-    if (!selectedCategoryId) {
-      setExercises(allExercises); 
-    } else {
-      const filtered = allExercises.filter(
-        (e) => e.category_ID === selectedCategoryId
-      );
-      setExercises(filtered);
+    let filtered = allExercises;
+    if (selectedCategoryId) {
+      filtered = filtered.filter(e => e.category_ID === selectedCategoryId);
     }
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(e =>
+        e.exercise_Name && e.exercise_Name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      );
+    }
+    setExercises(filtered);
   }, [selectedCategoryId, allExercises]);
+
+  function handleSearch() {
+    let filtered = allExercises;
+    if (selectedCategoryId) {
+      filtered = filtered.filter(e => e.category_ID === selectedCategoryId);
+    }
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(e =>
+        e.exercise_Name && e.exercise_Name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      );
+    }
+    setExercises(filtered);
+  }
+
+  function handleClearSearch() {
+    setSearchTerm('');
+    // Reset exercises to category filter only
+    if (selectedCategoryId) {
+      setExercises(allExercises.filter(e => e.category_ID === selectedCategoryId));
+    } else {
+      setExercises(allExercises);
+    }
+  }
 
   return (
     <div className={styles.exercisesPage}>
@@ -119,6 +146,38 @@ export default function Exercises() {
                     {cat.category_Name}
                   </button>
                 ))}
+              </div>
+
+              {/* Search Bar */}
+              <div className="d-flex justify-content-center align-items-center mb-4 gap-2" style={{gap: 12}}>
+                <input
+                  type="text"
+                  className="form-control"
+                  style={{ maxWidth: 300, borderRadius: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1.5px solid #FF5722' }}
+                  placeholder="Search exercise by name..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleSearch(); }}
+                />
+                <button
+                  className="btn"
+                  style={{ background: '#FF5722', color: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(255,87,34,0.10)', fontWeight: 600, padding: '8px 22px', border: 'none', transition: 'background 0.2s' }}
+                  onClick={handleSearch}
+                  onMouseOver={e => e.currentTarget.style.background = '#f4511e'}
+                  onMouseOut={e => e.currentTarget.style.background = '#FF5722'}
+                >
+                  Search
+                </button>
+                <button
+                  className="btn"
+                  style={{ background: '#fff', color: '#FF5722', border: '1.5px solid #FF5722', borderRadius: 8, fontWeight: 600, padding: '8px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'color 0.2s, border 0.2s' }}
+                  onClick={handleClearSearch}
+                  disabled={!searchTerm}
+                  onMouseOver={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = '#FF5722'; }}
+                  onMouseOut={e => { e.currentTarget.style.color = '#FF5722'; e.currentTarget.style.background = '#fff'; }}
+                >
+                  Clear
+                </button>
               </div>
 
               {/* Exercises Cards */}

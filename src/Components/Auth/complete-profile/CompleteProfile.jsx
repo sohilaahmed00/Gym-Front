@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompleteProfile.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Spinner } from 'react-bootstrap';
+import { API_BASE_IMAGE_URL } from '../../../config';
 
 const CompleteProfile = () => {
   const [height, setHeight] = useState('');
@@ -13,6 +14,7 @@ const CompleteProfile = () => {
   const [medicalConditions, setMedicalConditions] = useState('');
   const [allergies, setAllergies] = useState('');
   const [fitness_Goal, setFitness_Goal] = useState('');
+  const [inBodyFile, setInBodyFile] = useState(null); // ✅ New
   const [specialization, setSpecialization] = useState('');
   const [portfolio_Link, setPortfolio_Link] = useState('');
   const [experience_Years, setExperience_Years] = useState('');
@@ -25,7 +27,6 @@ const CompleteProfile = () => {
   const location = useLocation();
   const { id, userType } = location.state || {};
 
-  // Validate the form based on userType
   const validateForm = () => {
     const newErrors = {};
     if (userType === 'User') {
@@ -47,9 +48,7 @@ const CompleteProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form before submitting
     if (!validateForm()) return;
-
     if (!id) {
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'User ID is missing', life: 3000 });
       return;
@@ -57,23 +56,48 @@ const CompleteProfile = () => {
 
     setLoading(true);
     const endpoint = userType === 'User' ? 'AddNewUser' : 'AddNewCoach';
-    const bodyData =
-      userType === 'User'
-        ? { id, height, weight, bDate, gender, medicalConditions, allergies, fitness_Goal }
-        : { id, specialization, portfolio_Link, experience_Years: Number(experience_Years), availability, bio };
+    const formData = new FormData();
+
+    if (userType === 'User') {
+      formData.append('id', id);
+      formData.append('height', height);
+      formData.append('weight', weight);
+      formData.append('bDate', bDate);
+      formData.append('gender', gender);
+      formData.append('medicalConditions', medicalConditions);
+      formData.append('allergies', allergies);
+      formData.append('fitness_Goal', fitness_Goal);
+      if (inBodyFile) {
+      formData.append('InBody', inBodyFile);
+      }
+
+    } else {
+      formData.append('id', id);
+      formData.append('specialization', specialization);
+      formData.append('portfolio_Link', portfolio_Link);
+      formData.append('experience_Years', experience_Years);
+      formData.append('availability', availability);
+      formData.append('bio', bio);
+    }
+      for (let [key, value] of formData.entries()) {
+  console.log(`${key}:`, value);
+}
 
     try {
-      const response = await fetch(`http://gymmatehealth.runasp.net/Auth/${endpoint}`, {
+      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyData),
+        body: formData,
       });
+      console.log(response,"res");
+      console.log(formData,"resسس");
 
+      
       const data = await response.json();
       setLoading(false);
+      console.log(data);
+      
 
       if (response.ok) {
-        // Store user information and navigate
         localStorage.setItem('token', data.token);
         localStorage.setItem('id', data.id);
         localStorage.setItem('fullName', data.fullName);
@@ -84,7 +108,6 @@ const CompleteProfile = () => {
         toast.current.show({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully!', life: 3000 });
         setTimeout(() => navigate('/'), 3000);
       } else {
-        // Handle validation errors
         if (data.errors) {
           Object.values(data.errors).forEach((errs) => {
             errs.forEach((err) => {
@@ -149,6 +172,15 @@ const CompleteProfile = () => {
               <label>Fitness Goal</label>
               <input type="text" className={styles.formControl} value={fitness_Goal} onChange={(e) => setFitness_Goal(e.target.value)} />
               {errors.fitness_Goal && <p className={styles.errorText}>{errors.fitness_Goal}</p>}
+            </div>
+            <div className={styles.formGroup}>
+              <label>Upload InBody PDF</label>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                className={styles.formControl}
+                onChange={(e) => setInBodyFile(e.target.files[0])}
+              />
             </div>
           </>
         ) : (
