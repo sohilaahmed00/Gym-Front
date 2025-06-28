@@ -1,10 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faCheck, faSpinner, faShoppingCart, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { useCart } from '../CartContext/CartContext';
 import styles from './OnlineStore.module.css';
 import { API_BASE_IMAGE_URL, API_BASE_URL } from '../../config';
+
+// دالة لفك تشفير التوكن (JWT)
+function decodeJWT(token) {
+  if (!token) return {};
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return {};
+  }
+}
 
 export default function OnlineStore() {
   const [products, setProducts] = useState([]);
@@ -16,6 +36,19 @@ export default function OnlineStore() {
     searchTerm: ''
   });
   const { cart, addToCart } = useCart();
+  const location = useLocation();
+
+  // جلب role من التوكن
+  const [role, setRole] = useState('');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeJWT(token);
+      if (decoded?.roles?.length) {
+        setRole(decoded.roles[0]);
+      }
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/Products/GetAllProducts`)
@@ -189,23 +222,25 @@ export default function OnlineStore() {
                     </div>
 
                     <div className={styles.actionButtons}>
-                      <button
-                        className={`${styles.addToCartBtn} ${isInCart(product.product_ID) ? styles.disabledBtn : ''}`}
-                        onClick={() => handleAddToCart(product)}
-                        disabled={isInCart(product.product_ID)}
-                      >
-                        {isInCart(product.product_ID) ? (
-                          <>
-                            <FontAwesomeIcon icon={faCheck} />
-                            Added
-                          </>
-                        ) : (
-                          <>
-                            <FontAwesomeIcon icon={faShoppingCart} />
-                            Add to Cart
-                          </>
-                        )}
-                      </button>
+                      {role !== 'Coach' && (
+                        <button
+                          className={`${styles.addToCartBtn} ${isInCart(product.product_ID) ? styles.disabledBtn : ''}`}
+                          onClick={() => handleAddToCart(product)}
+                          disabled={isInCart(product.product_ID)}
+                        >
+                          {isInCart(product.product_ID) ? (
+                            <>
+                              <FontAwesomeIcon icon={faCheck} />
+                              Added
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon icon={faShoppingCart} />
+                              Add to Cart
+                            </>
+                          )}
+                        </button>
+                      )}
                       <Link to={`/product/${product.product_ID}`} className={styles.viewDetailsBtn}>
                         <FontAwesomeIcon icon={faEye} />
                         View Details

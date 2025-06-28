@@ -89,7 +89,6 @@ const CompleteProfile = () => {
         body: formData,
       });
       console.log(response,"res");
-      console.log(formData,"resسس");
 
       
       const data = await response.json();
