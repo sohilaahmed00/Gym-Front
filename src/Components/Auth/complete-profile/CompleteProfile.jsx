@@ -20,6 +20,7 @@ const CompleteProfile = () => {
   const [experience_Years, setExperience_Years] = useState('');
   const [availability, setAvailability] = useState('true');
   const [bio, setBio] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState(''); // ✅ New for coach only
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const toast = React.useRef(null);
@@ -40,6 +41,7 @@ const CompleteProfile = () => {
       if (!portfolio_Link) newErrors.portfolio_Link = 'Portfolio link is required';
       if (!experience_Years) newErrors.experience_Years = 'Experience is required';
       if (!bio) newErrors.bio = 'Bio is required';
+      if (!paymentMethod) newErrors.paymentMethod = 'Payment Method is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -55,6 +57,8 @@ const CompleteProfile = () => {
     }
 
     setLoading(true);
+    let requestBody
+    let requestOptions;
     const endpoint = userType === 'User' ? 'AddNewUser' : 'AddNewCoach';
     const formData = new FormData();
 
@@ -68,33 +72,46 @@ const CompleteProfile = () => {
       formData.append('allergies', allergies);
       formData.append('fitness_Goal', fitness_Goal);
       if (inBodyFile) {
-      formData.append('InBody', inBodyFile);
+        formData.append('InBody', inBodyFile);
       }
 
-    } else {
-      formData.append('id', id);
-      formData.append('specialization', specialization);
-      formData.append('portfolio_Link', portfolio_Link);
-      formData.append('experience_Years', experience_Years);
-      formData.append('availability', availability);
-      formData.append('bio', bio);
-    }
-      for (let [key, value] of formData.entries()) {
-  console.log(`${key}:`, value);
-}
+     requestOptions = {
+    method: 'POST',
+    body: requestBody,
+  };
+} else {
+  requestBody = {
+    id,
+    specialization,
+    portfolio_Link,
+    experience_Years,
+    availability,
+    bio,
+    paymentMethod,
+  };
 
+  requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  };
+}
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    console.log(requestBody);
+    
     try {
-      const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/${endpoint}`, {
-        method: 'POST',
-        body: formData,
-      });
+    const response = await fetch(`${API_BASE_IMAGE_URL}/Auth/${endpoint}`, requestOptions);
+
       console.log(response,"res");
 
-      
       const data = await response.json();
       setLoading(false);
       console.log(data);
-      
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
@@ -186,12 +203,16 @@ const CompleteProfile = () => {
           <>
             <div className={styles.formGroup}>
               <label>Specialization</label>
-              <input type="text" className={styles.formControl} value={specialization} onChange={(e) => setSpecialization(e.target.value)} />
+              <input 
+              placeholder="e.g. Strength Training, Weight Loss"
+              type="text" className={styles.formControl} value={specialization} onChange={(e) => setSpecialization(e.target.value)} />
               {errors.specialization && <p className={styles.errorText}>{errors.specialization}</p>}
             </div>
             <div className={styles.formGroup}>
               <label>Portfolio Link</label>
-              <input type="text" className={styles.formControl} value={portfolio_Link} onChange={(e) => setPortfolio_Link(e.target.value)} />
+              <input 
+              placeholder="e.g. https://yourportfolio.com"
+              type="text" className={styles.formControl} value={portfolio_Link} onChange={(e) => setPortfolio_Link(e.target.value)} />
               {errors.portfolio_Link && <p className={styles.errorText}>{errors.portfolio_Link}</p>}
             </div>
             <div className={styles.formGroup}>
@@ -201,8 +222,17 @@ const CompleteProfile = () => {
             </div>
             <div className={styles.formGroup}>
               <label>Bio</label>
-              <textarea className={styles.formControl} value={bio} onChange={(e) => setBio(e.target.value)} rows="4" />
+              <textarea 
+              placeholder="Tell us about your coaching style, background, or certifications"
+              className={styles.formControl} value={bio} onChange={(e) => setBio(e.target.value)} rows="4" />
               {errors.bio && <p className={styles.errorText}>{errors.bio}</p>}
+            </div>
+            <div className={styles.formGroup}>
+              <label>Payment Method</label>
+              <input type="text" 
+              placeholder="e.g. PayPal email, Vodafone Cash, or bank account"
+              className={styles.formControl} value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} />
+              {errors.paymentMethod && <p className={styles.errorText}>{errors.paymentMethod}</p>}
             </div>
           </>
         )}
