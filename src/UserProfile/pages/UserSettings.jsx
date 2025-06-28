@@ -23,6 +23,7 @@ export default function UserSettings() {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [inbodyFile, setInbodyFile] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -54,6 +55,26 @@ export default function UserSettings() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'image/webp',
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast.current.show({ severity: 'warn', summary: 'Invalid file', detail: 'Only PDF or image files are allowed' });
+        e.target.value = null;
+        setInbodyFile(null);
+        return;
+      }
+      setInbodyFile(file);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fullName) newErrors.fullName = 'Full name is required';
@@ -68,23 +89,39 @@ export default function UserSettings() {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${userId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          height: parseFloat(formData.height),
-          weight: parseFloat(formData.weight),
-          bDate: formData.bDate,
-          gender: formData.gender,
-          medicalConditions: formData.medicalConditions,
-          allergies: formData.allergies,
-          fitness_Goal: formData.fitness_Goal,
-        }),
-      });
+      let response;
+      if (inbodyFile) {
+        const formDataToSend = new FormData();
+        formDataToSend.append('height', parseFloat(formData.height));
+        formDataToSend.append('weight', parseFloat(formData.weight));
+        formDataToSend.append('bDate', formData.bDate);
+        formDataToSend.append('gender', formData.gender);
+        formDataToSend.append('medicalConditions', formData.medicalConditions);
+        formDataToSend.append('allergies', formData.allergies);
+        formDataToSend.append('fitness_Goal', formData.fitness_Goal);
+        formDataToSend.append('inbody', inbodyFile);
 
+        response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${userId}`, {
+          method: 'PUT',
+          body: formDataToSend,
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/Users/UpdateUser/${userId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            height: parseFloat(formData.height),
+            weight: parseFloat(formData.weight),
+            bDate: formData.bDate,
+            gender: formData.gender,
+            medicalConditions: formData.medicalConditions,
+            allergies: formData.allergies,
+            fitness_Goal: formData.fitness_Goal,
+          }),
+        });
+      }
       setLoading(false);
       console.log(response);
-      
       if (response.ok) {
         toast.current.show({ severity: 'success', summary: 'Updated', detail: 'Profile updated successfully' });
         // navigate('/user');
@@ -132,6 +169,18 @@ export default function UserSettings() {
           {errors[name] && <p className={styles.errorText}>{errors[name]}</p>}
         </div>
       ))}
+      <div className={styles.formGroup}>
+        <label>Inbody (Image or PDF)</label>
+        <input
+          type="file"
+          accept=".pdf,image/*"
+          onChange={handleFileChange}
+          className={styles.formControl}
+        />
+        {inbodyFile && (
+          <p style={{ fontSize: '0.9em', color: '#555' }}>Selected file: {inbodyFile.name}</p>
+        )}
+      </div>
       <button type="submit" className={styles.submitBtn} disabled={loading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </button>

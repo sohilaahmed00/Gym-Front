@@ -31,7 +31,11 @@ const SubscriberDetails = () => {
   if (error) return <div className="container py-4 text-danger">Error: {error}</div>;
 
   const profile = user?.applicationUser || {};
-console.log(profile);
+  console.log('USER DATA:', user);
+
+  const inBodyUrl = user.inBody
+    ? `${API_BASE_IMAGE_URL}/Images/Inbody/${user.inBody}`
+    : null;
 
   return (
     <div className="container py-4">
@@ -50,10 +54,6 @@ console.log(profile);
           <div className="row">
             <div className="col-md-6">
               <p>
-                <span className={styles.infoIcon}>📧</span> <strong>Email:</strong>{' '}
-                <span className={styles.valueBox}>{profile.email}</span>
-              </p>
-              <p>
                 <span className={styles.infoIcon}>🚻</span> <strong>Gender:</strong>{' '}
                 <span className={styles.valueBox}>{user.gender}</span>
               </p>
@@ -61,6 +61,51 @@ console.log(profile);
                 <span className={styles.infoIcon}>🎯</span> <strong>Goal:</strong>{' '}
                 <span className={styles.valueBox}>{user.fitness_Goal}</span>
               </p>
+              {/* Inbody File Display */}
+              {inBodyUrl && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    background: "#fff",
+                    borderRadius: "12px",
+                    padding: "8px 16px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    boxShadow: "0 2px 8px #ff57221a",
+                    border: "1.5px solid #ffb184",
+                    minHeight: 40,
+                    marginBottom: 8,
+                    maxWidth: 300,
+                  }}
+                >
+                  <span style={{ fontSize: 18, color: "#FF5722", fontWeight: 700, display: "flex", alignItems: "center" }}>
+                    <i className="fas fa-file-pdf" style={{ marginRight: 5, fontSize: 18 }}></i>
+                    Inbody File
+                  </span>
+                  <a
+                    href={inBodyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#1976d2",
+                      textDecoration: "none",
+                      fontWeight: 500,
+                      fontSize: 14,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 3,
+                      marginLeft: 8,
+                      transition: "color 0.2s",
+                    }}
+                    onMouseOver={e => (e.target.style.color = "#d32f2f")}
+                    onMouseOut={e => (e.target.style.color = "#1976d2")}
+                  >
+                    <i className="fas fa-file-pdf" style={{ color: "#1976d2", fontSize: 14 }}></i>
+                    View Inbody File
+                  </a>
+                </div>
+              )}
             </div>
             <div className="col-md-6">
               <p>
@@ -77,7 +122,6 @@ console.log(profile);
               </p>
             </div>
           </div>
-
         </div>
       </div>
     </div>
