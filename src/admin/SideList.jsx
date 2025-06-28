@@ -37,7 +37,7 @@ export default function SideList({ pendingSubscriptionsCount = 0, pendingCoaches
   const handleLogout = () => {
     // هنا تقدر تمسح التوكن أو أي بيانات دخول
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/admin-login');
   };
 
   const badgeStyle = {
