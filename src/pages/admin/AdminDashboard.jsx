@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert, AlertTitle, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchPendingSubscriptions = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/subscriptions/pending');
+        const response = await axios.get(`${API_BASE_URL}/Subscribes/GetAllpendingsubscriptions`);
         setPendingSubscriptions(response.data);
       } catch (error) {
         console.error('Error fetching pending subscriptions:', error);

@@ -16,7 +16,7 @@ export default function ManageOrders() {
   useEffect(() => {
     setLoading(true);
 
-    axios.get('http://gymmatehealth.runasp.net/api/Orders/GetAllOrders')
+    axios.get(`${API_BASE_URL}/Orders/GetAllOrders`)
       .then(res => {
         // ترتيب الطلبات حسب التاريخ (الأحدث أولاً)
         const sortedOrders = res.data.sort((a, b) => {
