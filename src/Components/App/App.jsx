@@ -66,6 +66,7 @@ import UserOrders from '../../UserProfile/pages/UserOrders';
 import CoachPayment from '../../coach/pages/CoachPayment';
 import AdminLogin from '../Auth/adminAuth/AdminAuth';
 import ProtectedRoute from '../../services/ProtectedRoute';
+import ContactAdmin from '../../coach/pages/ContactAdmin';
 
 function Placeholder({ title }) {
   return <div className="p-5 text-center"><h2>{title} Page (Coming Soon)</h2></div>;
@@ -151,6 +152,7 @@ const routes = createBrowserRouter([
       { path: 'payments', element: <CoachPayment /> },
       { path: 'expired/:id', element: <ExpiredSubscriberDetails /> },
       { path: 'setting', element: <CoachSettings /> },
+      {path:'contact-admin', element: <ContactAdmin role="coach"/>}
     ]
   },
   {
@@ -164,6 +166,7 @@ const routes = createBrowserRouter([
       { path: 'chat', element: <ChatBot /> },
       { path: 'orders', element: <UserOrders /> },
       { path: 'cart', element: <Cart /> },
+       {path:'contact-admin', element: <ContactAdmin role="user"/>}
     ]
   }
 ]);

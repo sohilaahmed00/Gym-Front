@@ -38,6 +38,7 @@ const Sidebar = () => {
           { label: 'Chat Bot', path: 'chat', icon: faComments },
           { label: 'My Orders', path: 'orders', icon: faAppleAlt },
           { label: 'My Cart', path: 'cart', icon: faShoppingCart },
+           { label: 'Contact Admin', path: 'contact-admin', icon: faComments },
         ]
       : []),
     { label: 'Setting', path: 'settings', icon: faCog },
