@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './PricingPlans.module.css';
 import SignupModal from '../../Modal/SignupModal';
 import { useNavigate } from 'react-router-dom';
+import { checkLoginStatus } from '../../../services/IsLoggedIn';
 
 const PricingPlans = () => {
   const navigate = useNavigate();
@@ -13,6 +14,11 @@ const PricingPlans = () => {
   };
 
   const handleSubscribe = (planDisplayName) => {
+    if (!checkLoginStatus()) {
+      alert('You must log in first!');
+      navigate('/login');
+      return;
+    }
     const apiPlanName = planApiNames[planDisplayName];
     navigate('/subscribe', { state: { plan: apiPlanName } });
   };
