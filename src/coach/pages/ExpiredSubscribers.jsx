@@ -1,20 +1,41 @@
-import React, { useState } from 'react';
-import subscribers from '../data/subscribers.json';
+import React, { useEffect, useState } from 'react';
 import { jsPDF } from 'jspdf';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config';
 
 const ExpiredSubscribers = () => {
-  const expired = subscribers.filter((s) => s.status === 'expired');
+  const navigate = useNavigate();
+  const coachId = localStorage.getItem('id');
+
+  const [expiredSubs, setExpiredSubs] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!coachId) return;
+
+    const fetchExpiredSubs = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/Subscribes/coach/${coachId}`);
+        if (!res.ok) throw new Error('Failed to fetch coach subscriptions');
+        const data = await res.json();
+
+        const expired = data.filter(sub => sub.status?.toLowerCase() === 'expired');
+        setExpiredSubs(expired);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchExpiredSubs();
+  }, [coachId]);
 
   const generatePDF = (sub) => {
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text(`Coach Report: ${sub.name}`, 20, 20);
+    doc.text(`Coach Report: ${sub.name || sub.userName || 'Subscriber'}`, 20, 20);
     doc.setFontSize(12);
-    doc.text(`Plan: ${sub.plan}`, 20, 35);
+    doc.text(`Plan: ${sub.plan || 'N/A'}`, 20, 35);
     doc.text(`Start Date: ${sub.startDate}`, 20, 45);
     doc.text(`End Date: ${sub.endDate}`, 20, 55);
     doc.text(`Progress: ${sub.progress || 'Not specified'}`, 20, 65);
@@ -23,40 +44,54 @@ const ExpiredSubscribers = () => {
     doc.text("Summary:", 20, 95);
     doc.setFont("times", "italic");
     doc.text(sub.reportSummary || "No summary provided yet.", 20, 105, { maxWidth: 170 });
-    doc.save(`${sub.name}_report.pdf`);
+    doc.save(`${sub.name || sub.userName}_report.pdf`);
   };
 
   return (
     <div className="container mt-4">
       <h3 className="mb-4 text-orange fw-bold">📁 Expired Subscribers</h3>
+    
+      {expiredSubs.length === 0 && (
+        <div className="text-muted">No expired subscriptions found.</div>
+      )}
 
-      {expired.map((sub) => (
-        <div key={sub.id} className="bg-white rounded shadow-sm p-3 mb-4">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 className="fw-bold">{sub.name}</h5>
-              <p className="mb-1 text-muted">{sub.plan} • {sub.startDate} → {sub.endDate}</p>
-              <p className="mb-1">📊 Progress: <strong>{sub.progress}%</strong></p>
-              <p className="mb-1">⭐ User Rating: {sub.userRating || 'Not rated'} | 🏅 Coach Rating: {sub.coachRating || 'Not rated'}</p>
-            </div>
+    {expiredSubs.map((sub) => {
+  const name = sub.userName || 'Unnamed User';
+  const type = sub.subscriptionType || 'Unknown Type';
+  const startDate = sub.startDate ? new Date(sub.startDate).toLocaleDateString() : 'N/A';
+  const endDate = sub.endDate ? new Date(sub.endDate).toLocaleDateString() : 'N/A';
+  const email = sub.userEmail;
+  const fitnessGoal = sub.fitness_Goal || 'Not specified';
 
-            <div className="d-flex flex-column gap-2">
-              <button onClick={() => generatePDF(sub)} className="btn btn-outline-success btn-sm">
-                📥 Download Report
-              </button>
-              <button
-                className="btn btn-outline-primary btn-sm"
-                onClick={() => navigate(`/coach/expired/${sub.id}`)}
-                >
-                👁️ View Details
-                </button>
-              <button onClick={() => setShowContactModal(true)} className="btn btn-outline-warning btn-sm">
-                📨 Contact Admin
-              </button>
-            </div>
-          </div>
+  return (
+    <div key={sub.subscribe_ID} className="bg-white rounded shadow-sm p-3 mb-4">
+      <div className="d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="fw-bold">{name}</h5>
+          <p className="mb-1 text-muted">{type} • {startDate} → {endDate}</p>
+          <p className="mb-1">🎯 Goal: <strong>{fitnessGoal}</strong></p>
+          <p className="mb-1">📧 Email: {email}</p>
         </div>
-      ))}
+
+        <div className="d-flex flex-column gap-2">
+          <button onClick={() => generatePDF(sub)} className="btn btn-outline-success btn-sm">
+            📥 Download Report
+          </button>
+          <button
+            className="btn btn-outline-primary btn-sm"
+            onClick={() => navigate(`/coach/expired/${sub.subscribe_ID}`)}
+          >
+            👁️ View Details
+          </button>
+          {/* <button onClick={() => setShowContactModal(true)} className="btn btn-outline-warning btn-sm">
+            📨 Contact Admin
+          </button> */}
+        </div>
+      </div>
+    </div>
+  );
+})}
+
 
       {/* Contact Admin Modal */}
       {showContactModal && (

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaShoppingCart } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useCart } from '../CartContext/CartContext';
@@ -39,7 +38,7 @@ export default function Navbar() {
       setRole(userRole);
 
       if (userRole === 'Admin') {
-        navigate('/admin'); 
+        // navigate('/admin'); 
       }
     }
     }
@@ -77,17 +76,34 @@ export default function Navbar() {
     // { name: 'Clients', icon: <i className="fa fa-users me-1"></i>, path: '/manage-clients' },
        { name: 'Products', icon: <i className="fa fa-store me-1"></i>, path: '/products' },
 
-    { name: ' Exercises', icon: <i className="fa fa-laptop-code me-1"></i>, path: '/exercises' },
-    { name: 'Manage Diet', icon: <i className="fa fa-carrot me-1"></i>, path: '/nutrition-plan' },
+    { name: 'Exercises', icon: <i className="fa fa-dumbbell me-1"></i>, path: '/exercises' },
+    { name: 'Diet Plans', icon: <i className="fa fa-carrot me-1"></i>, path: '/nutrition-plan' },
     { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/coach' }
   ];
 
+
+const adminLink = [{ name: 'Admin Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/admin' }];
+
  let links = guestLinks;
 if (isLoggedIn) {
-  if (role === 'Coach') links = coachLinks;
-  else if (role === 'User') links = userLinks;
-  else if (role === 'Admin') links = [...guestLinks, ...userLinks, ...coachLinks]; 
+  if (role === 'Coach') {
+    links = coachLinks;
+  } else if (role === 'User') {
+    links = userLinks;
+  } else if (role === 'Admin') {
+    const merged = [...guestLinks, { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/admin' }];
+    const adminLink = { name: 'Dashboard', icon: <i className="fa fa-chart-bar me-1"></i>, path: '/admin' };
+    
+    const uniqueLinksMap = new Map();
+    
+    [...merged, adminLink].reverse().forEach(link => {
+      uniqueLinksMap.set(link.name, link);
+    });
+
+    links = Array.from(uniqueLinksMap.values()).reverse();
+  }
 }
+
 
 
   const handleLogout = () => {
@@ -160,10 +176,19 @@ if (isLoggedIn) {
                 </span>
               </Link>
               {isLoggedIn && (
-                <Link to={role === 'Coach' ? '/coach' : '/user'} className="user-name ms-3">
-                  Welcome, {fullName}
-                </Link>
-              )}
+                  <Link
+                    to={
+                      role === 'Admin'
+                        ? '/admin'
+                        : role === 'Coach'
+                        ? '/coach'
+                        : '/user'
+                    }
+                    className="user-name ms-3"
+                  >
+                    Welcome, {fullName}
+                  </Link>
+                )}
               {isLoggedIn && (
                 <button className="btn btn-link text-white d-flex justify-content-center align-items-center gap-1" onClick={handleLogout}>
                   <i className="fa fa-sign-out-alt me-1"></i> <span>Logout</span>
