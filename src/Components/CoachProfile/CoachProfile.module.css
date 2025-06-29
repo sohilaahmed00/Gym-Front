@@ -17,19 +17,19 @@
 }
 
 .leftColumn {
-  flex: 2; /* Takes up 2/3 of the space */
+  flex: 2; 
   display: flex;
   flex-direction: column;
 }
 
 .rightColumn {
-  flex: 1; /* Takes up 1/3 of the space */
+  flex: 1; 
   position: sticky;
   top: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem; /* Adds space between image and button */
+  gap: 1.5rem; 
 }
 
 .coachImage {
@@ -149,7 +149,7 @@
 .portfolioLink {
   color: #333;
   text-decoration: none;
-  word-break: break-all; /* Prevents long links from overflowing */
+  word-break: break-all; 
 }
 
 .portfolioLink:hover {
@@ -167,7 +167,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%; /* Make button full width of its column */
+  width: 100%; 
 }
 
 .subscribeButton:hover {
