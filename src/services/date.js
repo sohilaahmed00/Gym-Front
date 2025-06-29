@@ -1,4 +1,3 @@
-// 📁 utils/date.js
 
 export const formatDateForBackend = (isoDateString) => {
   const d = new Date(isoDateString);

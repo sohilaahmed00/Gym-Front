@@ -77,12 +77,12 @@ const ExpiredSubscribers = () => {
           <button onClick={() => generatePDF(sub)} className="btn btn-outline-success btn-sm">
             📥 Download Report
           </button>
-          <button
+          {/* <button
             className="btn btn-outline-primary btn-sm"
             onClick={() => navigate(`/coach/expired/${sub.subscribe_ID}`)}
           >
             👁️ View Details
-          </button>
+          </button> */}
           {/* <button onClick={() => setShowContactModal(true)} className="btn btn-outline-warning btn-sm">
             📨 Contact Admin
           </button> */}
