@@ -64,7 +64,7 @@ const CoachPayments = () => {
     <div className={`container ${styles.paymentsContainer}`}>
       <h2 className={styles.title}>💰 Your Earnings</h2>
 
-      <div className={styles.methodSection}>
+      {/* <div className={styles.methodSection}>
   <label>Preferred Payment Method:</label>
 
   <select
@@ -99,7 +99,7 @@ const CoachPayments = () => {
   </button>
 
   {submitMessage && <span className={styles.message}>{submitMessage}</span>}
-</div>
+</div> */}
 
       <hr />
 
