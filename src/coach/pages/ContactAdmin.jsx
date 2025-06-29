@@ -15,7 +15,9 @@ export default function ContactAdmin({ role = 'coach' }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const decoded = decodeJWT(token);
-    setSenderName(decoded?.fullName || '');
+
+    
+    setSenderName(decoded?.given_name || '');
     setSenderEmail(decoded?.email || '');
   }, []);
 
@@ -33,7 +35,7 @@ export default function ContactAdmin({ role = 'coach' }) {
     }
 
     const result = await sendMailToAdmin(message, role, senderName, senderEmail);
-
+    
     if (result.success) {
       toast.current.show({
         severity: 'success',

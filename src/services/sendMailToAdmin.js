@@ -1,6 +1,8 @@
 import emailjs from 'emailjs-com';
 
 export const sendMailToAdmin = async (message, role = 'user', senderName, senderEmail) => {
+    
+    
   const prefix = role.toLowerCase() === 'coach' ? 'From Coach: ' : 'From User: ';
   const templateParams = {
     message: prefix + message,
