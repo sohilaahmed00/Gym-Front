@@ -1,12 +1,23 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import styles from './ContactAdmin.module.css';
 import { sendMailToAdmin } from '../../services/sendMailToAdmin';
+import { decodeJWT } from '../../services/JWT';
 
 export default function ContactAdmin({ role = 'coach' }) {
   const [message, setMessage] = useState('');
   const toast = useRef(null);
+
+  const [senderName, setSenderName] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const decoded = decodeJWT(token);
+    setSenderName(decoded?.fullName || '');
+    setSenderEmail(decoded?.email || '');
+  }, []);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -21,7 +32,7 @@ export default function ContactAdmin({ role = 'coach' }) {
       return;
     }
 
-    const result = await sendMailToAdmin(message, role);
+    const result = await sendMailToAdmin(message, role, senderName, senderEmail);
 
     if (result.success) {
       toast.current.show({
@@ -54,7 +65,7 @@ export default function ContactAdmin({ role = 'coach' }) {
       <Button
         label="Send Mail"
         icon="pi pi-send"
-        className="p-button-sm p-button-warning"
+        className="p-button-sm p-button-warning p-1 rounded-3"
         onClick={handleSend}
       />
     </div>

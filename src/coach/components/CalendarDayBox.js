@@ -1,5 +1,3 @@
-// CalendarDayBox.js
-import React from 'react';
 
 const CalendarDayBox = ({ dayObj, assignments = [], nutritionPlans = [], openModal, isSameDate }) => {
   const safeAssignments = Array.isArray(assignments) ? assignments : [];
@@ -30,7 +28,7 @@ const CalendarDayBox = ({ dayObj, assignments = [], nutritionPlans = [], openMod
           {workoutName || `🎯 Add today's plan!`}
         </div>
         <button className={`btn btn-sm btn-${hasAssignment || hasNutrition ? 'warning' : 'primary'}`}>
-          {hasAssignment || hasNutrition ? 'Update' : 'Add'}
+          {hasAssignment || hasNutrition ? 'Added' : 'Add'}
         </button>
       </div>
     </div>
