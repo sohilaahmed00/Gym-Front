@@ -1,10 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import subscribers from '../data/subscribers.json';
+import { API_BASE_URL } from '../../config';
 
 const ExpiredSubscriberDetails = () => {
   const { id } = useParams();
-  const user = subscribers.find((s) => s.id === id && s.status === 'expired');
+  const coachId = localStorage.getItem('id');
+
+  const [user, setUser] = useState(null);
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSubscriber = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/Subscribes/coach/${coachId}`);
+        if (!res.ok) throw new Error('Failed to fetch subscriptions');
+        const data = await res.json();
+
+        const subscriber = data.find(
+          (s) => s.subscribe_ID === parseInt(id) && s.status?.toLowerCase() === 'expired'
+        );
+        setUser(subscriber || null);
+
+        const savedNotes = localStorage.getItem(`report_notes_${id}`);
+        setNotes(
+          savedNotes ||
+          'User showed solid performance throughout the plan. Needs to stretch more.'
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriber();
+  }, [coachId, id]);
 
   const isReportEditable = (endDate) => {
     const now = new Date();
@@ -13,94 +44,91 @@ const ExpiredSubscriberDetails = () => {
     return diff <= 7;
   };
 
-  const [notes, setNotes] = useState(
-    localStorage.getItem(`report_notes_${id}`) ||
-      'User showed solid performance throughout the plan. Needs to stretch more.'
-  );
-
-  const handleSave = () => {
-    localStorage.setItem(`report_notes_${id}`, notes);
-    alert('PDF Report Saved ✅');
-  };
-
+  if (loading) return <div className="container mt-4">Loading...</div>;
   if (!user) return <div className="container mt-4">User not found.</div>;
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-4" style={{ color: '#fd5c28' }}>📋 {user.name}'s Report</h3>
+      <h3 className="mb-4" style={{ color: '#fd5c28' }}>📋 {user.userName}'s Report</h3>
 
       {/* Basic Info */}
       <div className="d-flex align-items-center mb-3">
-        <img src={user.image} alt={user.name} className="rounded-circle me-3" style={{ width: '60px', height: '60px' }} />
+        {user.image && (
+          <img
+            src={user.image}
+            alt={user.userName}
+            className="rounded-circle me-3"
+            style={{ width: '60px', height: '60px', objectFit: 'cover' }}
+          />
+        )}
         <div>
-          <h5 className="mb-0">{user.name}</h5>
-          <small className="text-muted">{user.plan}</small>
-          <p className="mb-1"><strong>Subscription:</strong> {user.startDate} → {user.endDate}</p>
+          <h5 className="mb-0">{user.userName}</h5>
+          <small className="text-muted">{user.subscriptionType || 'No plan specified'}</small>
+          <p className="mb-1">
+            <strong>Subscription:</strong>{' '}
+            {new Date(user.startDate).toLocaleDateString()} →{' '}
+            {new Date(user.endDate).toLocaleDateString()}
+          </p>
         </div>
       </div>
 
-      {/* Progress + Ratings */}
+      {/* Details */}
       <div className="row mb-4">
-        <div className="col-md-4">
-          <h6>Progress</h6>
-          <div className="progress" style={{ height: '20px' }}>
-            <div className="progress-bar bg-success" style={{ width: `${user.progress || 80}%` }}>
-              {user.progress || 80}%
-            </div>
-          </div>
+        <div className="col-md-4 mb-2">
+          <h6>🎯 Fitness Goal</h6>
+          <p>{user.fitness_Goal || 'Not specified'}</p>
         </div>
-
-        <div className="col-md-4">
-          <h6>Coach's Rating</h6>
-          <div style={{ color: '#fd5c28', fontSize: '1.2rem' }}>
-            {'★'.repeat(user.coachRating || 4)}{'☆'.repeat(5 - (user.coachRating || 4))}
-          </div>
+        <div className="col-md-4 mb-2">
+          <h6>📏 Height / Weight</h6>
+          <p>{user.height || 'N/A'} cm / {user.weight || 'N/A'} kg</p>
         </div>
-
-        <div className="col-md-4">
-          <h6>User's Rating</h6>
-          <div style={{ color: '#7b6ef6', fontSize: '1.2rem' }}>
-            {'★'.repeat(user.userRating || 5)}{'☆'.repeat(5 - (user.userRating || 5))}
-          </div>
+        <div className="col-md-4 mb-2">
+          <h6>🧬 Gender / Age</h6>
+          <p>{user.gender || 'N/A'} — {user.bDate ? new Date().getFullYear() - new Date(user.bDate).getFullYear() : 'N/A'} yrs</p>
+        </div>
+        <div className="col-md-4 mb-2">
+          <h6>⚕️ Medical Conditions</h6>
+          <p>{user.medicalConditions || 'None'}</p>
+        </div>
+        <div className="col-md-4 mb-2">
+          <h6>🍽️ Allergies</h6>
+          <p>{user.allergies || 'None'}</p>
         </div>
       </div>
 
       {/* Final Report */}
-     {/* Final Report */}
-<div className="mb-4">
-  <h6>📄 Final Report</h6>
-
-  {isReportEditable(user.endDate) ? (
-    <>
-      <textarea
-        className="form-control mb-2"
-        rows="4"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-      />
-      <button
-        onClick={() => {
-          localStorage.setItem(`report_notes_${user.id}`, notes);
-          alert('Report saved successfully ✅');
-        }}
-        className="btn btn-sm btn-primary"
-      >
-        💾 Save PDF
-      </button>
-    </>
-  ) : (
-    <div className="border p-3 bg-light rounded">
-      <p className="mb-2">{notes}</p>
-      <div className="d-flex justify-content-between align-items-center">
-        <small className="text-muted">Editing time has expired. Report is locked.</small>
-        <button className="btn btn-sm btn-outline-secondary">📥 Download PDF</button>
+      <div className="mb-4">
+        <h6>📄 Final Report</h6>
+        {isReportEditable(user.endDate) ? (
+          <>
+            <textarea
+              className="form-control mb-2"
+              rows="4"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+            <button
+              onClick={() => {
+                localStorage.setItem(`report_notes_${user.subscribe_ID}`, notes);
+                alert('Report saved successfully ✅');
+              }}
+              className="btn btn-sm btn-primary"
+            >
+              💾 Save Report
+            </button>
+          </>
+        ) : (
+          <div className="border p-3 bg-light rounded">
+            <p className="mb-2">{notes}</p>
+            <div className="d-flex justify-content-between align-items-center">
+              <small className="text-muted">Editing time has expired. Report is locked.</small>
+              <button className="btn btn-sm btn-outline-secondary">📥 Download PDF</button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  )}
-</div>
 
-
-      {/* Calendar View */}
+      {/* Calendar View (Optional mockup) */}
       <div className="mt-4">
         <h6>📅 Training Summary</h6>
         <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
@@ -116,7 +144,6 @@ const ExpiredSubscriberDetails = () => {
                   weekStart.setDate(weekStart.getDate() + weekIndex * 7);
                   const weekEnd = new Date(weekStart);
                   weekEnd.setDate(weekEnd.getDate() + 6);
-                  const completedDays = user.completedDays?.[weekIndex] || [];
 
                   return (
                     <div key={weekIndex} className="border rounded p-2 flex-fill" style={{ minWidth: '200px' }}>
@@ -133,8 +160,8 @@ const ExpiredSubscriberDetails = () => {
                             key={day}
                             className="p-2 rounded text-center flex-fill"
                             style={{
-                              backgroundColor: completedDays.includes(day) ? '#adb5bd' : '#e9ecef',
-                              color: completedDays.includes(day) ? 'white' : '#6c757d',
+                              backgroundColor: '#e9ecef',
+                              color: '#6c757d',
                               opacity: 0.8,
                               pointerEvents: 'none',
                             }}

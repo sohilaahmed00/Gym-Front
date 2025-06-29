@@ -5,7 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
 } from 'recharts';
 
-import styles from './CoachStats.module.css'; // Import CSS module
+import styles from './CoachStats.module.css'; 
 import { API_BASE_URL } from '../../config';
 
 const COLORS = ['#fd5c28', '#7b6ef6'];
@@ -15,7 +15,6 @@ const formatDateMonthYear = (date) => {
   const d = new Date(date);
   return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear()}`;
 };
-
 
 const CoachStats = () => {
   const navigate = useNavigate();
@@ -60,20 +59,16 @@ const CoachStats = () => {
 
     const fetchSubs = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
-        if (!res.ok) throw new Error('Failed to fetch subscriptions');
+        const res = await fetch(`${API_BASE_URL}/Subscribes/coach/${coachId}`);
+        if (!res.ok) throw new Error('Failed to fetch coach subscriptions');
         const data = await res.json();
 
-        const filtered = data.filter(sub => sub.coach_ID === coachId);
+        const expired = data.filter(sub => sub.status?.toLowerCase() === 'expired');
+        const active = data.filter(sub => sub.status?.toLowerCase() === 'active');
 
-        setSubscriptions(filtered);
-
-        const active = filtered.filter(sub => sub.status?.toLowerCase() === 'active');
-        const expired = filtered.filter(sub => sub.status?.toLowerCase() === 'expired');
-
-        setActiveSubs(active);
         setExpiredSubs(expired);
-
+        setActiveSubs(active);
+        setSubscriptions(data);
       } catch (err) {
         console.error(err);
       }
