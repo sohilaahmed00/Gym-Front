@@ -64,50 +64,12 @@ const CoachPayments = () => {
     <div className={`container ${styles.paymentsContainer}`}>
       <h2 className={styles.title}>💰 Your Earnings</h2>
 
-      {/* <div className={styles.methodSection}>
-  <label>Preferred Payment Method:</label>
-
-  <select
-    className={styles.select}
-    value={paymentMethod}
-    onChange={e => setPaymentMethod(e.target.value)}
-  >
-    <option value="">Select</option>
-    <option value="vodafonecash">Vodafone Cash</option>
-    <option value="instapay">InstaPay</option>
-    <option value="fawry">Fawry</option>
-  </select>
-
-  {paymentMethod && (
-    <input
-      type="text"
-      className={styles.detailsInput}
-      placeholder={
-        paymentMethod === 'vodafonecash'
-          ? 'Enter Vodafone number'
-          : paymentMethod === 'instapay'
-          ? 'Enter InstaPay username or number'
-          : 'Enter Fawry code'
-      }
-      value={paymentDetails}
-      onChange={e => setPaymentDetails(e.target.value)}
-    />
-  )}
-
-  <button className={styles.saveBtn} onClick={handleSaveMethod}>
-    Save Method
-  </button>
-
-  {submitMessage && <span className={styles.message}>{submitMessage}</span>}
-</div> */}
-
       <hr />
 
       {Object.keys(monthlyGroups).map((month, idx) => {
         const monthlySubs = monthlyGroups[month];
         const total = monthlySubs.reduce((acc, sub) => acc + (subscriptionPrices[sub.subscriptionType] * 0.2), 0).toFixed(2);
-        const isPaid = idx === 0 ? false : true; // Example logic – adjust when integrating real payment status.
-
+        const isPaid = idx === 0 ? false : true; 
         return (
           <div key={month} className={styles.monthSection}>
             <h4>{month}</h4>

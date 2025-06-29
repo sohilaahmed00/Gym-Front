@@ -34,7 +34,6 @@ const ChatBot = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [contextData, setContextData] = useState(null);
-
   const userId = localStorage.getItem('id');
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const ChatBot = () => {
           axios.get(`${API_BASE_URL}/NutritionPlans/GetAllUserNutritionplans/${userId}`),
           axios.get(`${API_BASE_URL}/Exercises/GetAllExercises`)
         ]);
-
+        
         const user = userRes.data;
         const sub = subRes.data[0];
         const assignments = assignRes.data;
