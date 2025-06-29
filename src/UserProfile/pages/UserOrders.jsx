@@ -3,7 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './UserOrders.module.css';
 import { Link } from 'react-router-dom';
-import { API_BASE_URL } from '../../config';
+import { API_BASE_URL, API_BASE_IMAGE_URL } from '../../config';
 import { Modal, Button } from 'react-bootstrap';
 
 
@@ -114,7 +114,7 @@ function PaymentProofModal({ show, onHide, paymentProof }) {
       <Modal.Body style={{ textAlign: "center" }}>
         {paymentProof ? (
           <img
-            src={`http://gymmatehealth.runasp.net/Images/PaymentProofs/${paymentProof}`}
+            src={`${API_BASE_IMAGE_URL}/Images/PaymentProofs/${paymentProof}`}
             alt="Payment Proof"
             style={{
               width: '100%',

@@ -141,7 +141,6 @@ const SubscriberCalendar = ({ userId, userName }) => {
     setMissingTomorrow(missingTmrw);
   }, [calendarDays, assignments, nutritionPlans]);
 
-  // Filter exercises by category
   useEffect(() => {
     const filtered = exercises.filter(ex =>
       !formData.selectedCategoryId ||

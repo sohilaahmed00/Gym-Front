@@ -26,7 +26,6 @@ const Statistics = () => {
   useEffect(() => {
     async function fetchRevenueAndStats() {
       try {
-        // Get all subscriptions
         const subsRes = await fetch(`${API_BASE_URL}/Subscribes/GetAllSubscribtions`);
         const subs = await subsRes.json();
         let revenue = 0;
@@ -51,7 +50,6 @@ const Statistics = () => {
             }
           });
         }
-        // استخراج أكثر خطة مستخدمة
         let maxPlan = '';
         let maxCount = 0;
         for (const plan in planCounts) {
@@ -71,7 +69,6 @@ const Statistics = () => {
         setMostPopularPlan(planLabels[maxPlan] || maxPlan || 'N/A');
         setTotalRevenue(revenue);
         setNewSubscriptions(newSubs);
-        // جلب الأوردرات وحساب الإجمالي الشهري
         const ordersRes = await fetch(`${API_BASE_URL}/Orders/GetAllOrders`);
         const orders = await ordersRes.json();
         let ordersTotal = 0;

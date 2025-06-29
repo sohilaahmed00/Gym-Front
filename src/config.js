@@ -1,3 +1,5 @@
+export const API_BASE_URL = 'https://gymmatehealth.runasp.net/api';
+
 
 
 
